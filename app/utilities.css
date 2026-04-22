@@ -1,0 +1,63 @@
+/* Eyebrow / uppercase label — used across nav, cards, section headings */
+@utility label {
+  font-size: var(--font-size-xs);
+  line-height: var(--font-size-xs--line-height);
+  font-weight: 600;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+}
+
+/* Animated underline that reveals on hover or [data-active] */
+@utility underline-reveal {
+  position: relative;
+  padding-bottom: 0.375rem;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--duration-fast) var(--ease-default);
+  }
+
+  &:hover::after,
+  &[data-active="true"]::after {
+    transform: scaleX(1);
+  }
+}
+
+/* Permanent static underline for card action links */
+@utility underline-static {
+  position: relative;
+  padding-bottom: 0.375rem;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 1px;
+    background: currentColor;
+  }
+}
+
+/* Decorative music staff lines */
+@utility staff-lines {
+  height: 3.25rem;
+  border-top: 3px double rgba(17, 17, 17, 0.9);
+  border-bottom: 1px solid var(--color-rule);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 0.56rem,
+    rgba(17, 17, 17, 0.65) 0.56rem,
+    rgba(17, 17, 17, 0.65) 0.61rem,
+    transparent 0.61rem,
+    transparent 1.16rem
+  );
+  background-position: 0 0.5rem;
+}

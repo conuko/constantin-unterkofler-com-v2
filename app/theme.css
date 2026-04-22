@@ -1,0 +1,75 @@
+/* ═══════════════════════════════════════════════════
+ * DESIGN TOKENS
+ * Project-scoped theme for a portfolio site.
+ * Plain @theme so dark mode can override via CSS variables.
+ * ═══════════════════════════════════════════════════ */
+
+@theme {
+  --color-paper: #f8f7f2;
+  --color-ink: #111111;
+  --color-ink-muted: rgba(17, 17, 17, 0.72);
+  --color-rule: rgba(17, 17, 17, 0.18);
+  --color-dot: rgba(17, 17, 17, 0.14);
+  --color-card-stroke: rgba(17, 17, 17, 0.82);
+  --color-card-glass: rgba(255, 255, 255, 0.52);
+
+  --color-background: var(--color-paper);
+  --color-foreground: var(--color-ink);
+
+  /* --font-body / --font-display are set by the Next.js font loader on <html> */
+  --font-sans: var(--font-body), sans-serif;
+  --font-heading: var(--font-display), serif;
+
+  --radius: 0.625rem;
+
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* ═══════════════════════════════════════════════════
+ * DARK THEME
+ * Warm inversion of the portfolio palette.
+ * ═══════════════════════════════════════════════════ */
+
+.dark,
+[data-theme="dark"] {
+  --color-paper: #1a1917;
+  --color-ink: #f8f7f2;
+  --color-ink-muted: rgba(248, 247, 242, 0.72);
+  --color-rule: rgba(248, 247, 242, 0.18);
+  --color-dot: rgba(248, 247, 242, 0.14);
+  --color-card-stroke: rgba(248, 247, 242, 0.82);
+  --color-card-glass: rgba(26, 25, 23, 0.52);
+  --color-background: var(--color-paper);
+  --color-foreground: var(--color-ink);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-paper: #1a1917;
+    --color-ink: #f8f7f2;
+    --color-ink-muted: rgba(248, 247, 242, 0.72);
+    --color-rule: rgba(248, 247, 242, 0.18);
+    --color-dot: rgba(248, 247, 242, 0.14);
+    --color-card-stroke: rgba(248, 247, 242, 0.82);
+    --color-card-glass: rgba(26, 25, 23, 0.52);
+    --color-background: var(--color-paper);
+    --color-foreground: var(--color-ink);
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+ * REDUCED MOTION
+ * ═══════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-slow: 0ms;
+  }
+}
