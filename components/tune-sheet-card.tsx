@@ -12,14 +12,13 @@ export function TuneSheetCard({ entry, number }: TuneSheetCardProps) {
         <p className="text-sm font-semibold">
           {String(number).padStart(2, "0")}
         </p>
-        <p className="label">Play</p>
       </div>
 
       <div className="flex flex-col gap-1">
         <h2 className="font-heading text-3xl leading-none font-semibold">
           {entry.title}
         </h2>
-        <p className="uppercase tracking-widest">{entry.artist}</p>
+        <p className="text-ink-muted">{entry.artist}</p>
       </div>
 
       <div aria-hidden="true" className="staff-lines" />
@@ -31,7 +30,7 @@ export function TuneSheetCard({ entry, number }: TuneSheetCardProps) {
           href={entry.spotifyUrl}
           target="_blank"
           rel="noreferrer noopener"
-          className="label underline-static"
+          className="text-base font-semibold underline-static"
         >
           Spotify
         </a>
@@ -39,7 +38,7 @@ export function TuneSheetCard({ entry, number }: TuneSheetCardProps) {
           href={entry.appleMusicUrl}
           target="_blank"
           rel="noreferrer noopener"
-          className="label underline-static"
+          className="text-base font-semibold underline-static"
         >
           Apple Music
         </a>

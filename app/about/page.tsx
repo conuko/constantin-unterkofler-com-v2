@@ -10,11 +10,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <PageShell
-      eyebrow={pageCopy.about.eyebrow}
-      title={pageCopy.about.title}
-      intro={pageCopy.about.intro}
-    >
+    <PageShell title={pageCopy.about.title} intro={pageCopy.about.intro}>
       <div className="flex flex-col gap-4 max-w-2xl text-ink-muted">
         {aboutParagraphs.map((paragraph) => (
           <p key={paragraph}>{paragraph}</p>
@@ -22,12 +18,7 @@ export default function AboutPage() {
       </div>
 
       <section className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1">
-          <p className="label">Selected experience</p>
-          <h2 className="font-heading text-3xl lg:text-4xl leading-none font-semibold">
-            CV
-          </h2>
-        </div>
+        <div className="flex flex-col gap-1"></div>
         <CvList entries={cvEntries} />
       </section>
     </PageShell>

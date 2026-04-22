@@ -46,11 +46,14 @@ export const siteMeta = {
     "Senior Software Engineer in Berlin, building thoughtful digital products and scalable web experiences with a guitar never too far away.",
 };
 
-export const navigationItems: NavItem[] = [
+export const headerNavItems: NavItem[] = [
   { href: "/about", label: "About me" },
-  { href: "/play", label: "Play" },
-  { href: "/read", label: "Read" },
   { href: "/contact", label: "Contact" },
+];
+
+export const footerNavItems: NavItem[] = [
+  { href: "/play", label: "Let's play" },
+  { href: "/read", label: "Let's read" },
 ];
 
 export const homeRoutes: HomeRoute[] = [
@@ -84,22 +87,22 @@ export const cvEntries: CvEntry[] = [
   {
     organization: "Jung von Matt TECH",
     role: "Senior Software Engineer",
-    years: "2021-present",
-  },
-  {
-    organization: "CODE University of Applied Sciences",
-    role: "BSc Software Engineering",
-    years: "2021-25",
+    years: "2021–",
   },
   {
     organization: "WESOUND",
     role: "Project Manager & Software Engineer",
-    years: "2015-21",
+    years: "2015–21",
+  },
+  {
+    organization: "CODE University of Applied Sciences",
+    role: "BSc Software Engineering",
+    years: "2021–25",
   },
   {
     organization: "Humboldt University Berlin",
-    role: "Ba Cultural Studies & Philosophy",
-    years: "2017-21",
+    role: "BA Cultural Studies & Philosophy",
+    years: "2017–21",
   },
 ];
 

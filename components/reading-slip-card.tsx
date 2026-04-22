@@ -12,7 +12,6 @@ export function ReadingSlipCard({ entry, number }: ReadingSlipCardProps) {
         <p className="text-sm font-semibold">
           {String(number).padStart(2, "0")}
         </p>
-        <p className="label">Read</p>
       </div>
 
       <h2 className="font-heading text-3xl leading-none font-semibold">
@@ -26,7 +25,7 @@ export function ReadingSlipCard({ entry, number }: ReadingSlipCardProps) {
           href={entry.goodreadsUrl}
           target="_blank"
           rel="noreferrer noopener"
-          className="label underline-static"
+          className="text-base font-semibold underline-static"
         >
           Goodreads
         </a>

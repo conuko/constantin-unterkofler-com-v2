@@ -6,16 +6,15 @@ import type { NavItem } from "@/content/site-content";
 
 type SiteNavProps = {
   items: NavItem[];
+  ariaLabel: string;
+  className?: string;
 };
 
-export function SiteNav({ items }: SiteNavProps) {
+export function SiteNav({ items, ariaLabel, className }: SiteNavProps) {
   const pathname = usePathname();
 
   return (
-    <nav
-      aria-label="Primary"
-      className="flex flex-wrap gap-2 gap-x-3.5 pt-0.5 lg:max-w-sm lg:justify-end"
-    >
+    <nav aria-label={ariaLabel} className={className}>
       {items.map((item) => {
         const isActive =
           pathname === item.href ||
@@ -25,7 +24,7 @@ export function SiteNav({ items }: SiteNavProps) {
           <Link
             key={item.href}
             href={item.href}
-            className="label underline-reveal"
+            className="text-xs font-semibold tracking-wide underline-reveal"
             data-active={isActive}
           >
             {item.label}

@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Manrope } from "next/font/google";
-import Link from "next/link";
 import type { ReactNode } from "react";
 import { SiteNav } from "@/components/site-nav";
-import { navigationItems, siteMeta } from "@/content/site-content";
+import {
+  footerNavItems,
+  headerNavItems,
+  siteMeta,
+} from "@/content/site-content";
 import "./globals.css";
 
 const displayFont = Cormorant_Garamond({
@@ -35,22 +38,24 @@ export default function RootLayout({
     <html lang="en" className={`${displayFont.variable} ${bodyFont.variable}`}>
       <body className="min-h-dvh bg-paper text-ink leading-relaxed">
         <div className="mx-auto w-full max-w-5xl px-4 py-6 pb-16">
-          <header className="flex flex-col gap-4 border-b border-rule pb-8 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
-            <div className="flex flex-col gap-1.5 max-w-md">
-              <p className="label text-ink-muted">
-                {siteMeta.role} / {siteMeta.location}
-              </p>
-              <Link
-                href="/"
-                className="font-heading text-4xl lg:text-5xl leading-none font-semibold"
-              >
-                {siteMeta.name}
-              </Link>
-            </div>
-            <SiteNav items={navigationItems} />
+          <header className="flex flex-col gap-4 pb-8 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
+            <SiteNav
+              items={headerNavItems}
+              ariaLabel="Primary"
+              className="flex flex-wrap gap-2 gap-x-3.5 pt-0.5 lg:max-w-sm lg:justify-end"
+            />
           </header>
 
-          <main className="pt-8">{children}</main>
+          <main className="lg:pt-12">{children}</main>
+
+          <footer className="fixed bottom-8 flex w-[calc(100%-2rem)] max-w-5xl items-end justify-between">
+            <p className="text-xs text-ink-muted">© 2026</p>
+            <SiteNav
+              items={footerNavItems}
+              ariaLabel="Secondary"
+              className="flex gap-2 gap-x-3.5 [writing-mode:vertical-rl] lg:[writing-mode:horizontal-tb]"
+            />
+          </footer>
         </div>
       </body>
     </html>
