@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function PlayPage() {
   return (
-    <PageShell title={pageCopy.play.title} intro={pageCopy.play.intro}>
+    <PageShell title={pageCopy.play.title} isNarrow>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-5">
         {trackEntries.map((entry, index) => (
           <TuneSheetCard

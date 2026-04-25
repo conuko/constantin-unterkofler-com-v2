@@ -25,7 +25,7 @@ export function ReadingSlipCard({ entry, number }: ReadingSlipCardProps) {
           href={entry.goodreadsUrl}
           target="_blank"
           rel="noreferrer noopener"
-          className="text-base font-semibold underline-static"
+          className="text-sm font-semibold underline-static"
         >
           Goodreads
         </a>

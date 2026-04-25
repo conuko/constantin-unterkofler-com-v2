@@ -80,7 +80,7 @@ export const homeRoutes: HomeRoute[] = [
 ];
 
 export const aboutParagraphs = [
-  "I’m a Senior Software Engineer passionate about building thoughtful digital products and scalable web experiences. Italian-German, grew up in Bolzano, Italy, now based in Berlin. I studied Philosophy and Cultural Studies before earning a degree in Software Engineering, and currently work at JvM TECH. Outside of work, I play guitar for Das Maer and on my own, with a love for funk, neo-soul, and jazz.",
+  "I’m a Senior Software Engineer passionate about building thoughtful digital products and scalable web experiences. Italian-German, grew up in Bolzano, Italy, now based in Berlin. I studied Philosophy and Cultural Studies before earning a degree in Software Engineering. Currently I work at JvM TECH. Outside of work, I play guitar with a love for funk, neo-soul, pop, and jazz.",
 ];
 
 export const cvEntries: CvEntry[] = [

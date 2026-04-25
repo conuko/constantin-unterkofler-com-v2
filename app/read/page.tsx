@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function ReadPage() {
   return (
-    <PageShell title={pageCopy.read.title} intro={pageCopy.read.intro}>
+    <PageShell title={pageCopy.read.title} isNarrow>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-5">
         {bookEntries.map((entry, index) => (
           <ReadingSlipCard

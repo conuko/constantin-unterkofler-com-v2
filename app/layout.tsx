@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Manrope } from "next/font/google";
+import { Cormorant_Garamond, IBM_Plex_Mono } from "next/font/google";
 import type { ReactNode } from "react";
 import { SiteNav } from "@/components/site-nav";
 import {
@@ -15,10 +15,11 @@ const displayFont = Cormorant_Garamond({
   display: "swap",
 });
 
-const bodyFont = Manrope({
+const bodyFont = IBM_Plex_Mono({
   variable: "--font-body",
   subsets: ["latin"],
   display: "swap",
+  weight: ["100", "200", "300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -46,9 +47,9 @@ export default function RootLayout({
             />
           </header>
 
-          <main className="lg:pt-12">{children}</main>
+          <main className="lg:pt-8">{children}</main>
 
-          <footer className="fixed bottom-8 flex w-[calc(100%-2rem)] max-w-5xl items-end justify-between">
+          <footer className="fixed inset-x-0 bottom-8 mx-auto flex max-w-5xl items-end justify-between px-4">
             <p className="text-xs text-ink-muted">© 2026</p>
             <SiteNav
               items={footerNavItems}

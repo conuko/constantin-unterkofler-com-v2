@@ -30,7 +30,7 @@ export function TuneSheetCard({ entry, number }: TuneSheetCardProps) {
           href={entry.spotifyUrl}
           target="_blank"
           rel="noreferrer noopener"
-          className="text-base font-semibold underline-static"
+          className="text-sm font-semibold underline-static"
         >
           Spotify
         </a>
@@ -38,7 +38,7 @@ export function TuneSheetCard({ entry, number }: TuneSheetCardProps) {
           href={entry.appleMusicUrl}
           target="_blank"
           rel="noreferrer noopener"
-          className="text-base font-semibold underline-static"
+          className="text-sm font-semibold underline-static"
         >
           Apple Music
         </a>

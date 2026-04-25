@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <PageShell title={pageCopy.contact.title} intro={pageCopy.contact.intro}>
+    <PageShell title={pageCopy.contact.title} isNarrow>
       <div className="border-t border-rule">
         {contactLinks.map((link) => (
           <a
@@ -23,10 +23,8 @@ export default function ContactPage() {
             }
             className="flex flex-col gap-1 border-b border-rule py-4 lg:flex-row lg:items-center lg:gap-4"
           >
-            <span className="text-base font-semibold lg:w-40">
-              {link.label}
-            </span>
-            <span className="text-ink-muted">{link.value}</span>
+            <span className="text-sm font-semibold lg:w-40">{link.label}</span>
+            <span className="text-sm text-ink-muted">{link.value}</span>
           </a>
         ))}
       </div>
