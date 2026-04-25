@@ -10,23 +10,23 @@
 /* Animated underline that reveals on hover or [data-active] */
 @utility underline-reveal {
   position: relative;
-  padding-bottom: 0.25rem;
+  padding-block-end: 0.25rem;
 
   &::after {
     content: "";
     position: absolute;
     inset-inline: 0;
-    bottom: 0;
-    height: 2px;
+    block-size: 2px;
+    inset-block-end: 0;
     background: currentColor;
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform var(--duration-fast) var(--ease-default);
+    scale: 0 1;
+    transform-origin: top left;
+    transition: scale var(--duration-fast) var(--ease-default);
   }
 
   &:hover::after,
   &[data-active="true"]::after {
-    transform: scaleX(1);
+    scale: 1 1;
   }
 }
 
