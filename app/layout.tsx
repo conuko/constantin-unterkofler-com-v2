@@ -37,7 +37,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${displayFont.variable} ${bodyFont.variable}`}>
-      <body className="min-h-dvh bg-paper text-ink leading-relaxed">
+      <body
+        className="min-h-dvh bg-paper text-ink leading-relaxed"
+        suppressHydrationWarning
+      >
         <div className="mx-auto w-full max-w-5xl px-4 py-6 pb-16">
           <header className="flex flex-col gap-4 pb-8 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
             <SiteNav
