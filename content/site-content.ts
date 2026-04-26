@@ -25,6 +25,13 @@ export type TrackEntry = {
   appleMusicUrl: string;
 };
 
+export type WorkEntry = {
+  client: string;
+  url: string;
+  description: string;
+  techStack: string[];
+};
+
 export type ContactLink = {
   label: string;
   href: string;
@@ -36,8 +43,7 @@ export const siteMeta = {
   shortName: "CU",
   description:
     "Personal portfolio of Constantin Unterkofler, a Senior Software Engineer building thoughtful digital products and scalable web experiences.",
-  shortBlurb:
-    "Senior Software Engineer in Berlin, building thoughtful digital products and scalable web experiences.",
+  shortBlurb: "Senior Software Engineer at Jung von Matt Tech.",
 };
 
 export const headerNavItems: NavItem[] = [
@@ -46,7 +52,8 @@ export const headerNavItems: NavItem[] = [
 ];
 
 export const footerNavItems: NavItem[] = [
-  { href: "/play", label: "Let's play" },
+  { href: "/work", label: "Work" },
+  { href: "/play", label: "Play" },
 ];
 
 export const aboutParagraphs = [
@@ -122,6 +129,44 @@ export const trackEntries: TrackEntry[] = [
   },
 ];
 
+export const workEntries: WorkEntry[] = [
+  {
+    client: "Levi's",
+    url: "https://www.levi.com/",
+    description:
+      "Currently collaborating with the team at SCAYLE to migrate Levi's legacy Vue 2 codebase into a modern Vue 3 / Nuxt 4 application powered by the SCAYLE Commerce Engine.",
+    techStack: ["Vue 3", "Nuxt 4", "SCAYLE"],
+  },
+  {
+    client: "Harrods",
+    url: "https://www.harrods.com/",
+    description:
+      "Worked closely with both the SCAYLE and Harrods teams over the course of a year to deliver new features and prepare the application for a full client handover. This included in-depth handover sessions, technical workshops for the new Harrods tech lead, architectural documentation, and knowledge transfer across teams.",
+    techStack: ["Vue 3", "Nuxt 3", "SCAYLE"],
+  },
+  {
+    client: "Fielmann",
+    url: "https://www.fielmann.de/",
+    description:
+      "Set up and maintained the Fielmann e-commerce platform for all shops across the DACH region, working directly within the client's development team for over 1.5 years. Also supported the launch of the new Fielmann Italy shop. The platform was built with Vue 3, Nuxt 3 and the SCAYLE storefront boilerplate.",
+    techStack: ["Vue 3", "Nuxt 3", "SCAYLE"],
+  },
+  {
+    client: "TenneT",
+    url: "https://www.tennet.eu/",
+    description:
+      "Next.js Turborepo-based monorepo powering TenneT's digital ecosystem, including the corporate website, careers platform, and Storybook design system. The setup unified shared UI components, design tokens, Contentful tooling, migrations, and common frontend configurations into a scalable and maintainable architecture.",
+    techStack: ["Next.js", "Turborepo", "Contentful", "Storybook"],
+  },
+  {
+    client: "fussball.de",
+    url: "https://next.fussball.de/",
+    description:
+      "Migrating a legacy platform into a modern Next.js application within a monorepo architecture using Turborepo for the shared code and the site code for the Fussball.de and BFV.de sites.",
+    techStack: ["Next.js", "Turborepo"],
+  },
+];
+
 export const contactLinks: ContactLink[] = [
   {
     label: "Email",
@@ -154,6 +199,13 @@ export const pageCopy = {
   play: {
     title: "What I currently play",
     metaDescription: "A rotating set of guitar tunes and studies.",
+  },
+  work: {
+    title: "Work",
+    intro:
+      "At Jung von Matt TECH, I work hands-on within client teams to build and scale digital products, commerce platforms, and modern web applications for international brands including BMW, FIFA, Harrods, Levi's, SCAYLE / ABOUT YOU, Fielmann, and the DFB. Below you'll find some of my personal highlights.",
+    metaDescription:
+      "Client project highlights by Constantin Unterkofler — commerce platforms, web applications, and digital products for international brands.",
   },
   contact: {
     title: "Contact",
