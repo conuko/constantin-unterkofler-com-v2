@@ -56,7 +56,7 @@ export default function RootLayout({
           </a>
 
           <div className="mx-auto w-full max-w-5xl px-4 py-6 pb-16">
-            <header className="flex items-start justify-between gap-6 pb-8">
+            <header className="flex items-start justify-between gap-6 pb-8 sticky top-4 z-10">
               <Link
                 href="/"
                 className="flex size-10 items-center justify-center text-xs tracking-wide"
@@ -73,11 +73,7 @@ export default function RootLayout({
               </div>
             </header>
 
-            <main
-              id="main-content"
-              tabIndex={-1}
-              className="lg:pt-8 outline-none"
-            >
+            <main id="main-content" tabIndex={-1} className="outline-none">
               {children}
             </main>
           </div>

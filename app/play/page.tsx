@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PageShell } from "@/components/page-shell";
-import { TuneSheetCard } from "@/components/tune-sheet-card";
+import { MusicCard } from "@/components/music-card";
 import { pageCopy, trackEntries } from "@/content/site-content";
 
 export const metadata: Metadata = {
@@ -11,12 +11,12 @@ export const metadata: Metadata = {
 export default function PlayPage() {
   return (
     <PageShell title={pageCopy.play.title} isNarrow>
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-10">
         {trackEntries.map((entry, index) => (
-          <TuneSheetCard
+          <MusicCard
             key={`${entry.title}-${entry.artist}`}
             entry={entry}
-            number={index + 1}
+            priority={index < 2}
           />
         ))}
       </div>

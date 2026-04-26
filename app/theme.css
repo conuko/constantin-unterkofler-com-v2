@@ -18,6 +18,9 @@
   --color-background: var(--color-paper);
   --color-foreground: var(--color-ink);
 
+  --color-brand-spotify: #1db954;
+  --color-brand-apple-music: #fa233b;
+
   /* --font-body / --font-display are set by the Next.js font loader on <html> */
   --font-sans: var(--font-body), sans-serif;
   --font-heading: var(--font-display), serif;

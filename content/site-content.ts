@@ -1,3 +1,9 @@
+import type { StaticImageData } from "next/image";
+import coverFromTheSoul from "@/content/covers/from-the-soul.jpg";
+import coverBirthOfTheCool from "@/content/covers/birth-of-the-cool.jpg";
+import coverWinelight from "@/content/covers/winelight.jpg";
+import coverAdamsApple from "@/content/covers/adams-apple.jpg";
+
 export type NavItem = {
   href: string;
   label: string;
@@ -12,16 +18,11 @@ export type CvEntry = {
 export type TrackEntry = {
   title: string;
   artist: string;
+  album: string;
+  musicalKey: string;
+  cover: StaticImageData;
   spotifyUrl: string;
   appleMusicUrl: string;
-  tag: string;
-};
-
-export type BookEntry = {
-  title: string;
-  author: string;
-  goodreadsUrl: string;
-  tag: string;
 };
 
 export type ContactLink = {
@@ -30,17 +31,9 @@ export type ContactLink = {
   value: string;
 };
 
-export type HomeRoute = {
-  href: string;
-  label: string;
-  description: string;
-};
-
 export const siteMeta = {
   name: "Constantin Unterkofler",
   shortName: "CU",
-  role: "Senior Software Engineer",
-  location: "Berlin, Germany",
   description:
     "Personal portfolio of Constantin Unterkofler, a Senior Software Engineer building thoughtful digital products and scalable web experiences.",
   shortBlurb:
@@ -54,30 +47,6 @@ export const headerNavItems: NavItem[] = [
 
 export const footerNavItems: NavItem[] = [
   { href: "/play", label: "Let's play" },
-  { href: "/read", label: "Let's read" },
-];
-
-export const homeRoutes: HomeRoute[] = [
-  {
-    href: "/about",
-    label: "About me",
-    description: "Biography, current role, and a short editorial CV sheet.",
-  },
-  {
-    href: "/play",
-    label: "Play",
-    description: "Recent tunes and studies arranged as restrained tune sheets.",
-  },
-  {
-    href: "/read",
-    label: "Read",
-    description: "Books that stayed in rotation, presented as reading slips.",
-  },
-  {
-    href: "/contact",
-    label: "Contact",
-    description: "A small set of direct links for email, GitHub, and LinkedIn.",
-  },
 ];
 
 export const aboutParagraphs = [
@@ -111,63 +80,45 @@ export const trackEntries: TrackEntry[] = [
   {
     title: "Lines and Spaces",
     artist: "Joe Lovano",
+    album: "From the Soul",
+    musicalKey: "C",
+    cover: coverFromTheSoul,
     spotifyUrl:
       "https://open.spotify.com/search/Lines%20and%20Spaces%20Joe%20Lovano",
     appleMusicUrl:
       "https://music.apple.com/us/search?term=Lines%20and%20Spaces%20Joe%20Lovano",
-    tag: "Sample entry / modal lines / phrasing study",
   },
   {
     title: "Darn That Dream",
-    artist: "Jimmy Van Heusen",
-    spotifyUrl: "https://open.spotify.com/search/Darn%20That%20Dream",
-    appleMusicUrl: "https://music.apple.com/us/search?term=Darn%20That%20Dream",
-    tag: "Sample entry / ballad feel / voice leading",
+    artist: "Miles Davis",
+    album: "Birth of the Cool",
+    musicalKey: "G",
+    cover: coverBirthOfTheCool,
+    spotifyUrl:
+      "https://open.spotify.com/search/Darn%20That%20Dream%20Miles%20Davis",
+    appleMusicUrl:
+      "https://music.apple.com/us/search?term=Darn%20That%20Dream%20Miles%20Davis",
   },
   {
     title: "Just the Two of Us",
-    artist: "Bill Withers",
+    artist: "Grover Washington Jr., Bill Withers",
+    album: "Winelight",
+    musicalKey: "Db",
+    cover: coverWinelight,
     spotifyUrl:
-      "https://open.spotify.com/search/Just%20the%20Two%20of%20Us%20Bill%20Withers",
+      "https://open.spotify.com/search/Just%20the%20Two%20of%20Us%20Grover%20Washington",
     appleMusicUrl:
-      "https://music.apple.com/us/search?term=Just%20the%20Two%20of%20Us%20Bill%20Withers",
-    tag: "Sample entry / groove pocket / neo-soul touch",
+      "https://music.apple.com/us/search?term=Just%20the%20Two%20of%20Us%20Grover%20Washington",
   },
   {
     title: "Footprints",
     artist: "Wayne Shorter",
+    album: "Adam's Apple",
+    musicalKey: "Cm",
+    cover: coverAdamsApple,
     spotifyUrl: "https://open.spotify.com/search/Footprints%20Wayne%20Shorter",
     appleMusicUrl:
       "https://music.apple.com/us/search?term=Footprints%20Wayne%20Shorter",
-    tag: "Sample entry / modal harmony / comping language",
-  },
-];
-
-export const bookEntries: BookEntry[] = [
-  {
-    title: "A Philosophy of Software Design",
-    author: "John Ousterhout",
-    goodreadsUrl:
-      "https://www.goodreads.com/search?q=A+Philosophy+of+Software+Design",
-    tag: "Sample shelf / engineering craft",
-  },
-  {
-    title: "Ways of Seeing",
-    author: "John Berger",
-    goodreadsUrl: "https://www.goodreads.com/search?q=Ways+of+Seeing",
-    tag: "Sample shelf / visual thinking",
-  },
-  {
-    title: "The Creative Act",
-    author: "Rick Rubin",
-    goodreadsUrl: "https://www.goodreads.com/search?q=The+Creative+Act",
-    tag: "Sample shelf / creative practice",
-  },
-  {
-    title: "The Fire Next Time",
-    author: "James Baldwin",
-    goodreadsUrl: "https://www.goodreads.com/search?q=The+Fire+Next+Time",
-    tag: "Sample shelf / language and perspective",
   },
 ];
 
@@ -191,39 +142,21 @@ export const contactLinks: ContactLink[] = [
 
 export const pageCopy = {
   home: {
-    eyebrow: "Portfolio",
     title: siteMeta.name,
     intro: siteMeta.shortBlurb,
     metaDescription: siteMeta.description,
   },
   about: {
-    eyebrow: "About me",
     title: "About me",
-    intro: "A short biography and an editorial CV sheet.",
     metaDescription:
       "Biography and CV for Constantin Unterkofler, Senior Software Engineer based in Berlin.",
   },
   play: {
-    eyebrow: "Play",
-    title: "Play",
-    intro:
-      "Recent tunes and studies gathered as restrained tune sheets with room to swap in the live rotation later.",
-    metaDescription:
-      "A rotating set of guitar tunes and studies, presented as restrained tune sheets.",
-  },
-  read: {
-    eyebrow: "Read",
-    title: "Read",
-    intro:
-      "Books collected as reading slips, seeded with sample entries until the current stack is filled in.",
-    metaDescription:
-      "A reading list of books and notes, presented as editorial reading slips.",
+    title: "What I currently play",
+    metaDescription: "A rotating set of guitar tunes and studies.",
   },
   contact: {
-    eyebrow: "Contact",
     title: "Contact",
-    intro:
-      "A short list of direct contact routes. Current values are placeholders isolated in the content layer.",
     metaDescription:
       "Contact details for Constantin Unterkofler via email, GitHub, and LinkedIn.",
   },
