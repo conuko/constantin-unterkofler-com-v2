@@ -8,11 +8,7 @@ type TuneSheetCardProps = {
 export function TuneSheetCard({ entry, number }: TuneSheetCardProps) {
   return (
     <article className="flex min-h-full flex-col gap-3.5 border border-card-stroke bg-card-glass p-4 backdrop-blur-sm">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-semibold">
-          {String(number).padStart(2, "0")}
-        </p>
-      </div>
+      <p className="text-sm font-semibold">{String(number).padStart(2, "0")}</p>
 
       <div className="flex flex-col gap-1">
         <h2 className="font-heading text-3xl leading-none font-semibold">

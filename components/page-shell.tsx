@@ -13,7 +13,7 @@ export function PageShell({
   isNarrow = false,
 }: PageShellProps) {
   return (
-    <section
+    <div
       className={cn(
         "flex flex-col gap-10",
         isNarrow && "max-w-xl mx-auto w-full",
@@ -23,6 +23,6 @@ export function PageShell({
         {title}
       </h1>
       {children}
-    </section>
+    </div>
   );
 }

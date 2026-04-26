@@ -38,12 +38,13 @@ export type HomeRoute = {
 
 export const siteMeta = {
   name: "Constantin Unterkofler",
+  shortName: "CU",
   role: "Senior Software Engineer",
   location: "Berlin, Germany",
   description:
     "Personal portfolio of Constantin Unterkofler, a Senior Software Engineer building thoughtful digital products and scalable web experiences.",
   shortBlurb:
-    "Senior Software Engineer in Berlin, building thoughtful digital products and scalable web experiences with a guitar never too far away.",
+    "Senior Software Engineer in Berlin, building thoughtful digital products and scalable web experiences.",
 };
 
 export const headerNavItems: NavItem[] = [

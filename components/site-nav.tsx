@@ -14,23 +14,26 @@ export function SiteNav({ items, ariaLabel, className }: SiteNavProps) {
   const pathname = usePathname();
 
   return (
-    <nav aria-label={ariaLabel} className={className}>
-      {items.map((item) => {
-        const isActive =
-          pathname === item.href ||
-          (item.href !== "/" && pathname.startsWith(`${item.href}/`));
+    <nav aria-label={ariaLabel}>
+      <ul className={className}>
+        {items.map((item) => {
+          const isActive =
+            pathname === item.href ||
+            (item.href !== "/" && pathname.startsWith(`${item.href}/`));
 
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="text-xs font-semibold tracking-wide underline-reveal"
-            data-active={isActive}
-          >
-            {item.label}
-          </Link>
-        );
-      })}
+          return (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                className="text-xs tracking-wide underline-reveal"
+                data-active={isActive}
+              >
+                {item.label}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
     </nav>
   );
 }

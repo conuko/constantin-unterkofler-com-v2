@@ -12,9 +12,7 @@ export default function AboutPage() {
   return (
     <PageShell title={pageCopy.about.title} isNarrow>
       <p className="text-sm text-ink-muted">{aboutParagraphs.join(" ")}</p>
-      <section className="flex flex-col gap-4">
-        <CvList entries={cvEntries} />
-      </section>
+      <CvList entries={cvEntries} />
     </PageShell>
   );
 }
