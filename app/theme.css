@@ -4,6 +4,8 @@
  * Plain @theme so dark mode can override via CSS variables.
  * ═══════════════════════════════════════════════════ */
 
+@custom-variant dark (&:is(.dark *));
+
 @theme {
   --color-paper: #f8f7f2;
   --color-ink: #111111;
