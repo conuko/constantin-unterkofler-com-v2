@@ -57,12 +57,15 @@ export const siteMeta = {
 export const headerNavItems: NavItem[] = [
   { href: "/about", label: "About me" },
   { href: "/contact", label: "Contact" },
-];
-
-export const footerNavItems: NavItem[] = [
   { href: "/work", label: "Work" },
   { href: "/play", label: "Play" },
 ];
+
+// TODO: restore separate footer nav when the footer layout is revisited
+// export const footerNavItems: NavItem[] = [
+//   { href: "/work", label: "Work" },
+//   { href: "/play", label: "Play" },
+// ];
 
 export const aboutParagraphs = [
   "I’m a Senior Software Engineer passionate about building thoughtful digital products and scalable web experiences. Italian-German, grew up in Bolzano, Italy, now based in Berlin. I studied Philosophy and Cultural Studies before earning a degree in Software Engineering. Currently I work at JvM TECH. Outside of work, I play guitar with a love for funk, neo-soul, pop, and jazz.",
