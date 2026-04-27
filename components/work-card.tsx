@@ -21,7 +21,8 @@ export function WorkCard({ entry, priority = false }: WorkCardProps) {
             alt={`${entry.client} project screenshot`}
             placeholder="blur"
             priority={priority}
-            sizes="(min-width: 768px) calc(50vw - 40px), calc(100vw - 32px)"
+            fetchPriority={priority ? "high" : undefined}
+            sizes="(min-width: 816px) 372px, (min-width: 768px) calc((100vw - 72px) / 2), calc(100vw - 48px)"
             quality={85}
             className="block w-full transition-transform duration-slow ease-default group-hover:scale-[1.02]"
           />

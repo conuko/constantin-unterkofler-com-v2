@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function PlayPage() {
   return (
     <PageShell title={pageCopy.play.title}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-10">
+      <div className="grid w-full grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-10">
         {trackEntries.map((entry, index) => (
           <MusicCard
             key={`${entry.title}-${entry.artist}`}

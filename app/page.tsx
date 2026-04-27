@@ -11,7 +11,16 @@ export default function Home() {
   return (
     <PageShell title={pageCopy.home.title}>
       <p className="text-sm text-ink-muted text-center">
-        {pageCopy.home.intro}
+        Senior Software Engineer at{" "}
+        <a
+          href="https://www.jvm.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:text-ink"
+        >
+          Jung von Matt
+        </a>
+        .
       </p>
     </PageShell>
   );

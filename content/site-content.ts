@@ -1,8 +1,10 @@
 import type { StaticImageData } from "next/image";
-import coverFromTheSoul from "@/content/covers/from-the-soul.jpg";
-import coverBirthOfTheCool from "@/content/covers/birth-of-the-cool.jpg";
-import coverWinelight from "@/content/covers/winelight.jpg";
-import coverAdamsApple from "@/content/covers/adams-apple.jpg";
+import coverOhCherie from "@/content/covers/oh-cherie.jpg";
+import coverElevatorMusic from "@/content/covers/elevator-music.jpg";
+import coverSongsInTheKeyOfLife from "@/content/covers/songs-in-the-key-of-life.jpg";
+import coverUndercurrent from "@/content/covers/undercurrent.jpg";
+import coverTheFearlessFlyers from "@/content/covers/the-fearless-flyers.jpg";
+import coverLiveAtRonnieScotts from "@/content/covers/live-at-ronnie-scotts.jpg";
 import workLevi from "@/content/work/levi.png";
 import workHarrods from "@/content/work/harrods.png";
 import workFielmann from "@/content/work/fielmann.png";
@@ -49,7 +51,7 @@ export const siteMeta = {
   shortName: "CU",
   description:
     "Personal portfolio of Constantin Unterkofler, a Senior Software Engineer building thoughtful digital products and scalable web experiences.",
-  shortBlurb: "Senior Software Engineer at Jung von Matt Tech.",
+  shortBlurb: "Senior Software Engineer at Jung von Matt.",
 };
 
 export const headerNavItems: NavItem[] = [
@@ -70,12 +72,22 @@ export const cvEntries: CvEntry[] = [
   {
     organization: "Jung von Matt TECH",
     role: "Senior Software Engineer",
-    years: "2021–",
+    years: "2026–",
+  },
+  {
+    organization: "Jung von Matt TECH",
+    role: "Software Engineer",
+    years: "2021–2026",
   },
   {
     organization: "WESOUND",
-    role: "Project Manager & Software Engineer",
-    years: "2015–21",
+    role: "Junior Software Engineer",
+    years: "2020–21",
+  },
+  {
+    organization: "WESOUND",
+    role: "Project & Office Manager",
+    years: "2018–20",
   },
   {
     organization: "CODE University of Applied Sciences",
@@ -91,47 +103,67 @@ export const cvEntries: CvEntry[] = [
 
 export const trackEntries: TrackEntry[] = [
   {
-    title: "Lines and Spaces",
-    artist: "Joe Lovano",
-    album: "From the Soul",
-    musicalKey: "C",
-    cover: coverFromTheSoul,
-    spotifyUrl:
-      "https://open.spotify.com/search/Lines%20and%20Spaces%20Joe%20Lovano",
+    title: "Oh Chérie",
+    artist: "DAS MAER",
+    album: "Oh Chérie",
+    musicalKey: "Am",
+    cover: coverOhCherie,
+    spotifyUrl: "https://open.spotify.com/search/Oh%20Ch%C3%A9rie%20DAS%20MAER",
     appleMusicUrl:
-      "https://music.apple.com/us/search?term=Lines%20and%20Spaces%20Joe%20Lovano",
+      "https://music.apple.com/us/search?term=Oh%20Ch%C3%A9rie%20DAS%20MAER",
+  },
+  {
+    title: "Airplane Mode",
+    artist: "Cory Wong",
+    album: "Elevator Music for an Elevated Mood",
+    musicalKey: "Db",
+    cover: coverElevatorMusic,
+    spotifyUrl: "https://open.spotify.com/search/Airplane%20Mode%20Cory%20Wong",
+    appleMusicUrl:
+      "https://music.apple.com/us/search?term=Airplane%20Mode%20Cory%20Wong",
+  },
+  {
+    title: "Isn't She Lovely",
+    artist: "Stevie Wonder",
+    album: "Songs in the Key of Life",
+    musicalKey: "E",
+    cover: coverSongsInTheKeyOfLife,
+    spotifyUrl:
+      "https://open.spotify.com/search/Isn't%20She%20Lovely%20Stevie%20Wonder",
+    appleMusicUrl:
+      "https://music.apple.com/us/search?term=Isn't%20She%20Lovely%20Stevie%20Wonder",
   },
   {
     title: "Darn That Dream",
-    artist: "Miles Davis",
-    album: "Birth of the Cool",
+    artist: "Bill Evans / Jim Hall",
+    album: "Undercurrent",
     musicalKey: "G",
-    cover: coverBirthOfTheCool,
+    cover: coverUndercurrent,
     spotifyUrl:
-      "https://open.spotify.com/search/Darn%20That%20Dream%20Miles%20Davis",
+      "https://open.spotify.com/search/Darn%20That%20Dream%20Bill%20Evans%20Jim%20Hall",
     appleMusicUrl:
-      "https://music.apple.com/us/search?term=Darn%20That%20Dream%20Miles%20Davis",
+      "https://music.apple.com/us/search?term=Darn%20That%20Dream%20Bill%20Evans%20Jim%20Hall",
   },
   {
-    title: "Just the Two of Us",
-    artist: "Grover Washington Jr., Bill Withers",
-    album: "Winelight",
-    musicalKey: "Db",
-    cover: coverWinelight,
+    title: "Ace of Aces",
+    artist: "The Fearless Flyers",
+    album: "The Fearless Flyers",
+    musicalKey: "E",
+    cover: coverTheFearlessFlyers,
     spotifyUrl:
-      "https://open.spotify.com/search/Just%20the%20Two%20of%20Us%20Grover%20Washington",
+      "https://open.spotify.com/search/Ace%20of%20Aces%20Fearless%20Flyers",
     appleMusicUrl:
-      "https://music.apple.com/us/search?term=Just%20the%20Two%20of%20Us%20Grover%20Washington",
+      "https://music.apple.com/us/search?term=Ace%20of%20Aces%20Fearless%20Flyers",
   },
   {
-    title: "Footprints",
-    artist: "Wayne Shorter",
-    album: "Adam's Apple",
-    musicalKey: "Cm",
-    cover: coverAdamsApple,
-    spotifyUrl: "https://open.spotify.com/search/Footprints%20Wayne%20Shorter",
+    title: "Stratus",
+    artist: "Jeff Beck",
+    album: "Live at Ronnie Scott's",
+    musicalKey: "Em",
+    cover: coverLiveAtRonnieScotts,
+    spotifyUrl: "https://open.spotify.com/search/Stratus%20Jeff%20Beck",
     appleMusicUrl:
-      "https://music.apple.com/us/search?term=Footprints%20Wayne%20Shorter",
+      "https://music.apple.com/us/search?term=Stratus%20Jeff%20Beck",
   },
 ];
 
@@ -217,18 +249,18 @@ export const workEntries: WorkEntry[] = [
 export const contactLinks: ContactLink[] = [
   {
     label: "Email",
-    href: "mailto:hello@replace-me.com",
-    value: "hello@replace-me.com",
+    href: "mailto:mail@constantinunterkofler.com",
+    value: "mail@constantinunterkofler.com",
   },
   {
     label: "GitHub",
-    href: "https://github.com/replace-me",
-    value: "github.com/replace-me",
+    href: "https://github.com/conuko",
+    value: "github.com/conuko",
   },
   {
     label: "LinkedIn",
-    href: "https://www.linkedin.com/in/replace-me/",
-    value: "linkedin.com/in/replace-me",
+    href: "https://www.linkedin.com/in/constantin-unterkofler/",
+    value: "linkedin.com/in/constantin-unterkofler",
   },
 ];
 

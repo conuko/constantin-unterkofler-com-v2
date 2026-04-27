@@ -14,7 +14,7 @@ export default function WorkPage() {
       <p className="max-w-xl text-sm text-ink-muted">{pageCopy.work.intro}</p>
       <div className="grid grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-2">
         {workEntries.map((entry, index) => (
-          <WorkCard key={entry.client} entry={entry} priority={index < 2} />
+          <WorkCard key={entry.client} entry={entry} priority={index < 4} />
         ))}
       </div>
     </PageShell>
