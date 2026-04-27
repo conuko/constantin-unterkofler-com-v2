@@ -1,16 +1,38 @@
+"use client";
+
+import * as m from "motion/react-m";
 import Image from "next/image";
-import type { TrackEntry } from "@/content/site-content";
 import { AppleMusicIcon, SpotifyIcon } from "@/components/icons";
+import type { TrackEntry } from "@/content/site-content";
+import { fadeInUpStaggered, springSnappy, viewportOnce } from "@/lib/motion";
 
 type MusicCardProps = {
   entry: TrackEntry;
+  index?: number;
   priority?: boolean;
 };
 
-export function MusicCard({ entry, priority = false }: MusicCardProps) {
+export function MusicCard({
+  entry,
+  index = 0,
+  priority = false,
+}: MusicCardProps) {
   return (
-    <article className="group flex flex-col gap-3">
-      <div className="relative aspect-square overflow-hidden rounded-sm">
+    <m.article
+      custom={index}
+      variants={fadeInUpStaggered}
+      initial="hidden"
+      whileInView="visible"
+      viewport={viewportOnce}
+      whileHover={{ y: -3 }}
+      transition={springSnappy}
+      className="flex flex-col gap-3"
+    >
+      <m.div
+        className="relative aspect-square overflow-hidden rounded-sm"
+        whileHover={{ scale: 1.03 }}
+        transition={springSnappy}
+      >
         <Image
           src={entry.cover}
           alt={`${entry.album} by ${entry.artist}`}
@@ -20,9 +42,9 @@ export function MusicCard({ entry, priority = false }: MusicCardProps) {
           fill
           sizes="(min-width: 816px) 372px, (min-width: 768px) calc((100vw - 72px) / 2), calc(100vw - 48px)"
           quality={85}
-          className="object-cover transition-transform duration-slow ease-default group-hover:scale-[1.02]"
+          className="object-cover"
         />
-      </div>
+      </m.div>
 
       <div className="flex flex-col gap-1.5">
         <div className="flex items-baseline justify-between gap-2">
@@ -58,6 +80,6 @@ export function MusicCard({ entry, priority = false }: MusicCardProps) {
           <AppleMusicIcon className="size-6" />
         </a>
       </div>
-    </article>
+    </m.article>
   );
 }

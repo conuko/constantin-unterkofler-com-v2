@@ -26,6 +26,11 @@ body {
   background: var(--color-dot);
 }
 
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
 .skip-link {
   position: absolute;
   top: -3rem;

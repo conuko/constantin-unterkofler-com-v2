@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { PageShell } from "@/components/page-shell";
 import { MusicCard } from "@/components/music-card";
+import { PageShell } from "@/components/page-shell";
 import { pageCopy, trackEntries } from "@/content/site-content";
 
 export const metadata: Metadata = {
@@ -16,6 +16,7 @@ export default function PlayPage() {
           <MusicCard
             key={`${entry.title}-${entry.artist}`}
             entry={entry}
+            index={index}
             priority={index < 2}
           />
         ))}

@@ -1,4 +1,8 @@
+"use client";
+
+import * as m from "motion/react-m";
 import type { ReactNode } from "react";
+import { scaleIn, springGentle, staggerContainer } from "@/lib/motion";
 import { cn } from "@/lib/utils/cn";
 
 type PageShellProps = {
@@ -13,17 +17,24 @@ export function PageShell({
   isNarrow = false,
 }: PageShellProps) {
   return (
-    <div
+    <m.div
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
       className={cn(
         "flex flex-col gap-10 items-center",
         isNarrow &&
           "[&>*:not(:first-child)]:max-w-xl [&>*:not(:first-child)]:mx-auto [&>*:not(:first-child)]:w-full",
       )}
     >
-      <h1 className="font-heading text-4xl lg:text-6xl font-semibold leading-none tracking-tight text-center">
+      <m.h1
+        variants={scaleIn}
+        transition={springGentle}
+        className="font-heading text-4xl lg:text-6xl font-semibold leading-none tracking-tight text-center"
+      >
         {title}
-      </h1>
+      </m.h1>
       {children}
-    </div>
+    </m.div>
   );
 }

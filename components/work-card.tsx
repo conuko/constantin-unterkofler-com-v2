@@ -1,21 +1,43 @@
+"use client";
+
+import * as m from "motion/react-m";
 import Image from "next/image";
 import type { WorkEntry } from "@/content/site-content";
+import { fadeInUpStaggered, springSnappy, viewportOnce } from "@/lib/motion";
 
 type WorkCardProps = {
   entry: WorkEntry;
+  index?: number;
   priority?: boolean;
 };
 
-export function WorkCard({ entry, priority = false }: WorkCardProps) {
+export function WorkCard({
+  entry,
+  index = 0,
+  priority = false,
+}: WorkCardProps) {
   return (
-    <article className="group flex flex-col gap-3">
+    <m.article
+      custom={index}
+      variants={fadeInUpStaggered}
+      initial="hidden"
+      whileInView="visible"
+      viewport={viewportOnce}
+      whileHover={{ y: -4 }}
+      transition={springSnappy}
+      className="group flex flex-col gap-3"
+    >
       <a
         href={entry.url}
         target="_blank"
         rel="noreferrer noopener"
         aria-label={`Visit ${entry.client}`}
       >
-        <div className="relative overflow-hidden rounded-sm border border-rule">
+        <m.div
+          className="relative overflow-hidden rounded-sm border border-rule"
+          whileHover={{ scale: 1.02 }}
+          transition={springSnappy}
+        >
           <Image
             src={entry.image}
             alt={`${entry.client} project screenshot`}
@@ -24,7 +46,7 @@ export function WorkCard({ entry, priority = false }: WorkCardProps) {
             fetchPriority={priority ? "high" : undefined}
             sizes="(min-width: 816px) 372px, (min-width: 768px) calc((100vw - 72px) / 2), calc(100vw - 48px)"
             quality={85}
-            className="block w-full transition-transform duration-slow ease-default group-hover:scale-[1.02]"
+            className="block w-full"
           />
 
           <div
@@ -35,7 +57,7 @@ export function WorkCard({ entry, priority = false }: WorkCardProps) {
               {entry.description}
             </p>
           </div>
-        </div>
+        </m.div>
       </a>
 
       <div className="flex flex-col gap-1.5">
@@ -57,6 +79,6 @@ export function WorkCard({ entry, priority = false }: WorkCardProps) {
       <p className="text-sm leading-relaxed text-ink-muted lg:hidden">
         {entry.description}
       </p>
-    </article>
+    </m.article>
   );
 }
