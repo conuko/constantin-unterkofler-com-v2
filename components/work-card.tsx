@@ -3,26 +3,20 @@
 import * as m from "motion/react-m";
 import Image from "next/image";
 import type { WorkEntry } from "@/content/site-content";
-import { fadeInUpStaggered, springSnappy, viewportOnce } from "@/lib/motion";
+import { gridCardIn, springSnappy } from "@/lib/motion";
 
 type WorkCardProps = {
   entry: WorkEntry;
-  index?: number;
   priority?: boolean;
 };
 
 export function WorkCard({
   entry,
-  index = 0,
   priority = false,
 }: WorkCardProps) {
   return (
     <m.article
-      custom={index}
-      variants={fadeInUpStaggered}
-      initial="hidden"
-      whileInView="visible"
-      viewport={viewportOnce}
+      variants={gridCardIn}
       whileHover={{ y: -4 }}
       transition={springSnappy}
       className="group flex flex-col gap-3"

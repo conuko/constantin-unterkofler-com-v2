@@ -1,9 +1,5 @@
 import type { Metadata } from "next";
-import {
-  Cormorant_Garamond,
-  IBM_Plex_Mono,
-  Bebas_Neue,
-} from "next/font/google";
+import { Bebas_Neue, Space_Grotesk } from "next/font/google";
 import type { ReactNode } from "react";
 import { MotionLayout } from "@/components/motion-layout";
 import { headerNavItems, siteMeta } from "@/content/site-content";
@@ -16,11 +12,10 @@ const displayFont = Bebas_Neue({
   display: "swap",
 });
 
-const bodyFont = IBM_Plex_Mono({
+const bodyFont = Space_Grotesk({
   variable: "--font-body",
   subsets: ["latin"],
   display: "swap",
-  weight: ["100", "200", "300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -42,7 +37,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${displayFont.variable} ${bodyFont.variable}`}
     >
-      <body className="min-h-dvh bg-paper text-ink leading-relaxed">
+      <body className="flex min-h-dvh flex-col bg-paper text-ink leading-relaxed">
         <MotionLayout shortName={siteMeta.shortName} navItems={headerNavItems}>
           {children}
         </MotionLayout>
