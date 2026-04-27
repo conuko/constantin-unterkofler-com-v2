@@ -1,10 +1,12 @@
+import Image from "next/image";
 import type { WorkEntry } from "@/content/site-content";
 
 type WorkCardProps = {
   entry: WorkEntry;
+  priority?: boolean;
 };
 
-export function WorkCard({ entry }: WorkCardProps) {
+export function WorkCard({ entry, priority = false }: WorkCardProps) {
   return (
     <article className="group flex flex-col gap-3">
       <a
@@ -13,15 +15,19 @@ export function WorkCard({ entry }: WorkCardProps) {
         rel="noreferrer noopener"
         aria-label={`Visit ${entry.client}`}
       >
-        <div className="relative aspect-3/2 overflow-hidden rounded-sm border border-rule bg-card-glass">
-          <div className="flex h-full items-center justify-center">
-            <span className="font-heading text-3xl font-semibold tracking-tight">
-              {entry.client}
-            </span>
-          </div>
+        <div className="relative overflow-hidden rounded-sm border border-rule">
+          <Image
+            src={entry.image}
+            alt={`${entry.client} project screenshot`}
+            placeholder="blur"
+            priority={priority}
+            sizes="(min-width: 768px) calc(50vw - 40px), calc(100vw - 32px)"
+            quality={85}
+            className="block w-full transition-transform duration-slow ease-default group-hover:scale-[1.02]"
+          />
 
           <div
-            className="absolute inset-0 flex items-end bg-linear-to-t from-ink/90 via-ink/60 to-ink/10 p-5 opacity-0 backdrop-blur-sm transition-opacity duration-normal ease-default group-hover:opacity-100"
+            className="absolute inset-0 hidden items-center bg-ink/50 p-5 opacity-0 backdrop-blur-md transition-opacity duration-normal ease-default lg:flex lg:group-hover:opacity-100"
             aria-hidden="true"
           >
             <p className="text-sm leading-relaxed text-paper">
@@ -47,7 +53,9 @@ export function WorkCard({ entry }: WorkCardProps) {
         </div>
       </div>
 
-      <span className="sr-only">{entry.description}</span>
+      <p className="text-sm leading-relaxed text-ink-muted lg:hidden">
+        {entry.description}
+      </p>
     </article>
   );
 }

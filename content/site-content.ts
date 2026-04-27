@@ -3,6 +3,11 @@ import coverFromTheSoul from "@/content/covers/from-the-soul.jpg";
 import coverBirthOfTheCool from "@/content/covers/birth-of-the-cool.jpg";
 import coverWinelight from "@/content/covers/winelight.jpg";
 import coverAdamsApple from "@/content/covers/adams-apple.jpg";
+import workLevi from "@/content/work/levi.png";
+import workHarrods from "@/content/work/harrods.png";
+import workFielmann from "@/content/work/fielmann.png";
+import workTennet from "@/content/work/tennet.png";
+import workFussballde from "@/content/work/fussballde.png";
 
 export type NavItem = {
   href: string;
@@ -30,6 +35,7 @@ export type WorkEntry = {
   url: string;
   description: string;
   techStack: string[];
+  image: StaticImageData;
 };
 
 export type ContactLink = {
@@ -134,36 +140,77 @@ export const workEntries: WorkEntry[] = [
     client: "Levi's",
     url: "https://www.levi.com/",
     description:
-      "Currently collaborating with the team at SCAYLE to migrate Levi's legacy Vue 2 codebase into a modern Vue 3 / Nuxt 4 application powered by the SCAYLE Commerce Engine.",
-    techStack: ["Vue 3", "Nuxt 4", "SCAYLE"],
+      "Currently collaborating with the team at SCAYLE to migrate Levi's legacy Vue 2 codebase into a modern Vue 3 / Nuxt 4 e-commerce application powered by the SCAYLE Commerce Engine.",
+    techStack: [
+      "Vue 3",
+      "Nuxt 4",
+      "TypeScript",
+      "Constructor",
+      "Contentstack",
+      "Tailwind CSS",
+      "SCAYLE",
+    ],
+    image: workLevi,
   },
   {
     client: "Harrods",
     url: "https://www.harrods.com/",
     description:
-      "Worked closely with both the SCAYLE and Harrods teams over the course of a year to deliver new features and prepare the application for a full client handover. This included in-depth handover sessions, technical workshops for the new Harrods tech lead, architectural documentation, and knowledge transfer across teams.",
-    techStack: ["Vue 3", "Nuxt 3", "SCAYLE"],
+      "Worked with the SCAYLE and Harrods teams to deliver new features and prepare a full client handover — including technical workshops, architectural documentation, and knowledge transfer.",
+    techStack: [
+      "Vue 3",
+      "Nuxt 3",
+      "TypeScript",
+      "Contentful",
+      "Algolia",
+      "Tailwind CSS",
+      "SCAYLE",
+    ],
+    image: workHarrods,
   },
   {
     client: "Fielmann",
     url: "https://www.fielmann.de/",
     description:
-      "Set up and maintained the Fielmann e-commerce platform for all shops across the DACH region, working directly within the client's development team for over 1.5 years. Also supported the launch of the new Fielmann Italy shop. The platform was built with Vue 3, Nuxt 3 and the SCAYLE storefront boilerplate.",
-    techStack: ["Vue 3", "Nuxt 3", "SCAYLE"],
+      "Set up and maintained the e-commerce platform across DACH, embedded in the client team for over 1.5 years. Also supported the launch of the Fielmann Italy shop.",
+    techStack: [
+      "Vue 3",
+      "Nuxt 3",
+      "TypeScript",
+      "Storyblok",
+      "Tailwind CSS",
+      "SCAYLE",
+    ],
+    image: workFielmann,
   },
   {
     client: "TenneT",
     url: "https://www.tennet.eu/",
     description:
-      "Next.js Turborepo-based monorepo powering TenneT's digital ecosystem, including the corporate website, careers platform, and Storybook design system. The setup unified shared UI components, design tokens, Contentful tooling, migrations, and common frontend configurations into a scalable and maintainable architecture.",
-    techStack: ["Next.js", "Turborepo", "Contentful", "Storybook"],
+      "Turborepo-based monorepo powering TenneT's corporate website, careers platform, and Storybook design system — unifying shared components, design tokens, and Contentful tooling.",
+    techStack: [
+      "Next.js",
+      "TypeScript",
+      "Turborepo",
+      "Contentful",
+      "Tailwind CSS",
+      "Storybook",
+    ],
+    image: workTennet,
   },
   {
     client: "fussball.de",
     url: "https://next.fussball.de/",
     description:
       "Migrating a legacy platform into a modern Next.js application within a monorepo architecture using Turborepo for the shared code and the site code for the Fussball.de and BFV.de sites.",
-    techStack: ["Next.js", "Turborepo"],
+    techStack: [
+      "Next.js",
+      "TypeScript",
+      "Turborepo",
+      "CSS Modules",
+      "Storybook",
+    ],
+    image: workFussballde,
   },
 ];
 
