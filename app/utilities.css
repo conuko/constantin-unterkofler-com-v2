@@ -21,7 +21,7 @@
     background: currentColor;
     scale: 0 1;
     transform-origin: top left;
-    transition: scale var(--duration-fast) var(--ease-default);
+    transition: scale var(--duration-normal) var(--ease-spring);
   }
 
   &:hover::after,
