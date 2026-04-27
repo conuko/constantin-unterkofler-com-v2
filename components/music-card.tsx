@@ -16,8 +16,9 @@ export function MusicCard({ entry, priority = false }: MusicCardProps) {
           alt={`${entry.album} by ${entry.artist}`}
           placeholder="blur"
           priority={priority}
+          fetchPriority={priority ? "high" : undefined}
           fill
-          sizes="(min-width: 640px) 276px, calc(50vw - 28px)"
+          sizes="(min-width: 816px) 372px, (min-width: 768px) calc((100vw - 72px) / 2), calc(100vw - 48px)"
           quality={85}
           className="object-cover transition-transform duration-slow ease-default group-hover:scale-[1.02]"
         />
@@ -45,7 +46,7 @@ export function MusicCard({ entry, priority = false }: MusicCardProps) {
           aria-label={`Listen to ${entry.title} on Spotify`}
           className="text-ink-muted transition-colors duration-fast hover:text-brand-spotify"
         >
-          <SpotifyIcon className="size-5" />
+          <SpotifyIcon className="size-6" />
         </a>
         <a
           href={entry.appleMusicUrl}
@@ -54,7 +55,7 @@ export function MusicCard({ entry, priority = false }: MusicCardProps) {
           aria-label={`Listen to ${entry.title} on Apple Music`}
           className="text-ink-muted transition-colors duration-fast hover:text-brand-apple-music"
         >
-          <AppleMusicIcon className="size-5" />
+          <AppleMusicIcon className="size-6" />
         </a>
       </div>
     </article>

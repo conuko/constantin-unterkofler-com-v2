@@ -5,11 +5,7 @@ import type { ReactNode } from "react";
 import { SiteNav } from "@/components/site-nav";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
-import {
-  footerNavItems,
-  headerNavItems,
-  siteMeta,
-} from "@/content/site-content";
+import { headerNavItems, siteMeta } from "@/content/site-content";
 import "./globals.css";
 
 const displayFont = Cormorant_Garamond({
@@ -76,17 +72,12 @@ export default function RootLayout({
             <main
               id="main-content"
               tabIndex={-1}
-              className="outline-none max-w-3xl mx-auto w-full"
+              className="outline-none max-w-3xl mx-auto w-full pb-16"
             >
               {children}
             </main>
-            <footer className="fixed inset-x-0 bottom-8 flex items-end justify-between px-6">
-              <p className="text-xs text-ink-muted">© 2026</p>
-              <SiteNav
-                items={footerNavItems}
-                ariaLabel="Secondary"
-                className="flex gap-2 [writing-mode:vertical-rl] lg:flex-col lg:[writing-mode:horizontal-tb] lg:gap-0"
-              />
+            <footer className="fixed inset-x-0 bottom-8 flex items-end justify-between px-6 pointer-events-none">
+              <p className="text-xs text-ink-muted pointer-events-auto">© 2026</p>
             </footer>
           </div>
         </ThemeProvider>
