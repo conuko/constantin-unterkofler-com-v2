@@ -3,7 +3,7 @@
 import { Moon, Sun } from "lucide-react";
 import * as m from "motion/react-m";
 import { useTheme } from "next-themes";
-import { springSnappy } from "@/lib/motion";
+import { hoverScale, springSnappy, tapScale } from "@/lib/motion";
 
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
@@ -12,8 +12,8 @@ export function ThemeToggle() {
     <m.button
       type="button"
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-      whileHover={{ scale: 1.15 }}
-      whileTap={{ scale: 0.9 }}
+      whileHover={hoverScale}
+      whileTap={tapScale}
       transition={springSnappy}
       className="group relative flex size-10 items-center justify-center text-ink cursor-pointer"
     >

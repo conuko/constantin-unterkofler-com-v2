@@ -1,5 +1,8 @@
 import type { Transition, Variants } from "motion/react";
 
+export const tapScale = { scale: 0.95 };
+export const hoverScale = { scale: 1.05 };
+
 export const springDefault: Transition = {
   type: "spring",
   visualDuration: 0.5,
@@ -23,41 +26,135 @@ export const viewportOnce = {
   margin: "0px 0px -80px 0px" as const,
 };
 
-export const fadeInUp: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 },
-};
+// ---------------------------------------------------------------------------
+// Page-level orchestration
+// ---------------------------------------------------------------------------
 
-export const fadeInUpStaggered: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i: number) => ({
+const easeOutExpo: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
+export const headlineIn: Variants = {
+  hidden: { opacity: 0, clipPath: "inset(-10% 100% -10% 0)" },
+  visible: {
     opacity: 1,
-    y: 0,
+    clipPath: "inset(-10% -10% -10% 0)",
     transition: {
-      type: "spring",
-      visualDuration: 0.4,
-      bounce: 0.2,
-      delay: i * 0.06,
+      duration: 0.9,
+      ease: easeOutExpo,
+      opacity: { duration: 0.4, ease: "easeOut" },
     },
-  }),
+  },
 };
 
-export const scaleIn: Variants = {
-  hidden: { opacity: 0, scale: 0.97, y: 15 },
-  visible: { opacity: 1, scale: 1, y: 0 },
+export const contentStagger: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      delayChildren: 0.6,
+      staggerChildren: 0.12,
+    },
+  },
+};
+
+export const contentIn: Variants = {
+  hidden: { opacity: 0, filter: "blur(3px)" },
+  visible: {
+    opacity: 1,
+    filter: "blur(0px)",
+    transition: {
+      duration: 0.7,
+      ease: easeOutExpo,
+    },
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Grid card cascade (left → right, top → bottom)
+// ---------------------------------------------------------------------------
+
+export const gridStagger: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.07,
+    },
+  },
+};
+
+export const gridCardIn: Variants = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      duration: 0.6,
+      ease: easeOutExpo,
+    },
+  },
+};
+
+// ---------------------------------------------------------------------------
+// List stagger (cv entries, contact links)
+// ---------------------------------------------------------------------------
+
+export const listStagger: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.06,
+    },
+  },
+};
+
+export const fadeInUp: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { duration: 0.5, ease: easeOutExpo },
+  },
 };
 
 export const slideInLeft: Variants = {
-  hidden: { opacity: 0, x: -16 },
-  visible: { opacity: 1, x: 0 },
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { duration: 0.5, ease: easeOutExpo },
+  },
 };
 
-export const staggerContainer: Variants = {
+// ---------------------------------------------------------------------------
+// Desktop nav stagger
+// ---------------------------------------------------------------------------
+
+export const navStagger: Variants = {
   hidden: {},
   visible: {
     transition: {
       staggerChildren: 0.08,
       delayChildren: 0.1,
+    },
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Mobile menu
+// ---------------------------------------------------------------------------
+
+export const menuPanel: Variants = {
+  hidden: { opacity: 0, y: -8, scale: 0.95 },
+  visible: { opacity: 1, y: 0, scale: 1 },
+};
+
+export const menuItem: Variants = {
+  hidden: { opacity: 0, x: 8 },
+  visible: { opacity: 1, x: 0 },
+};
+
+export const menuStagger: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.05,
+      delayChildren: 0.05,
     },
   },
 };

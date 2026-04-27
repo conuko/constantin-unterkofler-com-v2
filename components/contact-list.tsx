@@ -2,7 +2,7 @@
 
 import * as m from "motion/react-m";
 import type { ContactLink } from "@/content/site-content";
-import { slideInLeft, staggerContainer } from "@/lib/motion";
+import { listStagger, slideInLeft } from "@/lib/motion";
 
 type ContactListProps = {
   links: ContactLink[];
@@ -10,13 +10,7 @@ type ContactListProps = {
 
 export function ContactList({ links }: ContactListProps) {
   return (
-    <m.ul
-      variants={staggerContainer}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-      className="border-t border-rule"
-    >
+    <m.ul variants={listStagger} className="border-rule w-full">
       {links.map((link) => (
         <m.li key={link.label} variants={slideInLeft}>
           <a

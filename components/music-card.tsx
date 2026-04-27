@@ -4,26 +4,20 @@ import * as m from "motion/react-m";
 import Image from "next/image";
 import { AppleMusicIcon, SpotifyIcon } from "@/components/icons";
 import type { TrackEntry } from "@/content/site-content";
-import { fadeInUpStaggered, springSnappy, viewportOnce } from "@/lib/motion";
+import { gridCardIn, springSnappy } from "@/lib/motion";
 
 type MusicCardProps = {
   entry: TrackEntry;
-  index?: number;
   priority?: boolean;
 };
 
 export function MusicCard({
   entry,
-  index = 0,
   priority = false,
 }: MusicCardProps) {
   return (
     <m.article
-      custom={index}
-      variants={fadeInUpStaggered}
-      initial="hidden"
-      whileInView="visible"
-      viewport={viewportOnce}
+      variants={gridCardIn}
       whileHover={{ y: -3 }}
       transition={springSnappy}
       className="flex flex-col gap-3"

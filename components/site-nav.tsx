@@ -4,7 +4,7 @@ import * as m from "motion/react-m";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { NavItem } from "@/content/site-content";
-import { fadeInUp, staggerContainer } from "@/lib/motion";
+import { fadeInUp, navStagger } from "@/lib/motion";
 
 type SiteNavProps = {
   items: NavItem[];
@@ -18,7 +18,7 @@ export function SiteNav({ items, ariaLabel, className }: SiteNavProps) {
   return (
     <nav aria-label={ariaLabel}>
       <m.ul
-        variants={staggerContainer}
+        variants={navStagger}
         initial="hidden"
         animate="visible"
         className={className}

@@ -2,7 +2,7 @@
 
 import * as m from "motion/react-m";
 import type { ReactNode } from "react";
-import { scaleIn, springGentle, staggerContainer } from "@/lib/motion";
+import { contentStagger, headlineIn } from "@/lib/motion";
 import { cn } from "@/lib/utils/cn";
 
 type PageShellProps = {
@@ -17,24 +17,22 @@ export function PageShell({
   isNarrow = false,
 }: PageShellProps) {
   return (
-    <m.div
-      variants={staggerContainer}
-      initial="hidden"
-      animate="visible"
-      className={cn(
-        "flex flex-col gap-10 items-center",
-        isNarrow &&
-          "[&>*:not(:first-child)]:max-w-xl [&>*:not(:first-child)]:mx-auto [&>*:not(:first-child)]:w-full",
-      )}
-    >
+    <m.div initial="hidden" animate="visible" className="flex flex-col gap-10 items-center">
       <m.h1
-        variants={scaleIn}
-        transition={springGentle}
+        variants={headlineIn}
         className="font-heading text-4xl lg:text-6xl font-semibold leading-none tracking-tight text-center"
       >
         {title}
       </m.h1>
-      {children}
+      <m.div
+        variants={contentStagger}
+        className={cn(
+          "flex flex-col gap-10 items-center w-full",
+          isNarrow && "max-w-xl mx-auto",
+        )}
+      >
+        {children}
+      </m.div>
     </m.div>
   );
 }

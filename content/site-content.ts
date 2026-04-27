@@ -285,7 +285,7 @@ export const pageCopy = {
   work: {
     title: "Work",
     intro:
-      "At Jung von Matt TECH, I work hands-on within client teams to build and scale digital products, commerce platforms, and modern web applications for international brands including BMW, FIFA, Harrods, Levi's, SCAYLE / ABOUT YOU, Fielmann, and the DFB. Below you'll find some of my personal highlights.",
+      "At Jung von Matt, I work hands-on within client teams to build and scale digital products, commerce platforms, and modern web applications for international brands including BMW, FIFA, Harrods, Levi's, SCAYLE / ABOUT YOU, Fielmann, and the DFB. Below you'll find some of my personal highlights.",
     metaDescription:
       "Client project highlights by Constantin Unterkofler — commerce platforms, web applications, and digital products for international brands.",
   },
