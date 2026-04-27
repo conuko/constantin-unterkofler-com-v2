@@ -50,6 +50,7 @@ export function MotionLayout({
               >
                 <Link
                   href="/"
+                  aria-label="Home"
                   className="flex size-10 items-center justify-center text-xs tracking-wide"
                 >
                   {shortName}

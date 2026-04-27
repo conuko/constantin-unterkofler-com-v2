@@ -34,6 +34,7 @@ export function SiteNav({ items, ariaLabel, className }: SiteNavProps) {
                 href={item.href}
                 className="relative text-xs tracking-wide pb-1"
                 data-active={isActive}
+                aria-current={isActive ? "page" : undefined}
               >
                 {item.label}
                 {isActive && (
