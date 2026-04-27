@@ -1,15 +1,15 @@
 import type { StaticImageData } from "next/image";
-import coverOhCherie from "@/content/covers/oh-cherie.jpg";
 import coverElevatorMusic from "@/content/covers/elevator-music.jpg";
-import coverSongsInTheKeyOfLife from "@/content/covers/songs-in-the-key-of-life.jpg";
-import coverUndercurrent from "@/content/covers/undercurrent.jpg";
-import coverTheFearlessFlyers from "@/content/covers/the-fearless-flyers.jpg";
 import coverLiveAtRonnieScotts from "@/content/covers/live-at-ronnie-scotts.jpg";
-import workLevi from "@/content/work/levi.png";
-import workHarrods from "@/content/work/harrods.png";
+import coverOhCherie from "@/content/covers/oh-cherie.jpg";
+import coverSongsInTheKeyOfLife from "@/content/covers/songs-in-the-key-of-life.jpg";
+import coverTheFearlessFlyers from "@/content/covers/the-fearless-flyers.jpg";
+import coverUndercurrent from "@/content/covers/undercurrent.jpg";
 import workFielmann from "@/content/work/fielmann.png";
-import workTennet from "@/content/work/tennet.png";
 import workFussballde from "@/content/work/fussballde.png";
+import workHarrods from "@/content/work/harrods.png";
+import workLevi from "@/content/work/levi.png";
+import workTennet from "@/content/work/tennet.png";
 
 export type NavItem = {
   href: string;
@@ -68,7 +68,7 @@ export const headerNavItems: NavItem[] = [
 // ];
 
 export const aboutParagraphs = [
-  "I’m a Senior Software Engineer passionate about building thoughtful digital products and scalable web experiences. Italian-German, grew up in Bolzano, Italy, now based in Berlin. I studied Philosophy and Cultural Studies before earning a degree in Software Engineering. Currently I work at JvM TECH. Outside of work, I play guitar with a love for funk, neo-soul, pop, and jazz.",
+  "I’m a Senior Software Engineer passionate about building thoughtful digital products and scalable web experiences. Italian-German, grew up in Bolzano, Italy, now based in Berlin. I studied Philosophy and Cultural Studies before earning a degree in Software Engineering. Currently I work at Jung von Matt. Outside of work, I play guitar with a love for funk, neo-soul, pop, and jazz.",
 ];
 
 export const cvEntries: CvEntry[] = [
