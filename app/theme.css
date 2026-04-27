@@ -18,6 +18,9 @@
   --color-background: var(--color-paper);
   --color-foreground: var(--color-ink);
 
+  --color-brand-spotify: #1db954;
+  --color-brand-apple-music: #fa233b;
+
   /* --font-body / --font-display are set by the Next.js font loader on <html> */
   --font-sans: var(--font-body), sans-serif;
   --font-heading: var(--font-display), serif;
@@ -48,20 +51,6 @@
   --color-card-glass: rgba(26, 25, 23, 0.52);
   --color-background: var(--color-paper);
   --color-foreground: var(--color-ink);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --color-paper: #1a1917;
-    --color-ink: #f8f7f2;
-    --color-ink-muted: rgba(248, 247, 242, 0.72);
-    --color-rule: rgba(248, 247, 242, 0.18);
-    --color-dot: rgba(248, 247, 242, 0.14);
-    --color-card-stroke: rgba(248, 247, 242, 0.82);
-    --color-card-glass: rgba(26, 25, 23, 0.52);
-    --color-background: var(--color-paper);
-    --color-foreground: var(--color-ink);
-  }
 }
 
 /* ═══════════════════════════════════════════════════

@@ -9,8 +9,10 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <PageShell title={pageCopy.home.title} isNarrow>
-      <p className="text-sm text-ink-muted">{pageCopy.home.intro}</p>
+    <PageShell title={pageCopy.home.title}>
+      <p className="text-sm text-ink-muted text-center">
+        {pageCopy.home.intro}
+      </p>
     </PageShell>
   );
 }

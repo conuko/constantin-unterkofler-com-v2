@@ -55,8 +55,8 @@ export default function RootLayout({
             Skip to main content
           </a>
 
-          <div className="mx-auto w-full max-w-5xl px-4 py-6 pb-16">
-            <header className="flex items-start justify-between gap-6 pb-8">
+          <div className="w-full p-6">
+            <header className="flex items-start justify-between gap-6 pb-8 sticky top-4 z-10">
               <Link
                 href="/"
                 className="flex size-10 items-center justify-center text-xs tracking-wide"
@@ -76,20 +76,19 @@ export default function RootLayout({
             <main
               id="main-content"
               tabIndex={-1}
-              className="lg:pt-8 outline-none"
+              className="outline-none max-w-3xl mx-auto w-full"
             >
               {children}
             </main>
+            <footer className="fixed inset-x-0 bottom-8 flex items-end justify-between px-6">
+              <p className="text-xs text-ink-muted">© 2026</p>
+              <SiteNav
+                items={footerNavItems}
+                ariaLabel="Secondary"
+                className="flex gap-2 [writing-mode:vertical-rl] lg:flex-col lg:[writing-mode:horizontal-tb] lg:gap-0"
+              />
+            </footer>
           </div>
-
-          <footer className="fixed inset-x-0 bottom-8 mx-auto flex max-w-5xl items-end justify-between px-4">
-            <p className="text-xs text-ink-muted">© 2026</p>
-            <SiteNav
-              items={footerNavItems}
-              ariaLabel="Secondary"
-              className="flex gap-2 [writing-mode:vertical-rl] lg:flex-col lg:[writing-mode:horizontal-tb] lg:gap-0"
-            />
-          </footer>
         </ThemeProvider>
       </body>
     </html>

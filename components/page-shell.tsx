@@ -15,11 +15,12 @@ export function PageShell({
   return (
     <div
       className={cn(
-        "flex flex-col gap-10",
-        isNarrow && "max-w-xl mx-auto w-full",
+        "flex flex-col gap-10 items-center",
+        isNarrow &&
+          "[&>*:not(:first-child)]:max-w-xl [&>*:not(:first-child)]:mx-auto [&>*:not(:first-child)]:w-full",
       )}
     >
-      <h1 className="font-heading text-4xl lg:text-6xl font-semibold leading-none tracking-tight">
+      <h1 className="font-heading text-4xl lg:text-6xl font-semibold leading-none tracking-tight text-center">
         {title}
       </h1>
       {children}

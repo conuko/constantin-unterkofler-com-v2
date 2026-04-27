@@ -1,3 +1,14 @@
+import type { StaticImageData } from "next/image";
+import coverFromTheSoul from "@/content/covers/from-the-soul.jpg";
+import coverBirthOfTheCool from "@/content/covers/birth-of-the-cool.jpg";
+import coverWinelight from "@/content/covers/winelight.jpg";
+import coverAdamsApple from "@/content/covers/adams-apple.jpg";
+import workLevi from "@/content/work/levi.png";
+import workHarrods from "@/content/work/harrods.png";
+import workFielmann from "@/content/work/fielmann.png";
+import workTennet from "@/content/work/tennet.png";
+import workFussballde from "@/content/work/fussballde.png";
+
 export type NavItem = {
   href: string;
   label: string;
@@ -12,16 +23,19 @@ export type CvEntry = {
 export type TrackEntry = {
   title: string;
   artist: string;
+  album: string;
+  musicalKey: string;
+  cover: StaticImageData;
   spotifyUrl: string;
   appleMusicUrl: string;
-  tag: string;
 };
 
-export type BookEntry = {
-  title: string;
-  author: string;
-  goodreadsUrl: string;
-  tag: string;
+export type WorkEntry = {
+  client: string;
+  url: string;
+  description: string;
+  techStack: string[];
+  image: StaticImageData;
 };
 
 export type ContactLink = {
@@ -30,21 +44,12 @@ export type ContactLink = {
   value: string;
 };
 
-export type HomeRoute = {
-  href: string;
-  label: string;
-  description: string;
-};
-
 export const siteMeta = {
   name: "Constantin Unterkofler",
   shortName: "CU",
-  role: "Senior Software Engineer",
-  location: "Berlin, Germany",
   description:
     "Personal portfolio of Constantin Unterkofler, a Senior Software Engineer building thoughtful digital products and scalable web experiences.",
-  shortBlurb:
-    "Senior Software Engineer in Berlin, building thoughtful digital products and scalable web experiences.",
+  shortBlurb: "Senior Software Engineer at Jung von Matt Tech.",
 };
 
 export const headerNavItems: NavItem[] = [
@@ -53,31 +58,8 @@ export const headerNavItems: NavItem[] = [
 ];
 
 export const footerNavItems: NavItem[] = [
-  { href: "/play", label: "Let's play" },
-  { href: "/read", label: "Let's read" },
-];
-
-export const homeRoutes: HomeRoute[] = [
-  {
-    href: "/about",
-    label: "About me",
-    description: "Biography, current role, and a short editorial CV sheet.",
-  },
-  {
-    href: "/play",
-    label: "Play",
-    description: "Recent tunes and studies arranged as restrained tune sheets.",
-  },
-  {
-    href: "/read",
-    label: "Read",
-    description: "Books that stayed in rotation, presented as reading slips.",
-  },
-  {
-    href: "/contact",
-    label: "Contact",
-    description: "A small set of direct links for email, GitHub, and LinkedIn.",
-  },
+  { href: "/work", label: "Work" },
+  { href: "/play", label: "Play" },
 ];
 
 export const aboutParagraphs = [
@@ -111,63 +93,124 @@ export const trackEntries: TrackEntry[] = [
   {
     title: "Lines and Spaces",
     artist: "Joe Lovano",
+    album: "From the Soul",
+    musicalKey: "C",
+    cover: coverFromTheSoul,
     spotifyUrl:
       "https://open.spotify.com/search/Lines%20and%20Spaces%20Joe%20Lovano",
     appleMusicUrl:
       "https://music.apple.com/us/search?term=Lines%20and%20Spaces%20Joe%20Lovano",
-    tag: "Sample entry / modal lines / phrasing study",
   },
   {
     title: "Darn That Dream",
-    artist: "Jimmy Van Heusen",
-    spotifyUrl: "https://open.spotify.com/search/Darn%20That%20Dream",
-    appleMusicUrl: "https://music.apple.com/us/search?term=Darn%20That%20Dream",
-    tag: "Sample entry / ballad feel / voice leading",
+    artist: "Miles Davis",
+    album: "Birth of the Cool",
+    musicalKey: "G",
+    cover: coverBirthOfTheCool,
+    spotifyUrl:
+      "https://open.spotify.com/search/Darn%20That%20Dream%20Miles%20Davis",
+    appleMusicUrl:
+      "https://music.apple.com/us/search?term=Darn%20That%20Dream%20Miles%20Davis",
   },
   {
     title: "Just the Two of Us",
-    artist: "Bill Withers",
+    artist: "Grover Washington Jr., Bill Withers",
+    album: "Winelight",
+    musicalKey: "Db",
+    cover: coverWinelight,
     spotifyUrl:
-      "https://open.spotify.com/search/Just%20the%20Two%20of%20Us%20Bill%20Withers",
+      "https://open.spotify.com/search/Just%20the%20Two%20of%20Us%20Grover%20Washington",
     appleMusicUrl:
-      "https://music.apple.com/us/search?term=Just%20the%20Two%20of%20Us%20Bill%20Withers",
-    tag: "Sample entry / groove pocket / neo-soul touch",
+      "https://music.apple.com/us/search?term=Just%20the%20Two%20of%20Us%20Grover%20Washington",
   },
   {
     title: "Footprints",
     artist: "Wayne Shorter",
+    album: "Adam's Apple",
+    musicalKey: "Cm",
+    cover: coverAdamsApple,
     spotifyUrl: "https://open.spotify.com/search/Footprints%20Wayne%20Shorter",
     appleMusicUrl:
       "https://music.apple.com/us/search?term=Footprints%20Wayne%20Shorter",
-    tag: "Sample entry / modal harmony / comping language",
   },
 ];
 
-export const bookEntries: BookEntry[] = [
+export const workEntries: WorkEntry[] = [
   {
-    title: "A Philosophy of Software Design",
-    author: "John Ousterhout",
-    goodreadsUrl:
-      "https://www.goodreads.com/search?q=A+Philosophy+of+Software+Design",
-    tag: "Sample shelf / engineering craft",
+    client: "Levi's",
+    url: "https://www.levi.com/",
+    description:
+      "Currently collaborating with the team at SCAYLE to migrate Levi's legacy Vue 2 codebase into a modern Vue 3 / Nuxt 4 e-commerce application powered by the SCAYLE Commerce Engine.",
+    techStack: [
+      "Vue 3",
+      "Nuxt 4",
+      "TypeScript",
+      "Constructor",
+      "Contentstack",
+      "Tailwind CSS",
+      "SCAYLE",
+    ],
+    image: workLevi,
   },
   {
-    title: "Ways of Seeing",
-    author: "John Berger",
-    goodreadsUrl: "https://www.goodreads.com/search?q=Ways+of+Seeing",
-    tag: "Sample shelf / visual thinking",
+    client: "Harrods",
+    url: "https://www.harrods.com/",
+    description:
+      "Worked with the SCAYLE and Harrods teams to deliver new features and prepare a full client handover — including technical workshops, architectural documentation, and knowledge transfer.",
+    techStack: [
+      "Vue 3",
+      "Nuxt 3",
+      "TypeScript",
+      "Contentful",
+      "Algolia",
+      "Tailwind CSS",
+      "SCAYLE",
+    ],
+    image: workHarrods,
   },
   {
-    title: "The Creative Act",
-    author: "Rick Rubin",
-    goodreadsUrl: "https://www.goodreads.com/search?q=The+Creative+Act",
-    tag: "Sample shelf / creative practice",
+    client: "Fielmann",
+    url: "https://www.fielmann.de/",
+    description:
+      "Set up and maintained the e-commerce platform across DACH, embedded in the client team for over 1.5 years. Also supported the launch of the Fielmann Italy shop.",
+    techStack: [
+      "Vue 3",
+      "Nuxt 3",
+      "TypeScript",
+      "Storyblok",
+      "Tailwind CSS",
+      "SCAYLE",
+    ],
+    image: workFielmann,
   },
   {
-    title: "The Fire Next Time",
-    author: "James Baldwin",
-    goodreadsUrl: "https://www.goodreads.com/search?q=The+Fire+Next+Time",
-    tag: "Sample shelf / language and perspective",
+    client: "TenneT",
+    url: "https://www.tennet.eu/",
+    description:
+      "Turborepo-based monorepo powering TenneT's corporate website, careers platform, and Storybook design system — unifying shared components, design tokens, and Contentful tooling.",
+    techStack: [
+      "Next.js",
+      "TypeScript",
+      "Turborepo",
+      "Contentful",
+      "Tailwind CSS",
+      "Storybook",
+    ],
+    image: workTennet,
+  },
+  {
+    client: "fussball.de",
+    url: "https://next.fussball.de/",
+    description:
+      "Migrating a legacy platform into a modern Next.js application within a monorepo architecture using Turborepo for the shared code and the site code for the Fussball.de and BFV.de sites.",
+    techStack: [
+      "Next.js",
+      "TypeScript",
+      "Turborepo",
+      "CSS Modules",
+      "Storybook",
+    ],
+    image: workFussballde,
   },
 ];
 
@@ -191,39 +234,28 @@ export const contactLinks: ContactLink[] = [
 
 export const pageCopy = {
   home: {
-    eyebrow: "Portfolio",
     title: siteMeta.name,
     intro: siteMeta.shortBlurb,
     metaDescription: siteMeta.description,
   },
   about: {
-    eyebrow: "About me",
     title: "About me",
-    intro: "A short biography and an editorial CV sheet.",
     metaDescription:
       "Biography and CV for Constantin Unterkofler, Senior Software Engineer based in Berlin.",
   },
   play: {
-    eyebrow: "Play",
-    title: "Play",
-    intro:
-      "Recent tunes and studies gathered as restrained tune sheets with room to swap in the live rotation later.",
-    metaDescription:
-      "A rotating set of guitar tunes and studies, presented as restrained tune sheets.",
+    title: "What I currently play",
+    metaDescription: "A rotating set of guitar tunes and studies.",
   },
-  read: {
-    eyebrow: "Read",
-    title: "Read",
+  work: {
+    title: "Work",
     intro:
-      "Books collected as reading slips, seeded with sample entries until the current stack is filled in.",
+      "At Jung von Matt TECH, I work hands-on within client teams to build and scale digital products, commerce platforms, and modern web applications for international brands including BMW, FIFA, Harrods, Levi's, SCAYLE / ABOUT YOU, Fielmann, and the DFB. Below you'll find some of my personal highlights.",
     metaDescription:
-      "A reading list of books and notes, presented as editorial reading slips.",
+      "Client project highlights by Constantin Unterkofler — commerce platforms, web applications, and digital products for international brands.",
   },
   contact: {
-    eyebrow: "Contact",
     title: "Contact",
-    intro:
-      "A short list of direct contact routes. Current values are placeholders isolated in the content layer.",
     metaDescription:
       "Contact details for Constantin Unterkofler via email, GitHub, and LinkedIn.",
   },
