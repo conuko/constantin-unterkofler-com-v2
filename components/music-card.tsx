@@ -46,7 +46,7 @@ export function MusicCard({ entry, priority = false }: MusicCardProps) {
           aria-label={`Listen to ${entry.title} on Spotify`}
           className="text-ink-muted transition-colors duration-fast hover:text-brand-spotify"
         >
-          <SpotifyIcon className="size-5" />
+          <SpotifyIcon className="size-6" />
         </a>
         <a
           href={entry.appleMusicUrl}
@@ -55,7 +55,7 @@ export function MusicCard({ entry, priority = false }: MusicCardProps) {
           aria-label={`Listen to ${entry.title} on Apple Music`}
           className="text-ink-muted transition-colors duration-fast hover:text-brand-apple-music"
         >
-          <AppleMusicIcon className="size-5" />
+          <AppleMusicIcon className="size-6" />
         </a>
       </div>
     </article>

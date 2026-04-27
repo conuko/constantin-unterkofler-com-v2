@@ -72,12 +72,12 @@ export default function RootLayout({
             <main
               id="main-content"
               tabIndex={-1}
-              className="outline-none max-w-3xl mx-auto w-full"
+              className="outline-none max-w-3xl mx-auto w-full pb-16"
             >
               {children}
             </main>
-            <footer className="fixed inset-x-0 bottom-8 flex items-end justify-between px-6">
-              <p className="text-xs text-ink-muted">© 2026</p>
+            <footer className="fixed inset-x-0 bottom-8 flex items-end justify-between px-6 pointer-events-none">
+              <p className="text-xs text-ink-muted pointer-events-auto">© 2026</p>
             </footer>
           </div>
         </ThemeProvider>
