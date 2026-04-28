@@ -10,12 +10,16 @@ export const metadata: Metadata = {
 };
 
 export default function AboutPage() {
+  const work = cvEntries.filter((e) => e.kind === "work");
+  const education = cvEntries.filter((e) => e.kind === "education");
+
   return (
     <PageShell title={pageCopy.about.title} isNarrow>
       <FadeIn>
         <p className="text-sm text-ink-muted">{aboutParagraphs.join(" ")}</p>
       </FadeIn>
-      <CvList entries={cvEntries} />
+      <CvList entries={work} title="Work" />
+      <CvList entries={education} title="Education" />
     </PageShell>
   );
 }

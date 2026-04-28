@@ -20,6 +20,7 @@ export type CvEntry = {
   organization: string;
   role: string;
   years: string;
+  kind: "work" | "education";
 };
 
 export type TrackEntry = {
@@ -76,31 +77,37 @@ export const cvEntries: CvEntry[] = [
     organization: "Jung von Matt TECH",
     role: "Senior Software Engineer",
     years: "2026–",
+    kind: "work",
   },
   {
     organization: "Jung von Matt TECH",
     role: "Software Engineer",
     years: "2021–2026",
+    kind: "work",
   },
   {
     organization: "WESOUND",
     role: "Junior Software Engineer",
     years: "2020–21",
+    kind: "work",
   },
   {
     organization: "WESOUND",
     role: "Project & Office Manager",
     years: "2018–20",
+    kind: "work",
   },
   {
     organization: "CODE University of Applied Sciences",
     role: "BSc Software Engineering",
-    years: "2021–25",
+    years: "2021–26",
+    kind: "education",
   },
   {
     organization: "Humboldt University Berlin",
     role: "BA Cultural Studies & Philosophy",
     years: "2017–21",
+    kind: "education",
   },
 ];
 
