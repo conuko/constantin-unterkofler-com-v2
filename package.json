@@ -11,25 +11,25 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "lucide-react": "^1.11.0",
-    "motion": "^12.38.0",
-    "next": "16.2.4",
+    "lucide-react": "^1.25.0",
+    "motion": "^12.42.2",
+    "next": "16.2.11",
     "next-themes": "^0.4.6",
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.0",
+    "@biomejs/biome": "2.5.5",
     "@svgr/webpack": "^8.1.0",
-    "@tailwindcss/postcss": "^4",
+    "@tailwindcss/postcss": "^4.3.3",
     "@total-typescript/ts-reset": "^0.6.1",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/node": "^26.1.1",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
     "babel-plugin-react-compiler": "1.0.0",
     "clsx": "^2.1.1",
-    "tailwind-merge": "^3.5.0",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "tailwind-merge": "^3.6.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.3"
   }
 }
