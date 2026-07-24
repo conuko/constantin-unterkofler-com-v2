@@ -11,10 +11,7 @@ type MusicCardProps = {
   priority?: boolean;
 };
 
-export function MusicCard({
-  entry,
-  priority = false,
-}: MusicCardProps) {
+export function MusicCard({ entry, priority = false }: MusicCardProps) {
   return (
     <m.article
       variants={gridCardIn}
@@ -28,8 +25,8 @@ export function MusicCard({
         transition={springSnappy}
       >
         <Image
-          src={entry.cover}
-          alt={`${entry.album} by ${entry.artist}`}
+          src={entry.cover.src}
+          alt={entry.cover.alt}
           placeholder="blur"
           priority={priority}
           fetchPriority={priority ? "high" : undefined}

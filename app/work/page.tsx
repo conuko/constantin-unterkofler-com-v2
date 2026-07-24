@@ -3,26 +3,23 @@ import { FadeIn } from "@/components/fade-in";
 import { PageShell } from "@/components/page-shell";
 import { StaggerGrid } from "@/components/stagger-grid";
 import { WorkCard } from "@/components/work-card";
-import { pageCopy, workEntries } from "@/content/site-content";
+import { portfolioContent } from "@/content/site-content";
 
-export const metadata: Metadata = {
-  title: "Work",
-  description: pageCopy.work.metaDescription,
-};
+const work = portfolioContent.pages.work;
+
+export const metadata: Metadata = work.metadata;
 
 export default function WorkPage() {
   return (
-    <PageShell title={pageCopy.work.title}>
+    <PageShell title={work.title}>
       <FadeIn>
-        <p className="max-w-xl text-sm text-ink-muted">{pageCopy.work.intro}</p>
+        <p className="max-w-xl text-sm text-ink-muted">
+          {work.content.introduction}
+        </p>
       </FadeIn>
       <StaggerGrid className="grid grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-2">
-        {workEntries.map((entry, index) => (
-          <WorkCard
-            key={entry.client}
-            entry={entry}
-            priority={index < 4}
-          />
+        {work.content.entries.map((entry, index) => (
+          <WorkCard key={entry.client} entry={entry} priority={index < 4} />
         ))}
       </StaggerGrid>
     </PageShell>

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Bebas_Neue, Space_Grotesk } from "next/font/google";
 import type { ReactNode } from "react";
 import { MotionLayout } from "@/components/motion-layout";
-import { headerNavItems, siteMeta } from "@/content/site-content";
+import { portfolioContent } from "@/content/site-content";
 import "./globals.css";
 
 const displayFont = Bebas_Neue({
@@ -20,10 +20,10 @@ const bodyFont = Space_Grotesk({
 
 export const metadata: Metadata = {
   title: {
-    default: siteMeta.name,
-    template: `%s | ${siteMeta.name}`,
+    default: portfolioContent.identity.name,
+    template: `%s | ${portfolioContent.identity.name}`,
   },
-  description: siteMeta.description,
+  description: portfolioContent.identity.description,
 };
 
 export default function RootLayout({
@@ -38,7 +38,10 @@ export default function RootLayout({
       className={`${displayFont.variable} ${bodyFont.variable}`}
     >
       <body className="flex min-h-dvh flex-col bg-paper text-ink leading-relaxed">
-        <MotionLayout shortName={siteMeta.shortName} navItems={headerNavItems}>
+        <MotionLayout
+          shortName={portfolioContent.identity.shortName}
+          navItems={portfolioContent.primaryWayfinding}
+        >
           {children}
         </MotionLayout>
       </body>

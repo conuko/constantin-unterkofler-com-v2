@@ -1,26 +1,25 @@
 import type { Metadata } from "next";
 import { FadeIn } from "@/components/fade-in";
 import { PageShell } from "@/components/page-shell";
-import { pageCopy } from "@/content/site-content";
+import { portfolioContent } from "@/content/site-content";
 
-export const metadata: Metadata = {
-  title: "Home",
-  description: pageCopy.home.metaDescription,
-};
+const home = portfolioContent.pages.home;
+
+export const metadata: Metadata = home.metadata;
 
 export default function Home() {
   return (
-    <PageShell title={pageCopy.home.title}>
+    <PageShell title={home.title}>
       <FadeIn>
         <p className="text-sm text-ink-muted text-center">
-          Senior Software Engineer at{" "}
+          {home.content.introduction.role} at{" "}
           <a
-            href="https://www.jvm.com/"
+            href={home.content.introduction.organization.url}
             target="_blank"
             rel="noopener noreferrer"
             className="underline hover:text-ink"
           >
-            Jung von Matt
+            {home.content.introduction.organization.name}
           </a>
           .
         </p>

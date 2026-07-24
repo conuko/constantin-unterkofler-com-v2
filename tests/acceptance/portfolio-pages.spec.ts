@@ -24,12 +24,16 @@ const portfolioPages = [
     path: "/work",
     heading: "Work",
     representativeContent: "Levi's",
+    representativeImageDescription:
+      "Levi's homepage featuring the A New Shape of Blue denim campaign",
   },
   {
     name: "Play",
     path: "/play",
     heading: "What I currently play",
     representativeContent: "Oh Chérie",
+    representativeImageDescription:
+      "Oh Chérie cover with three red cherries on a blue background",
   },
 ] as const;
 
@@ -107,6 +111,13 @@ for (const portfolioPage of portfolioPages) {
         .getByText(portfolioPage.representativeContent, { exact: false })
         .first(),
     ).toBeVisible();
+    if ("representativeImageDescription" in portfolioPage) {
+      await expect(
+        page.getByRole("img", {
+          name: portfolioPage.representativeImageDescription,
+        }),
+      ).toBeVisible();
+    }
     await expect(page.getByRole("link", { name: "Home" })).toBeVisible();
     await expectPrimaryWayfinding(page, isMobile);
 

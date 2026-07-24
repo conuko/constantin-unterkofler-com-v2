@@ -2,24 +2,25 @@ import type { Metadata } from "next";
 import { CvList } from "@/components/cv-list";
 import { FadeIn } from "@/components/fade-in";
 import { PageShell } from "@/components/page-shell";
-import { aboutParagraphs, cvEntries, pageCopy } from "@/content/site-content";
+import { portfolioContent } from "@/content/site-content";
 
-export const metadata: Metadata = {
-  title: "About me",
-  description: pageCopy.about.metaDescription,
-};
+const about = portfolioContent.pages.about;
+
+export const metadata: Metadata = about.metadata;
 
 export default function AboutPage() {
-  const work = cvEntries.filter((e) => e.kind === "work");
-  const education = cvEntries.filter((e) => e.kind === "education");
-
   return (
-    <PageShell title={pageCopy.about.title} isNarrow>
+    <PageShell title={about.title} isNarrow>
       <FadeIn>
-        <p className="text-sm text-ink-muted">{aboutParagraphs.join(" ")}</p>
+        <p className="text-sm text-ink-muted">{about.content.introduction}</p>
       </FadeIn>
-      <CvList entries={work} title="Work" />
-      <CvList entries={education} title="Education" />
+      {about.content.cvSections.map((section) => (
+        <CvList
+          key={section.title}
+          entries={section.entries}
+          title={section.title}
+        />
+      ))}
     </PageShell>
   );
 }

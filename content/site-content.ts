@@ -20,7 +20,15 @@ export type CvEntry = {
   organization: string;
   role: string;
   years: string;
-  kind: "work" | "education";
+};
+
+type CategorizedCvEntry = CvEntry & {
+  category: "work" | "education";
+};
+
+type ContentImage = {
+  src: StaticImageData;
+  alt: string;
 };
 
 export type TrackEntry = {
@@ -28,7 +36,7 @@ export type TrackEntry = {
   artist: string;
   album: string;
   musicalKey: string;
-  cover: StaticImageData;
+  cover: ContentImage;
   spotifyUrl: string;
   appleMusicUrl: string;
 };
@@ -38,7 +46,7 @@ export type WorkEntry = {
   url: string;
   description: string;
   techStack: string[];
-  image: StaticImageData;
+  image: ContentImage;
 };
 
 export type ContactLink = {
@@ -47,77 +55,65 @@ export type ContactLink = {
   value: string;
 };
 
-export const siteMeta = {
+const identity = {
   name: "Constantin Unterkofler",
   shortName: "CU",
   description:
     "Personal portfolio of Constantin Unterkofler, a Senior Software Engineer building thoughtful digital products and scalable web experiences.",
-  shortBlurb: "Senior Software Engineer at Jung von Matt.",
 };
 
-export const headerNavItems: NavItem[] = [
-  { href: "/about", label: "About me" },
-  { href: "/contact", label: "Contact" },
-  { href: "/work", label: "Work" },
-  { href: "/play", label: "Play" },
-];
+const aboutIntroduction =
+  "I’m a Senior Software Engineer passionate about building thoughtful digital products and scalable web experiences. Italian-German, grew up in Bolzano, Italy, now based in Berlin. I studied Philosophy and Cultural Studies before earning a degree in Software Engineering. Currently I work at Jung von Matt. Outside of work, I play guitar with a love for funk, neo-soul, pop, and jazz.";
 
-// TODO: restore separate footer nav when the footer layout is revisited
-// export const footerNavItems: NavItem[] = [
-//   { href: "/work", label: "Work" },
-//   { href: "/play", label: "Play" },
-// ];
-
-export const aboutParagraphs = [
-  "I’m a Senior Software Engineer passionate about building thoughtful digital products and scalable web experiences. Italian-German, grew up in Bolzano, Italy, now based in Berlin. I studied Philosophy and Cultural Studies before earning a degree in Software Engineering. Currently I work at Jung von Matt. Outside of work, I play guitar with a love for funk, neo-soul, pop, and jazz.",
-];
-
-export const cvEntries: CvEntry[] = [
+const cvEntries: CategorizedCvEntry[] = [
   {
     organization: "Jung von Matt TECH",
     role: "Senior Software Engineer",
     years: "2026–",
-    kind: "work",
+    category: "work",
   },
   {
     organization: "Jung von Matt TECH",
     role: "Software Engineer",
     years: "2021–2026",
-    kind: "work",
+    category: "work",
   },
   {
     organization: "WESOUND",
     role: "Junior Software Engineer",
     years: "2020–21",
-    kind: "work",
+    category: "work",
   },
   {
     organization: "WESOUND",
     role: "Project & Office Manager",
     years: "2018–20",
-    kind: "work",
+    category: "work",
   },
   {
     organization: "CODE University of Applied Sciences",
     role: "BSc Software Engineering",
     years: "2021–26",
-    kind: "education",
+    category: "education",
   },
   {
     organization: "Humboldt University Berlin",
     role: "BA Cultural Studies & Philosophy",
     years: "2017–21",
-    kind: "education",
+    category: "education",
   },
 ];
 
-export const trackEntries: TrackEntry[] = [
+const trackEntries: TrackEntry[] = [
   {
     title: "Oh Chérie",
     artist: "DAS MAER",
     album: "Oh Chérie",
     musicalKey: "Am",
-    cover: coverOhCherie,
+    cover: {
+      src: coverOhCherie,
+      alt: "Oh Chérie cover with three red cherries on a blue background",
+    },
     spotifyUrl: "https://open.spotify.com/search/Oh%20Ch%C3%A9rie%20DAS%20MAER",
     appleMusicUrl:
       "https://music.apple.com/us/search?term=Oh%20Ch%C3%A9rie%20DAS%20MAER",
@@ -127,7 +123,10 @@ export const trackEntries: TrackEntry[] = [
     artist: "Cory Wong",
     album: "Elevator Music for an Elevated Mood",
     musicalKey: "Db",
-    cover: coverElevatorMusic,
+    cover: {
+      src: coverElevatorMusic,
+      alt: "Cory Wong playing guitar on the Elevator Music for an Elevated Mood cover",
+    },
     spotifyUrl: "https://open.spotify.com/search/Airplane%20Mode%20Cory%20Wong",
     appleMusicUrl:
       "https://music.apple.com/us/search?term=Airplane%20Mode%20Cory%20Wong",
@@ -137,7 +136,10 @@ export const trackEntries: TrackEntry[] = [
     artist: "Stevie Wonder",
     album: "Songs in the Key of Life",
     musicalKey: "E",
-    cover: coverSongsInTheKeyOfLife,
+    cover: {
+      src: coverSongsInTheKeyOfLife,
+      alt: "Songs in the Key of Life cover with warm concentric circles around Stevie Wonder",
+    },
     spotifyUrl:
       "https://open.spotify.com/search/Isn't%20She%20Lovely%20Stevie%20Wonder",
     appleMusicUrl:
@@ -148,7 +150,10 @@ export const trackEntries: TrackEntry[] = [
     artist: "Bill Evans / Jim Hall",
     album: "Undercurrent",
     musicalKey: "G",
-    cover: coverUndercurrent,
+    cover: {
+      src: coverUndercurrent,
+      alt: "Undercurrent album cover showing a woman floating underwater",
+    },
     spotifyUrl:
       "https://open.spotify.com/search/Darn%20That%20Dream%20Bill%20Evans%20Jim%20Hall",
     appleMusicUrl:
@@ -159,7 +164,10 @@ export const trackEntries: TrackEntry[] = [
     artist: "The Fearless Flyers",
     album: "The Fearless Flyers",
     musicalKey: "E",
-    cover: coverTheFearlessFlyers,
+    cover: {
+      src: coverTheFearlessFlyers,
+      alt: "The Fearless Flyers cover collage of the band playing guitar and drums",
+    },
     spotifyUrl:
       "https://open.spotify.com/search/Ace%20of%20Aces%20Fearless%20Flyers",
     appleMusicUrl:
@@ -170,14 +178,17 @@ export const trackEntries: TrackEntry[] = [
     artist: "Jeff Beck",
     album: "Live at Ronnie Scott's",
     musicalKey: "Em",
-    cover: coverLiveAtRonnieScotts,
+    cover: {
+      src: coverLiveAtRonnieScotts,
+      alt: "Jeff Beck playing guitar on the Live at Ronnie Scott's cover",
+    },
     spotifyUrl: "https://open.spotify.com/search/Stratus%20Jeff%20Beck",
     appleMusicUrl:
       "https://music.apple.com/us/search?term=Stratus%20Jeff%20Beck",
   },
 ];
 
-export const workEntries: WorkEntry[] = [
+const workEntries: WorkEntry[] = [
   {
     client: "Levi's",
     url: "https://www.levi.com/",
@@ -192,7 +203,10 @@ export const workEntries: WorkEntry[] = [
       "Tailwind CSS",
       "SCAYLE",
     ],
-    image: workLevi,
+    image: {
+      src: workLevi,
+      alt: "Levi's homepage featuring the A New Shape of Blue denim campaign",
+    },
   },
   {
     client: "Harrods",
@@ -208,7 +222,10 @@ export const workEntries: WorkEntry[] = [
       "Tailwind CSS",
       "SCAYLE",
     ],
-    image: workHarrods,
+    image: {
+      src: workHarrods,
+      alt: "Harrods homepage featuring two fashion models in a summer garden",
+    },
   },
   {
     client: "Fielmann",
@@ -223,7 +240,10 @@ export const workEntries: WorkEntry[] = [
       "Tailwind CSS",
       "SCAYLE",
     ],
-    image: workFielmann,
+    image: {
+      src: workFielmann,
+      alt: "Fielmann homepage featuring two people wearing sunglasses",
+    },
   },
   {
     client: "TenneT",
@@ -238,7 +258,10 @@ export const workEntries: WorkEntry[] = [
       "Tailwind CSS",
       "Storybook",
     ],
-    image: workTennet,
+    image: {
+      src: workTennet,
+      alt: "TenneT Germany homepage with a wind turbine and solar panels in a green landscape",
+    },
   },
   {
     client: "fussball.de",
@@ -252,11 +275,14 @@ export const workEntries: WorkEntry[] = [
       "CSS Modules",
       "Storybook",
     ],
-    image: workFussballde,
+    image: {
+      src: workFussballde,
+      alt: "FUSSBALL.DE community homepage with an amateur football news feed and league subscriptions",
+    },
   },
 ];
 
-export const contactLinks: ContactLink[] = [
+const contactLinks: ContactLink[] = [
   {
     label: "Email",
     href: "mailto:mail@constantinunterkofler.com",
@@ -274,31 +300,130 @@ export const contactLinks: ContactLink[] = [
   },
 ];
 
-export const pageCopy = {
+const portfolioPages = {
   home: {
-    title: siteMeta.name,
-    intro: siteMeta.shortBlurb,
-    metaDescription: siteMeta.description,
+    route: "/",
+    title: identity.name,
+    metadata: {
+      title: "Home",
+      description: identity.description,
+    },
+    content: {
+      introduction: {
+        role: "Senior Software Engineer",
+        organization: {
+          name: "Jung von Matt",
+          url: "https://www.jvm.com/",
+        },
+      },
+    },
   },
   about: {
+    route: "/about",
     title: "About me",
-    metaDescription:
-      "Biography and CV for Constantin Unterkofler, Senior Software Engineer based in Berlin.",
-  },
-  play: {
-    title: "What I currently play",
-    metaDescription: "A rotating set of guitar tunes and studies.",
-  },
-  work: {
-    title: "Work",
-    intro:
-      "At Jung von Matt, I work hands-on within client teams to build and scale digital products, commerce platforms, and modern web applications for international brands including BMW, FIFA, Harrods, Levi's, SCAYLE / ABOUT YOU, Fielmann, and the DFB. Below you'll find some of my personal highlights.",
-    metaDescription:
-      "Client project highlights by Constantin Unterkofler — commerce platforms, web applications, and digital products for international brands.",
+    metadata: {
+      title: "About me",
+      description:
+        "Biography and CV for Constantin Unterkofler, Senior Software Engineer based in Berlin.",
+    },
+    primaryWayfinding: {
+      label: "About me",
+      order: 1,
+    },
+    content: {
+      introduction: aboutIntroduction,
+      cvSections: [
+        {
+          title: "Work",
+          entries: cvEntries
+            .filter((entry) => entry.category === "work")
+            .map(({ organization, role, years }) => ({
+              organization,
+              role,
+              years,
+            })),
+        },
+        {
+          title: "Education",
+          entries: cvEntries
+            .filter((entry) => entry.category === "education")
+            .map(({ organization, role, years }) => ({
+              organization,
+              role,
+              years,
+            })),
+        },
+      ],
+    },
   },
   contact: {
+    route: "/contact",
     title: "Contact",
-    metaDescription:
-      "Contact details for Constantin Unterkofler via email, GitHub, and LinkedIn.",
+    metadata: {
+      title: "Contact",
+      description:
+        "Contact details for Constantin Unterkofler via email, GitHub, and LinkedIn.",
+    },
+    primaryWayfinding: {
+      label: "Contact",
+      order: 2,
+    },
+    content: {
+      entries: contactLinks,
+    },
   },
-};
+  work: {
+    route: "/work",
+    title: "Work",
+    metadata: {
+      title: "Work",
+      description:
+        "Client project highlights by Constantin Unterkofler — commerce platforms, web applications, and digital products for international brands.",
+    },
+    primaryWayfinding: {
+      label: "Work",
+      order: 3,
+    },
+    content: {
+      introduction:
+        "At Jung von Matt, I work hands-on within client teams to build and scale digital products, commerce platforms, and modern web applications for international brands including BMW, FIFA, Harrods, Levi's, SCAYLE / ABOUT YOU, Fielmann, and the DFB. Below you'll find some of my personal highlights.",
+      entries: workEntries,
+    },
+  },
+  play: {
+    route: "/play",
+    title: "What I currently play",
+    metadata: {
+      title: "Play",
+      description: "A rotating set of guitar tunes and studies.",
+    },
+    primaryWayfinding: {
+      label: "Play",
+      order: 4,
+    },
+    content: {
+      entries: trackEntries,
+    },
+  },
+} as const;
+
+const primaryWayfinding: NavItem[] = Object.values(portfolioPages)
+  .flatMap((page) =>
+    "primaryWayfinding" in page
+      ? [
+          {
+            href: page.route,
+            label: page.primaryWayfinding.label,
+            order: page.primaryWayfinding.order,
+          },
+        ]
+      : [],
+  )
+  .sort((a, b) => a.order - b.order)
+  .map(({ href, label }) => ({ href, label }));
+
+export const portfolioContent = {
+  identity,
+  pages: portfolioPages,
+  primaryWayfinding,
+} as const;

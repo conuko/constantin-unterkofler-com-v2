@@ -10,10 +10,7 @@ type WorkCardProps = {
   priority?: boolean;
 };
 
-export function WorkCard({
-  entry,
-  priority = false,
-}: WorkCardProps) {
+export function WorkCard({ entry, priority = false }: WorkCardProps) {
   return (
     <m.article
       variants={gridCardIn}
@@ -33,8 +30,8 @@ export function WorkCard({
           transition={springSnappy}
         >
           <Image
-            src={entry.image}
-            alt={`${entry.client} project screenshot`}
+            src={entry.image.src}
+            alt={entry.image.alt}
             placeholder="blur"
             priority={priority}
             fetchPriority={priority ? "high" : undefined}
