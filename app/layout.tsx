@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Bebas_Neue, Space_Grotesk } from "next/font/google";
 import type { ReactNode } from "react";
 import { MotionLayout } from "@/components/motion-layout";
+import { SiteHeader } from "@/components/site-header";
 import { portfolioContent } from "@/content/site-content";
 import "./globals.css";
 
@@ -38,11 +39,17 @@ export default function RootLayout({
       className={`${displayFont.variable} ${bodyFont.variable}`}
     >
       <body className="flex min-h-dvh flex-col bg-paper text-ink leading-relaxed">
-        <MotionLayout
-          shortName={portfolioContent.identity.shortName}
-          navItems={portfolioContent.primaryWayfinding}
-        >
-          {children}
+        <MotionLayout>
+          <SiteHeader
+            identity={portfolioContent.identity}
+            primaryWayfinding={portfolioContent.primaryWayfinding}
+          />
+          <main
+            id="main-content"
+            className="max-w-3xl mx-auto w-full pb-16 flex-1"
+          >
+            {children}
+          </main>
         </MotionLayout>
       </body>
     </html>
