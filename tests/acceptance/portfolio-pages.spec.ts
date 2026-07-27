@@ -1,5 +1,9 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
 
+type WorkMotionWindow = Window & {
+  __workMotionStarts?: Record<number, number>;
+};
+
 const portfolioPages = [
   {
     name: "Home",
@@ -203,6 +207,175 @@ test("About Portfolio Page presents the complete ordered CV", async ({
       ).toBeVisible();
     }
   }
+});
+
+test("Work Portfolio Page presents its ordered responsive project collection", async ({
+  page,
+}, testInfo) => {
+  const projects = [
+    {
+      client: "Levi's",
+      url: "https://www.levi.com/",
+      imageDescription:
+        "Levi's homepage featuring the A New Shape of Blue denim campaign",
+    },
+    {
+      client: "Harrods",
+      url: "https://www.harrods.com/",
+      imageDescription:
+        "Harrods homepage featuring two fashion models in a summer garden",
+    },
+    {
+      client: "Fielmann",
+      url: "https://www.fielmann.de/",
+      imageDescription:
+        "Fielmann homepage featuring two people wearing sunglasses",
+    },
+    {
+      client: "TenneT",
+      url: "https://www.tennet.eu/",
+      imageDescription:
+        "TenneT Germany homepage with a wind turbine and solar panels in a green landscape",
+    },
+    {
+      client: "fussball.de",
+      url: "https://next.fussball.de/",
+      imageDescription:
+        "FUSSBALL.DE community homepage with an amateur football news feed and league subscriptions",
+    },
+  ];
+
+  await page.addInitScript(() => {
+    const motionWindow = window as WorkMotionWindow;
+    const workMotionStarts: Record<number, number> = {};
+    motionWindow.__workMotionStarts = workMotionStarts;
+
+    new MutationObserver((mutations) => {
+      const motionFrame = performance.now();
+
+      for (const mutation of mutations) {
+        const project = mutation.target;
+        if (
+          !(project instanceof HTMLElement) ||
+          project.tagName !== "ARTICLE"
+        ) {
+          continue;
+        }
+
+        const projectIndex = Array.from(
+          document.querySelectorAll("article"),
+        ).indexOf(project);
+        const opacity = Number.parseFloat(getComputedStyle(project).opacity);
+
+        if (
+          projectIndex >= 0 &&
+          opacity > 0 &&
+          opacity < 1 &&
+          workMotionStarts[projectIndex] === undefined
+        ) {
+          workMotionStarts[projectIndex] = motionFrame;
+        }
+      }
+    }).observe(document, {
+      attributes: true,
+      attributeFilter: ["style"],
+      subtree: true,
+    });
+  });
+
+  await page.goto("/work");
+
+  const projectsInOrder = page.getByRole("main").locator("article");
+  await expect(projectsInOrder).toHaveCount(projects.length);
+  await expect(projectsInOrder.getByRole("heading", { level: 2 })).toHaveText(
+    projects.map(({ client }) => client),
+  );
+
+  for (const [index, project] of projects.entries()) {
+    const renderedProject = projectsInOrder.nth(index);
+    const clientLink = renderedProject.getByRole("link", {
+      name: `Visit ${project.client}`,
+    });
+
+    await expect(clientLink).toHaveAttribute("href", project.url);
+    await expect(clientLink).toHaveAttribute("target", "_blank");
+    await expect(clientLink).toHaveAttribute("rel", /noopener/);
+    await expect(
+      renderedProject.getByRole("img", { name: project.imageDescription }),
+    ).toBeVisible();
+  }
+
+  const firstProject = projectsInOrder.first();
+  await expect(
+    firstProject.getByText("Currently collaborating with the team at SCAYLE", {
+      exact: false,
+    }),
+  ).toHaveCount(2);
+  for (const technology of ["Vue 3", "Nuxt 4", "TypeScript", "SCAYLE"]) {
+    await expect(
+      firstProject.getByText(technology, { exact: true }),
+    ).toBeVisible();
+  }
+
+  const firstProjectBox = await projectsInOrder.first().boundingBox();
+  const secondProjectBox = await projectsInOrder.nth(1).boundingBox();
+  expect(firstProjectBox).not.toBeNull();
+  expect(secondProjectBox).not.toBeNull();
+  if (!firstProjectBox || !secondProjectBox) {
+    throw new Error("Expected the first two Work projects to be rendered");
+  }
+
+  if (testInfo.project.use.isMobile) {
+    expect(secondProjectBox.y).toBeGreaterThan(firstProjectBox.y);
+    expect(Math.abs(secondProjectBox.x - firstProjectBox.x)).toBeLessThan(2);
+  } else {
+    expect(Math.abs(secondProjectBox.y - firstProjectBox.y)).toBeLessThan(2);
+    expect(secondProjectBox.x).toBeGreaterThan(firstProjectBox.x);
+  }
+
+  const imageLoading = await projectsInOrder
+    .getByRole("img")
+    .evaluateAll((images) =>
+      images.map((image) => ({
+        fetchPriority: (image as HTMLImageElement).fetchPriority,
+        loading: (image as HTMLImageElement).loading,
+      })),
+    );
+  expect(imageLoading).toEqual([
+    { fetchPriority: "high", loading: "auto" },
+    { fetchPriority: "high", loading: "auto" },
+    { fetchPriority: "high", loading: "auto" },
+    { fetchPriority: "high", loading: "auto" },
+    { fetchPriority: "auto", loading: "lazy" },
+  ]);
+  await expect(
+    page.locator('head link[rel="preload"][as="image"]'),
+  ).toHaveCount(4);
+
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          Object.keys((window as WorkMotionWindow).__workMotionStarts ?? {})
+            .length,
+      ),
+    )
+    .toBe(projects.length);
+  const motionStarts = await page.evaluate(
+    () => (window as WorkMotionWindow).__workMotionStarts ?? {},
+  );
+  for (let projectIndex = 1; projectIndex < projects.length; projectIndex++) {
+    expect(motionStarts[projectIndex]).toBeGreaterThan(
+      motionStarts[projectIndex - 1],
+    );
+  }
+
+  await firstProject.hover();
+  await expect
+    .poll(() =>
+      firstProject.evaluate((element) => getComputedStyle(element).transform),
+    )
+    .not.toBe("none");
 });
 
 test("Escape closes the mobile disclosure and restores focus", async ({
