@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { CvList } from "@/components/cv-list";
+import { Cv } from "@/components/cv";
 import { FadeIn } from "@/components/fade-in";
 import { PageShell } from "@/components/page-shell";
 import { portfolioContent } from "@/content/site-content";
@@ -14,13 +14,7 @@ export default function AboutPage() {
       <FadeIn>
         <p className="text-sm text-ink-muted">{about.content.introduction}</p>
       </FadeIn>
-      {about.content.cvSections.map((section) => (
-        <CvList
-          key={section.title}
-          entries={section.entries}
-          title={section.title}
-        />
-      ))}
+      <Cv sections={about.content.cvSections} />
     </PageShell>
   );
 }

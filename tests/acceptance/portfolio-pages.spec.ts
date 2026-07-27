@@ -125,6 +125,86 @@ for (const portfolioPage of portfolioPages) {
   });
 }
 
+test("About Portfolio Page presents the complete ordered CV", async ({
+  page,
+}) => {
+  await page.goto("/about");
+
+  const main = page.getByRole("main");
+  const sections = [
+    {
+      title: "Work",
+      entries: [
+        {
+          organization: "Jung von Matt TECH",
+          role: "Senior Software Engineer",
+          years: "2026–",
+        },
+        {
+          organization: "Jung von Matt TECH",
+          role: "Software Engineer",
+          years: "2021–2026",
+        },
+        {
+          organization: "WESOUND",
+          role: "Junior Software Engineer",
+          years: "2020–21",
+        },
+        {
+          organization: "WESOUND",
+          role: "Project & Office Manager",
+          years: "2018–20",
+        },
+      ],
+    },
+    {
+      title: "Education",
+      entries: [
+        {
+          organization: "CODE University of Applied Sciences",
+          role: "BSc Software Engineering",
+          years: "2021–26",
+        },
+        {
+          organization: "Humboldt University Berlin",
+          role: "BA Cultural Studies & Philosophy",
+          years: "2017–21",
+        },
+      ],
+    },
+  ];
+
+  await expect(main.getByRole("heading", { level: 2 })).toHaveText(
+    sections.map((section) => section.title),
+  );
+
+  const lists = main.getByRole("list");
+  await expect(lists).toHaveCount(sections.length);
+
+  for (const [sectionIndex, section] of sections.entries()) {
+    const entries = lists.nth(sectionIndex).getByRole("listitem");
+    await expect(entries).toHaveCount(section.entries.length);
+
+    for (const [entryIndex, entry] of section.entries.entries()) {
+      const renderedEntry = entries.nth(entryIndex);
+
+      await expect(
+        renderedEntry.getByRole("heading", {
+          level: 3,
+          name: entry.organization,
+          exact: true,
+        }),
+      ).toBeVisible();
+      await expect(
+        renderedEntry.getByText(entry.role, { exact: true }),
+      ).toBeVisible();
+      await expect(
+        renderedEntry.getByText(entry.years, { exact: true }),
+      ).toBeVisible();
+    }
+  }
+});
+
 test("Escape closes the mobile disclosure and restores focus", async ({
   page,
 }, testInfo) => {

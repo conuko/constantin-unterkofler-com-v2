@@ -16,14 +16,15 @@ export type NavItem = {
   label: string;
 };
 
-export type CvEntry = {
+type CvEntry = {
   organization: string;
   role: string;
   years: string;
 };
 
-type CategorizedCvEntry = CvEntry & {
-  category: "work" | "education";
+export type CvSection = {
+  title: string;
+  entries: CvEntry[];
 };
 
 type ContentImage = {
@@ -65,42 +66,46 @@ const identity = {
 const aboutIntroduction =
   "I’m a Senior Software Engineer passionate about building thoughtful digital products and scalable web experiences. Italian-German, grew up in Bolzano, Italy, now based in Berlin. I studied Philosophy and Cultural Studies before earning a degree in Software Engineering. Currently I work at Jung von Matt. Outside of work, I play guitar with a love for funk, neo-soul, pop, and jazz.";
 
-const cvEntries: CategorizedCvEntry[] = [
+const cvSections: CvSection[] = [
   {
-    organization: "Jung von Matt TECH",
-    role: "Senior Software Engineer",
-    years: "2026–",
-    category: "work",
+    title: "Work",
+    entries: [
+      {
+        organization: "Jung von Matt TECH",
+        role: "Senior Software Engineer",
+        years: "2026–",
+      },
+      {
+        organization: "Jung von Matt TECH",
+        role: "Software Engineer",
+        years: "2021–2026",
+      },
+      {
+        organization: "WESOUND",
+        role: "Junior Software Engineer",
+        years: "2020–21",
+      },
+      {
+        organization: "WESOUND",
+        role: "Project & Office Manager",
+        years: "2018–20",
+      },
+    ],
   },
   {
-    organization: "Jung von Matt TECH",
-    role: "Software Engineer",
-    years: "2021–2026",
-    category: "work",
-  },
-  {
-    organization: "WESOUND",
-    role: "Junior Software Engineer",
-    years: "2020–21",
-    category: "work",
-  },
-  {
-    organization: "WESOUND",
-    role: "Project & Office Manager",
-    years: "2018–20",
-    category: "work",
-  },
-  {
-    organization: "CODE University of Applied Sciences",
-    role: "BSc Software Engineering",
-    years: "2021–26",
-    category: "education",
-  },
-  {
-    organization: "Humboldt University Berlin",
-    role: "BA Cultural Studies & Philosophy",
-    years: "2017–21",
-    category: "education",
+    title: "Education",
+    entries: [
+      {
+        organization: "CODE University of Applied Sciences",
+        role: "BSc Software Engineering",
+        years: "2021–26",
+      },
+      {
+        organization: "Humboldt University Berlin",
+        role: "BA Cultural Studies & Philosophy",
+        years: "2017–21",
+      },
+    ],
   },
 ];
 
@@ -332,28 +337,7 @@ const portfolioPages = {
     },
     content: {
       introduction: aboutIntroduction,
-      cvSections: [
-        {
-          title: "Work",
-          entries: cvEntries
-            .filter((entry) => entry.category === "work")
-            .map(({ organization, role, years }) => ({
-              organization,
-              role,
-              years,
-            })),
-        },
-        {
-          title: "Education",
-          entries: cvEntries
-            .filter((entry) => entry.category === "education")
-            .map(({ organization, role, years }) => ({
-              organization,
-              role,
-              years,
-            })),
-        },
-      ],
+      cvSections,
     },
   },
   contact: {
