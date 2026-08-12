@@ -4,6 +4,10 @@ type WorkMotionWindow = Window & {
   __workMotionStarts?: Record<number, number>;
 };
 
+type PlayMotionWindow = Window & {
+  __playMotionStarts?: Record<number, number>;
+};
+
 const portfolioPages = [
   {
     name: "Home",
@@ -374,6 +378,210 @@ test("Work Portfolio Page presents its ordered responsive project collection", a
   await expect
     .poll(() =>
       firstProject.evaluate((element) => getComputedStyle(element).transform),
+    )
+    .not.toBe("none");
+});
+
+test("Play Portfolio Page presents its ordered responsive track collection", async ({
+  page,
+}, testInfo) => {
+  const tracks = [
+    {
+      title: "Oh Chérie",
+      artist: "DAS MAER",
+      album: "Oh Chérie",
+      musicalKey: "Am",
+      spotifyUrl:
+        "https://open.spotify.com/search/Oh%20Ch%C3%A9rie%20DAS%20MAER",
+      appleMusicUrl:
+        "https://music.apple.com/us/search?term=Oh%20Ch%C3%A9rie%20DAS%20MAER",
+      imageDescription:
+        "Oh Chérie cover with three red cherries on a blue background",
+    },
+    {
+      title: "Airplane Mode",
+      artist: "Cory Wong",
+      album: "Elevator Music for an Elevated Mood",
+      musicalKey: "Db",
+      spotifyUrl:
+        "https://open.spotify.com/search/Airplane%20Mode%20Cory%20Wong",
+      appleMusicUrl:
+        "https://music.apple.com/us/search?term=Airplane%20Mode%20Cory%20Wong",
+      imageDescription:
+        "Cory Wong playing guitar on the Elevator Music for an Elevated Mood cover",
+    },
+    {
+      title: "Isn't She Lovely",
+      artist: "Stevie Wonder",
+      album: "Songs in the Key of Life",
+      musicalKey: "E",
+      spotifyUrl:
+        "https://open.spotify.com/search/Isn't%20She%20Lovely%20Stevie%20Wonder",
+      appleMusicUrl:
+        "https://music.apple.com/us/search?term=Isn't%20She%20Lovely%20Stevie%20Wonder",
+      imageDescription:
+        "Songs in the Key of Life cover with warm concentric circles around Stevie Wonder",
+    },
+    {
+      title: "Darn That Dream",
+      artist: "Bill Evans / Jim Hall",
+      album: "Undercurrent",
+      musicalKey: "G",
+      spotifyUrl:
+        "https://open.spotify.com/search/Darn%20That%20Dream%20Bill%20Evans%20Jim%20Hall",
+      appleMusicUrl:
+        "https://music.apple.com/us/search?term=Darn%20That%20Dream%20Bill%20Evans%20Jim%20Hall",
+      imageDescription:
+        "Undercurrent album cover showing a woman floating underwater",
+    },
+    {
+      title: "Ace of Aces",
+      artist: "The Fearless Flyers",
+      album: "The Fearless Flyers",
+      musicalKey: "E",
+      spotifyUrl:
+        "https://open.spotify.com/search/Ace%20of%20Aces%20Fearless%20Flyers",
+      appleMusicUrl:
+        "https://music.apple.com/us/search?term=Ace%20of%20Aces%20Fearless%20Flyers",
+      imageDescription:
+        "The Fearless Flyers cover collage of the band playing guitar and drums",
+    },
+    {
+      title: "Stratus",
+      artist: "Jeff Beck",
+      album: "Live at Ronnie Scott's",
+      musicalKey: "Em",
+      spotifyUrl: "https://open.spotify.com/search/Stratus%20Jeff%20Beck",
+      appleMusicUrl:
+        "https://music.apple.com/us/search?term=Stratus%20Jeff%20Beck",
+      imageDescription:
+        "Jeff Beck playing guitar on the Live at Ronnie Scott's cover",
+    },
+  ];
+
+  await page.addInitScript(() => {
+    const motionWindow = window as PlayMotionWindow;
+    const playMotionStarts: Record<number, number> = {};
+    motionWindow.__playMotionStarts = playMotionStarts;
+
+    new MutationObserver((mutations) => {
+      const motionFrame = performance.now();
+
+      for (const mutation of mutations) {
+        const track = mutation.target;
+        if (!(track instanceof HTMLElement) || track.tagName !== "ARTICLE") {
+          continue;
+        }
+
+        const trackIndex = Array.from(
+          document.querySelectorAll("main article"),
+        ).indexOf(track);
+        const opacity = Number.parseFloat(getComputedStyle(track).opacity);
+
+        if (
+          trackIndex >= 0 &&
+          opacity > 0 &&
+          opacity < 1 &&
+          playMotionStarts[trackIndex] === undefined
+        ) {
+          playMotionStarts[trackIndex] = motionFrame;
+        }
+      }
+    }).observe(document, {
+      attributes: true,
+      attributeFilter: ["style"],
+      subtree: true,
+    });
+  });
+
+  await page.goto("/play");
+
+  const tracksInOrder = page.getByRole("main").locator("article");
+  await expect(tracksInOrder).toHaveCount(tracks.length);
+  await expect(tracksInOrder.getByRole("heading", { level: 2 })).toHaveText(
+    tracks.map(({ title }) => title),
+  );
+
+  for (const [index, track] of tracks.entries()) {
+    const renderedTrack = tracksInOrder.nth(index);
+
+    await expect(renderedTrack.locator("p")).toHaveText([
+      track.artist,
+      track.album,
+    ]);
+    await expect(
+      renderedTrack.getByText(track.musicalKey, { exact: true }),
+    ).toBeVisible();
+    await expect(
+      renderedTrack.getByRole("img", { name: track.imageDescription }),
+    ).toBeVisible();
+
+    const listeningLinks = [
+      { service: "Spotify", url: track.spotifyUrl },
+      { service: "Apple Music", url: track.appleMusicUrl },
+    ];
+    for (const listeningLink of listeningLinks) {
+      const link = renderedTrack.getByRole("link", {
+        name: `Listen to ${track.title} on ${listeningLink.service}`,
+      });
+      await expect(link).toHaveAttribute("href", listeningLink.url);
+      await expect(link).toHaveAttribute("target", "_blank");
+      await expect(link).toHaveAttribute("rel", /noopener/);
+    }
+  }
+
+  const renderedColumnCount = await tracksInOrder
+    .first()
+    .locator("..")
+    .evaluate(
+      (collection) =>
+        getComputedStyle(collection).gridTemplateColumns.split(" ").length,
+    );
+  expect(renderedColumnCount).toBe(testInfo.project.use.isMobile ? 1 : 2);
+
+  const imageLoading = await tracksInOrder
+    .locator("img")
+    .evaluateAll((images) =>
+      images.map((image) => ({
+        fetchPriority: (image as HTMLImageElement).fetchPriority,
+        loading: (image as HTMLImageElement).loading,
+      })),
+    );
+  expect(imageLoading).toEqual([
+    { fetchPriority: "high", loading: "lazy" },
+    { fetchPriority: "high", loading: "lazy" },
+    { fetchPriority: "auto", loading: "lazy" },
+    { fetchPriority: "auto", loading: "lazy" },
+    { fetchPriority: "auto", loading: "lazy" },
+    { fetchPriority: "auto", loading: "lazy" },
+  ]);
+  await expect(
+    page.locator('head link[rel="preload"][as="image"]'),
+  ).toHaveCount(0);
+
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          Object.keys((window as PlayMotionWindow).__playMotionStarts ?? {})
+            .length,
+      ),
+    )
+    .toBe(tracks.length);
+  const motionStarts = await page.evaluate(
+    () => (window as PlayMotionWindow).__playMotionStarts ?? {},
+  );
+  for (let trackIndex = 1; trackIndex < tracks.length; trackIndex++) {
+    expect(motionStarts[trackIndex]).toBeGreaterThan(
+      motionStarts[trackIndex - 1],
+    );
+  }
+
+  const firstTrack = tracksInOrder.first();
+  await firstTrack.hover();
+  await expect
+    .poll(() =>
+      firstTrack.evaluate((element) => getComputedStyle(element).transform),
     )
     .not.toBe("none");
 });
