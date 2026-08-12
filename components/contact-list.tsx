@@ -1,6 +1,6 @@
 "use client";
 
-import { useReducedMotion, type Variants } from "motion/react";
+import type { Variants } from "motion/react";
 import * as m from "motion/react-m";
 import type { ContactLink } from "@/content/site-content";
 
@@ -21,7 +21,7 @@ const listIn: Variants = {
 };
 
 const contactIn: Variants = {
-  hidden: { opacity: 0 },
+  hidden: { opacity: "var(--contact-list-initial-opacity)" },
   visible: {
     opacity: 1,
     transition: { duration: 0.5, ease: easeOutExpo },
@@ -29,21 +29,15 @@ const contactIn: Variants = {
 };
 
 export function ContactList({ links }: ContactListProps) {
-  const prefersReducedMotion = useReducedMotion();
-
   return (
     <m.ul
-      initial={prefersReducedMotion ? false : "hidden"}
+      initial="hidden"
       animate="visible"
       variants={listIn}
-      className="w-full border-rule"
+      className="w-full border-rule [--contact-list-initial-opacity:0] motion-reduce:[--contact-list-initial-opacity:1]"
     >
       {links.map((link) => (
-        <m.li
-          initial={prefersReducedMotion ? false : undefined}
-          key={link.label}
-          variants={contactIn}
-        >
+        <m.li key={link.label} variants={contactIn}>
           <a
             href={link.href}
             target={link.href.startsWith("mailto:") ? undefined : "_blank"}

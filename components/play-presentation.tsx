@@ -1,6 +1,6 @@
 "use client";
 
-import { useReducedMotion, type Variants } from "motion/react";
+import type { Variants } from "motion/react";
 import * as m from "motion/react-m";
 import Image from "next/image";
 import { AppleMusicIcon, SpotifyIcon } from "@/components/icons";
@@ -23,7 +23,10 @@ const collectionIn: Variants = {
 };
 
 const trackIn: Variants = {
-  hidden: { opacity: 0, scale: 0.95 },
+  hidden: {
+    opacity: "var(--play-initial-opacity)",
+    scale: "var(--play-initial-scale)",
+  },
   visible: {
     opacity: 1,
     scale: 1,
@@ -41,36 +44,34 @@ const trackInteraction = {
 } as const;
 
 export function PlayPresentation({ entries }: PlayPresentationProps) {
-  const prefersReducedMotion = useReducedMotion();
-
   return (
     <m.div
-      initial={prefersReducedMotion ? false : "hidden"}
+      initial="hidden"
       animate="visible"
       variants={collectionIn}
-      className="grid w-full grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-2"
+      className="grid w-full grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-2 [--play-initial-opacity:0] [--play-initial-scale:0.95] motion-reduce:[--play-initial-opacity:1] motion-reduce:[--play-initial-scale:1]"
     >
       {entries.map((entry, index) => {
         const hasHighFetchPriority = index < 2;
 
         return (
           <m.article
-            initial={prefersReducedMotion ? false : undefined}
             key={`${entry.title}-${entry.artist}`}
             variants={trackIn}
-            whileHover={prefersReducedMotion ? undefined : { y: -3 }}
+            whileHover={{ y: -3 }}
             transition={trackInteraction}
             className="flex flex-col gap-3"
           >
             <m.div
               className="relative aspect-square overflow-hidden rounded-sm"
-              whileHover={prefersReducedMotion ? undefined : { scale: 1.03 }}
+              whileHover={{ scale: 1.03 }}
               transition={trackInteraction}
             >
               <Image
                 src={entry.cover.src}
                 alt={entry.cover.alt}
                 placeholder="blur"
+                loading={hasHighFetchPriority ? "eager" : "lazy"}
                 fetchPriority={hasHighFetchPriority ? "high" : undefined}
                 fill
                 sizes="(min-width: 816px) 372px, (min-width: 768px) calc((100vw - 72px) / 2), calc(100vw - 48px)"

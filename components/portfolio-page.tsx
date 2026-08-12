@@ -1,6 +1,6 @@
 "use client";
 
-import { useReducedMotion, type Variants } from "motion/react";
+import type { Variants } from "motion/react";
 import * as m from "motion/react-m";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
@@ -15,7 +15,10 @@ type PortfolioPageProps = {
 const easeOutExpo = [0.16, 1, 0.3, 1] as const;
 
 const headingIn: Variants = {
-  hidden: { opacity: 0, clipPath: "inset(-10% 100% -10% 0)" },
+  hidden: {
+    opacity: "var(--portfolio-page-initial-opacity)",
+    clipPath: "var(--portfolio-page-initial-clip)",
+  },
   visible: {
     opacity: 1,
     clipPath: "inset(-10% -10% -10% 0)",
@@ -38,7 +41,10 @@ const contentStagger: Variants = {
 };
 
 const introductionIn: Variants = {
-  hidden: { opacity: 0, filter: "blur(3px)" },
+  hidden: {
+    opacity: "var(--portfolio-page-initial-opacity)",
+    filter: "var(--portfolio-page-initial-filter)",
+  },
   visible: {
     opacity: 1,
     filter: "blur(0px)",
@@ -55,16 +61,13 @@ export function PortfolioPage({
   children,
   width = "standard",
 }: PortfolioPageProps) {
-  const prefersReducedMotion = useReducedMotion();
-
   return (
     <m.div
-      initial={prefersReducedMotion ? false : "hidden"}
+      initial="hidden"
       animate="visible"
-      className="flex flex-col items-center gap-10"
+      className="flex flex-col items-center gap-10 [--portfolio-page-initial-opacity:0] [--portfolio-page-initial-clip:inset(-10%_100%_-10%_0)] [--portfolio-page-initial-filter:blur(3px)] motion-reduce:[--portfolio-page-initial-opacity:1] motion-reduce:[--portfolio-page-initial-clip:inset(-10%_-10%_-10%_0)] motion-reduce:[--portfolio-page-initial-filter:blur(0px)]"
     >
       <m.h1
-        initial={prefersReducedMotion ? false : undefined}
         variants={headingIn}
         className="font-heading text-center text-4xl font-semibold leading-none tracking-tight lg:text-6xl"
       >
@@ -78,12 +81,7 @@ export function PortfolioPage({
         )}
       >
         {introduction && (
-          <m.div
-            initial={prefersReducedMotion ? false : undefined}
-            variants={introductionIn}
-          >
-            {introduction}
-          </m.div>
+          <m.div variants={introductionIn}>{introduction}</m.div>
         )}
         {children}
       </m.div>

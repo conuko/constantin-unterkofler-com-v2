@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  LazyMotion,
-  MotionConfig,
-  type Transition,
-  useReducedMotion,
-} from "motion/react";
+import { LazyMotion, MotionConfig, type Transition } from "motion/react";
 import * as m from "motion/react-m";
 import type { ReactNode } from "react";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -24,8 +19,6 @@ type MotionLayoutProps = {
 };
 
 export function MotionLayout({ children }: MotionLayoutProps) {
-  const prefersReducedMotion = useReducedMotion();
-
   return (
     <ThemeProvider
       attribute="class"
@@ -34,10 +27,7 @@ export function MotionLayout({ children }: MotionLayoutProps) {
       disableTransitionOnChange
     >
       <LazyMotion features={loadFeatures} strict>
-        <MotionConfig
-          transition={defaultTransition}
-          reducedMotion={prefersReducedMotion ? "always" : "user"}
-        >
+        <MotionConfig transition={defaultTransition} reducedMotion="user">
           <a href="#main-content" className="skip-link">
             Skip to main content
           </a>
@@ -46,10 +36,10 @@ export function MotionLayout({ children }: MotionLayoutProps) {
             {children}
 
             <m.footer
-              initial={prefersReducedMotion ? false : { opacity: 0 }}
+              initial={{ opacity: "var(--footer-initial-opacity)" }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6, duration: 0.4, ease: "easeOut" }}
-              className="mt-auto pt-8 pb-2 flex items-end justify-between lg:fixed lg:inset-x-0 lg:bottom-8 lg:px-6 lg:pointer-events-none"
+              className="mt-auto pt-8 pb-2 flex items-end justify-between lg:fixed lg:inset-x-0 lg:bottom-8 lg:px-6 lg:pointer-events-none [--footer-initial-opacity:0] motion-reduce:[--footer-initial-opacity:1]"
             >
               <p className="text-xs text-ink-muted lg:pointer-events-auto">
                 © 2026

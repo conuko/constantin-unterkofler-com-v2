@@ -70,6 +70,41 @@ async function openMobileNavigation(page: Page): Promise<Locator> {
   return navigation;
 }
 
+async function sampleMobileDisclosureControlOpacity(
+  page: Page,
+): Promise<number[]> {
+  return page.getByRole("button", { name: "Open menu" }).evaluate((button) => {
+    if (!(button instanceof HTMLButtonElement)) {
+      throw new Error("Expected the mobile disclosure control");
+    }
+
+    const middleLine = [
+      ...button.querySelectorAll<HTMLElement>("[data-disclosure-middle-line]"),
+    ].find((line) => line.getClientRects().length > 0);
+    if (!middleLine) throw new Error("Expected the middle disclosure line");
+    const disclosureLine = middleLine;
+
+    return new Promise<number[]>((resolve) => {
+      const samples: number[] = [];
+
+      function sampleFrame() {
+        samples.push(
+          Number.parseFloat(getComputedStyle(disclosureLine).opacity),
+        );
+        if (samples.length === 120) {
+          resolve(samples);
+          return;
+        }
+
+        requestAnimationFrame(sampleFrame);
+      }
+
+      button.click();
+      requestAnimationFrame(sampleFrame);
+    });
+  });
+}
+
 async function getPrimaryNavigation(page: Page, isMobile: boolean) {
   return isMobile
     ? openMobileNavigation(page)
@@ -210,6 +245,96 @@ test("Portfolio Pages preserve their normal heading and content entrance motion"
   }
 });
 
+test("normal motion preserves the mobile disclosure control transition", async ({
+  page,
+}, testInfo) => {
+  test.skip(!testInfo.project.use.isMobile, "Mobile Site Header behavior");
+
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/");
+
+  const opacitySamples = await sampleMobileDisclosureControlOpacity(page);
+
+  expect(opacitySamples.some((opacity) => opacity > 0 && opacity < 1)).toBe(
+    true,
+  );
+});
+
+test("normal Site Header interaction motion covers tap, exit, and active underline", async ({
+  page,
+}, testInfo) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+
+  if (testInfo.project.use.isMobile) {
+    await page.goto("/");
+    const disclosureControl = page.getByRole("button", { name: "Open menu" });
+
+    await disclosureControl.click();
+
+    const navigation = page.getByRole("navigation", {
+      name: "Mobile navigation",
+    });
+    await expect(navigation).toBeVisible();
+    await page.getByRole("button", { name: "Close menu" }).click();
+    await expect(navigation).toBeAttached();
+    await expect(navigation).toBeHidden();
+    return;
+  }
+
+  await page.goto("/about");
+  const appearanceControl = page.getByRole("button", { name: "Toggle theme" });
+  await appearanceControl.hover();
+  await page.waitForTimeout(350);
+  const hoveredTransform = await appearanceControl.evaluate(
+    (button) => getComputedStyle(button).transform,
+  );
+  await page.mouse.down();
+  await expect
+    .poll(() =>
+      appearanceControl.evaluate(
+        (button) => getComputedStyle(button).transform,
+      ),
+    )
+    .not.toBe(hoveredTransform);
+  await page.mouse.up();
+
+  await page.evaluate(() => {
+    let observedMovingUnderline = false;
+
+    function observeUnderline() {
+      const underline = document.querySelector<HTMLElement>(
+        'nav[aria-label="Primary"] a[data-active="true"] span',
+      );
+      if (underline && getComputedStyle(underline).transform !== "none") {
+        observedMovingUnderline = true;
+      }
+
+      (
+        window as Window & { __observedMovingUnderline?: boolean }
+      ).__observedMovingUnderline = observedMovingUnderline;
+      if (!observedMovingUnderline) requestAnimationFrame(observeUnderline);
+    }
+
+    requestAnimationFrame(observeUnderline);
+  });
+
+  await page
+    .getByRole("navigation", { name: "Primary" })
+    .getByRole("link", { name: "Contact" })
+    .click();
+  await expect
+    .poll(
+      () =>
+        page.evaluate(
+          () =>
+            (window as Window & { __observedMovingUnderline?: boolean })
+              .__observedMovingUnderline ?? false,
+        ),
+      { timeout: 15_000 },
+    )
+    .toBe(true);
+});
+
 test("reduced motion renders final content without CSS or Motion animation", async ({
   page,
 }) => {
@@ -264,6 +389,23 @@ test("reduced motion renders final content without CSS or Motion animation", asy
       ),
     ).toBe(true);
   }
+});
+
+test("reduced motion hydrates every Portfolio Page without runtime errors", async ({
+  page,
+}) => {
+  const runtimeErrors: string[] = [];
+  page.on("pageerror", (error) => runtimeErrors.push(error.message));
+  page.on("console", (message) => {
+    if (message.type() === "error") runtimeErrors.push(message.text());
+  });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+
+  for (const portfolioPage of portfolioPages) {
+    await page.goto(portfolioPage.path);
+  }
+
+  expect(runtimeErrors, "reduced-motion browser runtime errors").toEqual([]);
 });
 
 test("reduced motion preserves complete mobile disclosure interaction", async ({
@@ -324,6 +466,22 @@ test("reduced motion preserves complete mobile disclosure interaction", async ({
   await page.keyboard.press("Escape");
   await expect(navigation).toBeHidden();
   await expect(page.getByRole("button", { name: "Open menu" })).toBeFocused();
+});
+
+test("reduced motion updates the mobile disclosure control without intermediate frames", async ({
+  page,
+}, testInfo) => {
+  test.skip(!testInfo.project.use.isMobile, "Mobile Site Header behavior");
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+
+  const opacitySamples = await sampleMobileDisclosureControlOpacity(page);
+
+  expect(opacitySamples.at(-1)).toBe(0);
+  expect(
+    opacitySamples.every((opacity) => opacity === 0 || opacity === 1),
+  ).toBe(true);
 });
 
 test("CV preserves the section and entry entrance sequence", async ({
@@ -590,10 +748,10 @@ test("Work Portfolio Page presents its ordered responsive project collection", a
       })),
     );
   expect(imageLoading).toEqual([
-    { fetchPriority: "high", loading: "auto" },
-    { fetchPriority: "high", loading: "auto" },
-    { fetchPriority: "high", loading: "auto" },
-    { fetchPriority: "high", loading: "auto" },
+    { fetchPriority: "high", loading: "eager" },
+    { fetchPriority: "high", loading: "eager" },
+    { fetchPriority: "high", loading: "eager" },
+    { fetchPriority: "high", loading: "eager" },
     { fetchPriority: "auto", loading: "lazy" },
   ]);
   await expect(
@@ -792,8 +950,8 @@ test("Play Portfolio Page presents its ordered responsive track collection", asy
       })),
     );
   expect(imageLoading).toEqual([
-    { fetchPriority: "high", loading: "lazy" },
-    { fetchPriority: "high", loading: "lazy" },
+    { fetchPriority: "high", loading: "eager" },
+    { fetchPriority: "high", loading: "eager" },
     { fetchPriority: "auto", loading: "lazy" },
     { fetchPriority: "auto", loading: "lazy" },
     { fetchPriority: "auto", loading: "lazy" },
@@ -801,7 +959,7 @@ test("Play Portfolio Page presents its ordered responsive track collection", asy
   ]);
   await expect(
     page.locator('head link[rel="preload"][as="image"]'),
-  ).toHaveCount(0);
+  ).toHaveCount(2);
 
   await expect
     .poll(() =>

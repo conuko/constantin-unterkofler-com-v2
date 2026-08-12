@@ -1,7 +1,7 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
-import { AnimatePresence, useReducedMotion, type Variants } from "motion/react";
+import { AnimatePresence, type Variants } from "motion/react";
 import * as m from "motion/react-m";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -20,7 +20,7 @@ const interactionTransition = {
 } as const;
 
 const wayfindingItemIn: Variants = {
-  hidden: { opacity: 0 },
+  hidden: { opacity: "var(--site-header-initial-opacity)" },
   visible: {
     opacity: 1,
     transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
@@ -38,12 +38,19 @@ const desktopWayfindingIn: Variants = {
 };
 
 const mobileDisclosureIn: Variants = {
-  hidden: { opacity: 0, y: -8, scale: 0.95 },
+  hidden: {
+    opacity: "var(--site-header-initial-opacity)",
+    y: "var(--site-header-initial-y)",
+    scale: "var(--site-header-initial-scale)",
+  },
   visible: { opacity: 1, y: 0, scale: 1 },
 };
 
 const mobileWayfindingItemIn: Variants = {
-  hidden: { opacity: 0, x: 8 },
+  hidden: {
+    opacity: "var(--site-header-initial-opacity)",
+    x: "var(--site-header-initial-x)",
+  },
   visible: { opacity: 1, x: 0 },
 };
 
@@ -79,7 +86,6 @@ function WayfindingLink({
   className,
   onSelect,
 }: WayfindingLinkProps) {
-  const prefersReducedMotion = useReducedMotion();
   const isCurrent =
     pathname === item.href ||
     (item.href !== "/" && pathname.startsWith(`${item.href}/`));
@@ -93,36 +99,32 @@ function WayfindingLink({
       aria-current={isCurrent ? "page" : undefined}
     >
       {item.label}
-      {isCurrent &&
-        (prefersReducedMotion ? (
-          <span className="absolute inset-x-0 bottom-0 h-0.5 bg-current" />
-        ) : (
-          <m.span
-            layoutId={underlineLayoutId}
-            className="absolute inset-x-0 bottom-0 h-0.5 bg-current"
-            transition={{
-              type: "spring",
-              visualDuration: 0.4,
-              bounce: 0.2,
-            }}
-          />
-        ))}
+      {isCurrent && (
+        <m.span
+          layoutId={underlineLayoutId}
+          className="absolute inset-x-0 bottom-0 h-0.5 bg-current"
+          transition={{
+            type: "spring",
+            visualDuration: 0.4,
+            bounce: 0.2,
+          }}
+        />
+      )}
     </Link>
   );
 }
 
 function AppearanceControl() {
-  const prefersReducedMotion = useReducedMotion();
   const { resolvedTheme, setTheme } = useTheme();
 
   return (
     <m.button
       type="button"
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-      whileHover={prefersReducedMotion ? undefined : hoverScale}
-      whileTap={prefersReducedMotion ? undefined : tapScale}
+      whileHover={hoverScale}
+      whileTap={tapScale}
       transition={interactionTransition}
-      className="group relative flex size-10 cursor-pointer items-center justify-center text-ink"
+      className="group relative flex size-10 cursor-pointer items-center justify-center text-ink transition-transform duration-normal ease-spring active:scale-95"
     >
       <Sun className="size-4 scale-100 rotate-0 transition-transform duration-normal ease-spring group-hover:text-amber-500 dark:scale-0 dark:-rotate-90" />
       <Moon className="absolute size-4 scale-0 rotate-90 transition-transform duration-normal ease-spring group-hover:text-indigo-400 dark:scale-100 dark:rotate-0" />
@@ -137,22 +139,16 @@ type DesktopWayfindingProps = {
 };
 
 function DesktopWayfinding({ items, pathname }: DesktopWayfindingProps) {
-  const prefersReducedMotion = useReducedMotion();
-
   return (
     <nav aria-label="Primary">
       <m.ul
-        initial={prefersReducedMotion ? false : "hidden"}
+        initial="hidden"
         variants={desktopWayfindingIn}
         animate="visible"
         className="flex flex-col items-end"
       >
         {items.map((item) => (
-          <m.li
-            initial={prefersReducedMotion ? false : undefined}
-            key={item.href}
-            variants={wayfindingItemIn}
-          >
+          <m.li key={item.href} variants={wayfindingItemIn}>
             <WayfindingLink
               item={item}
               pathname={pathname}
@@ -177,37 +173,52 @@ function DisclosureControl({
   isOpen,
   onToggle,
 }: DisclosureControlProps) {
-  const prefersReducedMotion = useReducedMotion();
-
   return (
     <m.button
       ref={controlRef}
       type="button"
       onClick={onToggle}
-      whileHover={prefersReducedMotion ? undefined : hoverScale}
-      whileTap={prefersReducedMotion ? undefined : tapScale}
+      whileHover={hoverScale}
+      whileTap={tapScale}
       transition={interactionTransition}
       aria-expanded={isOpen}
       aria-controls="site-header-mobile-wayfinding"
       aria-label={isOpen ? "Close menu" : "Open menu"}
-      className="relative flex size-10 cursor-pointer items-center justify-center"
+      className="relative flex size-10 cursor-pointer items-center justify-center transition-transform duration-normal ease-spring active:scale-95"
     >
       <div className="flex size-5 flex-col items-center justify-center">
-        <m.span
-          animate={isOpen ? { rotate: 45, y: 0 } : { rotate: 0, y: -6 }}
-          transition={interactionTransition}
-          className="absolute h-0.5 w-5 rounded-full bg-current"
-        />
-        <m.span
-          animate={isOpen ? { opacity: 0, scale: 0 } : { opacity: 1, scale: 1 }}
-          transition={interactionTransition}
-          className="absolute h-0.5 w-5 rounded-full bg-current"
-        />
-        <m.span
-          animate={isOpen ? { rotate: -45, y: 0 } : { rotate: 0, y: 6 }}
-          transition={interactionTransition}
-          className="absolute h-0.5 w-5 rounded-full bg-current"
-        />
+        <span className="contents motion-reduce:hidden">
+          <m.span
+            animate={isOpen ? { rotate: 45, y: 0 } : { rotate: 0, y: -6 }}
+            transition={interactionTransition}
+            className="absolute h-0.5 w-5 rounded-full bg-current"
+          />
+          <m.span
+            data-disclosure-middle-line
+            animate={
+              isOpen ? { opacity: 0, scale: 0 } : { opacity: 1, scale: 1 }
+            }
+            transition={interactionTransition}
+            className="absolute h-0.5 w-5 rounded-full bg-current"
+          />
+          <m.span
+            animate={isOpen ? { rotate: -45, y: 0 } : { rotate: 0, y: 6 }}
+            transition={interactionTransition}
+            className="absolute h-0.5 w-5 rounded-full bg-current"
+          />
+        </span>
+        <span className="hidden motion-reduce:contents">
+          <span
+            className={`absolute h-0.5 w-5 rounded-full bg-current ${isOpen ? "rotate-45" : "-translate-y-1.5"}`}
+          />
+          <span
+            data-disclosure-middle-line
+            className={`absolute h-0.5 w-5 rounded-full bg-current ${isOpen ? "scale-0 opacity-0" : "scale-100 opacity-100"}`}
+          />
+          <span
+            className={`absolute h-0.5 w-5 rounded-full bg-current ${isOpen ? "-rotate-45" : "translate-y-1.5"}`}
+          />
+        </span>
       </div>
     </m.button>
   );
@@ -219,7 +230,6 @@ type MobileDisclosureProps = {
 };
 
 function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
-  const prefersReducedMotion = useReducedMotion();
   const [isOpen, setIsOpen] = useState(false);
   const previousPathnameRef = useRef(pathname);
   const disclosureControlRef = useRef<HTMLButtonElement>(null);
@@ -259,9 +269,9 @@ function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
           <>
             <m.div
               key="site-header-mobile-backdrop"
-              initial={prefersReducedMotion ? false : { opacity: 0 }}
+              initial={{ opacity: "var(--site-header-initial-opacity)" }}
               animate={{ opacity: 1 }}
-              exit={prefersReducedMotion ? undefined : { opacity: 0 }}
+              exit={{ opacity: "var(--site-header-initial-opacity)" }}
               className="fixed inset-0 z-[-1]"
               onClick={close}
               aria-hidden
@@ -272,9 +282,9 @@ function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
               id="site-header-mobile-wayfinding"
               aria-label="Mobile navigation"
               variants={mobileDisclosureIn}
-              initial={prefersReducedMotion ? false : "hidden"}
+              initial="hidden"
               animate="visible"
-              exit={prefersReducedMotion ? undefined : "hidden"}
+              exit="hidden"
               transition={{
                 type: "spring",
                 visualDuration: 0.3,
@@ -285,15 +295,11 @@ function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
             >
               <m.ul
                 variants={mobileWayfindingIn}
-                initial={prefersReducedMotion ? false : "hidden"}
+                initial="hidden"
                 animate="visible"
               >
                 {items.map((item) => (
-                  <m.li
-                    initial={prefersReducedMotion ? false : undefined}
-                    key={item.href}
-                    variants={mobileWayfindingItemIn}
-                  >
+                  <m.li key={item.href} variants={mobileWayfindingItemIn}>
                     <WayfindingLink
                       item={item}
                       pathname={pathname}
@@ -317,24 +323,23 @@ function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
 }
 
 export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
-  const prefersReducedMotion = useReducedMotion();
   const pathname = usePathname();
   const isScrolled = useScrolled();
 
   return (
     <m.header
-      initial={prefersReducedMotion ? false : { opacity: 0 }}
+      initial={{ opacity: "var(--site-header-initial-opacity)" }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className={`sticky top-4 z-10 flex justify-between gap-6 rounded-xl border border-transparent lg:z-0 lg:rounded-none lg:pb-8 max-lg:transition-[background-color,border-color,box-shadow,padding,backdrop-filter] max-lg:duration-normal max-lg:ease-default ${
+      className={`sticky top-4 z-10 flex justify-between gap-6 rounded-xl border border-transparent [--site-header-initial-opacity:0] [--site-header-initial-scale:0.95] [--site-header-initial-x:8px] [--site-header-initial-y:-8px] motion-reduce:[--site-header-initial-opacity:1] motion-reduce:[--site-header-initial-scale:1] motion-reduce:[--site-header-initial-x:0px] motion-reduce:[--site-header-initial-y:0px] lg:z-0 lg:rounded-none lg:pb-8 max-lg:transition-[background-color,border-color,box-shadow,padding,backdrop-filter] max-lg:duration-normal max-lg:ease-default ${
         isScrolled
           ? "max-lg:border-rule max-lg:bg-card-glass max-lg:px-4 max-lg:py-3 max-lg:backdrop-blur-md max-lg:shadow-sm"
           : "max-lg:pb-8"
       }`}
     >
       <m.div
-        whileHover={prefersReducedMotion ? undefined : hoverScale}
-        whileTap={prefersReducedMotion ? undefined : tapScale}
+        whileHover={hoverScale}
+        whileTap={tapScale}
         transition={interactionTransition}
         className="self-start"
       >

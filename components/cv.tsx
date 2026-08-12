@@ -1,6 +1,6 @@
 "use client";
 
-import { useReducedMotion, type Variants } from "motion/react";
+import type { Variants } from "motion/react";
 import * as m from "motion/react-m";
 import type { CvSection } from "@/content/site-content";
 
@@ -21,7 +21,7 @@ const cvIn: Variants = {
 };
 
 const sectionHeadingIn: Variants = {
-  hidden: { opacity: 0 },
+  hidden: { opacity: "var(--cv-initial-opacity)" },
   visible: {
     opacity: 1,
     transition: { duration: 0.5, ease: easeOutExpo },
@@ -38,7 +38,7 @@ const entryStagger: Variants = {
 };
 
 const entryIn: Variants = {
-  hidden: { opacity: 0 },
+  hidden: { opacity: "var(--cv-initial-opacity)" },
   visible: {
     opacity: 1,
     transition: { duration: 0.5, ease: easeOutExpo },
@@ -46,31 +46,24 @@ const entryIn: Variants = {
 };
 
 export function Cv({ sections }: CvProps) {
-  const prefersReducedMotion = useReducedMotion();
-
   return (
     <m.div
-      initial={prefersReducedMotion ? false : "hidden"}
+      initial="hidden"
       animate="visible"
       variants={cvIn}
-      className="flex w-full flex-col gap-10"
+      className="flex w-full flex-col gap-10 [--cv-initial-opacity:0] motion-reduce:[--cv-initial-opacity:1]"
     >
       {sections.map((section) => (
         <section key={section.title} className="w-full">
           <m.h2
-            initial={prefersReducedMotion ? false : undefined}
             variants={sectionHeadingIn}
             className="text-xs font-medium uppercase tracking-widest text-ink-muted"
           >
             {section.title}
           </m.h2>
-          <m.ol
-            initial={prefersReducedMotion ? false : undefined}
-            variants={entryStagger}
-          >
+          <m.ol variants={entryStagger}>
             {section.entries.map((entry) => (
               <m.li
-                initial={prefersReducedMotion ? false : undefined}
                 key={`${entry.organization}-${entry.years}`}
                 variants={entryIn}
                 className="flex flex-col gap-1 border-b border-rule py-4 lg:flex-row lg:items-start lg:justify-between lg:gap-4"

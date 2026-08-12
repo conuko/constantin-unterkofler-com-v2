@@ -1,6 +1,6 @@
 "use client";
 
-import { useReducedMotion, type Variants } from "motion/react";
+import type { Variants } from "motion/react";
 import * as m from "motion/react-m";
 import Image from "next/image";
 import type { WorkEntry } from "@/content/site-content";
@@ -22,7 +22,10 @@ const collectionIn: Variants = {
 };
 
 const projectIn: Variants = {
-  hidden: { opacity: 0, scale: 0.95 },
+  hidden: {
+    opacity: "var(--work-initial-opacity)",
+    scale: "var(--work-initial-scale)",
+  },
   visible: {
     opacity: 1,
     scale: 1,
@@ -40,24 +43,21 @@ const projectInteraction = {
 } as const;
 
 export function WorkPresentation({ entries }: WorkPresentationProps) {
-  const prefersReducedMotion = useReducedMotion();
-
   return (
     <m.div
-      initial={prefersReducedMotion ? false : "hidden"}
+      initial="hidden"
       animate="visible"
       variants={collectionIn}
-      className="grid grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-2"
+      className="grid grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-2 [--work-initial-opacity:0] [--work-initial-scale:0.95] motion-reduce:[--work-initial-opacity:1] motion-reduce:[--work-initial-scale:1]"
     >
       {entries.map((entry, index) => {
         const loadImmediately = index < 4;
 
         return (
           <m.article
-            initial={prefersReducedMotion ? false : undefined}
             key={entry.client}
             variants={projectIn}
-            whileHover={prefersReducedMotion ? undefined : { y: -4 }}
+            whileHover={{ y: -4 }}
             transition={projectInteraction}
             className="group flex flex-col gap-3"
           >
@@ -69,14 +69,14 @@ export function WorkPresentation({ entries }: WorkPresentationProps) {
             >
               <m.div
                 className="relative overflow-hidden rounded-sm border border-rule"
-                whileHover={prefersReducedMotion ? undefined : { scale: 1.02 }}
+                whileHover={{ scale: 1.02 }}
                 transition={projectInteraction}
               >
                 <Image
                   src={entry.image.src}
                   alt={entry.image.alt}
                   placeholder="blur"
-                  preload={loadImmediately}
+                  loading={loadImmediately ? "eager" : "lazy"}
                   fetchPriority={loadImmediately ? "high" : undefined}
                   sizes="(min-width: 816px) 372px, (min-width: 768px) calc((100vw - 72px) / 2), calc(100vw - 48px)"
                   quality={85}
