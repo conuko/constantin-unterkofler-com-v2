@@ -20,7 +20,7 @@ const interactionTransition = {
 } as const;
 
 const wayfindingItemIn: Variants = {
-  hidden: { opacity: "var(--site-header-initial-opacity)" },
+  hidden: { opacity: "var(--motion-initial-opacity)" },
   visible: {
     opacity: 1,
     transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
@@ -39,17 +39,17 @@ const desktopWayfindingIn: Variants = {
 
 const mobileDisclosureIn: Variants = {
   hidden: {
-    opacity: "var(--site-header-initial-opacity)",
-    y: "var(--site-header-initial-y)",
-    scale: "var(--site-header-initial-scale)",
+    opacity: "var(--motion-initial-opacity)",
+    y: "var(--motion-initial-y)",
+    scale: "var(--motion-initial-scale)",
   },
   visible: { opacity: 1, y: 0, scale: 1 },
 };
 
 const mobileWayfindingItemIn: Variants = {
   hidden: {
-    opacity: "var(--site-header-initial-opacity)",
-    x: "var(--site-header-initial-x)",
+    opacity: "var(--motion-initial-opacity)",
+    x: "var(--motion-initial-x)",
   },
   visible: { opacity: 1, x: 0 },
 };
@@ -269,9 +269,9 @@ function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
           <>
             <m.div
               key="site-header-mobile-backdrop"
-              initial={{ opacity: "var(--site-header-initial-opacity)" }}
+              initial={{ opacity: "var(--motion-initial-opacity)" }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: "var(--site-header-initial-opacity)" }}
+              exit={{ opacity: "var(--motion-initial-opacity)" }}
               className="fixed inset-0 z-[-1]"
               onClick={close}
               aria-hidden
@@ -328,10 +328,10 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
 
   return (
     <m.header
-      initial={{ opacity: "var(--site-header-initial-opacity)" }}
+      initial={{ opacity: "var(--motion-initial-opacity)" }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className={`sticky top-4 z-10 flex justify-between gap-6 rounded-xl border border-transparent [--site-header-initial-opacity:0] [--site-header-initial-scale:0.95] [--site-header-initial-x:8px] [--site-header-initial-y:-8px] motion-reduce:[--site-header-initial-opacity:1] motion-reduce:[--site-header-initial-scale:1] motion-reduce:[--site-header-initial-x:0px] motion-reduce:[--site-header-initial-y:0px] lg:z-0 lg:rounded-none lg:pb-8 max-lg:transition-[background-color,border-color,box-shadow,padding,backdrop-filter] max-lg:duration-normal max-lg:ease-default ${
+      className={`sticky top-4 z-10 flex justify-between gap-6 rounded-xl border border-transparent lg:z-0 lg:rounded-none lg:pb-8 max-lg:transition-[background-color,border-color,box-shadow,padding,backdrop-filter] max-lg:duration-normal max-lg:ease-default ${
         isScrolled
           ? "max-lg:border-rule max-lg:bg-card-glass max-lg:px-4 max-lg:py-3 max-lg:backdrop-blur-md max-lg:shadow-sm"
           : "max-lg:pb-8"

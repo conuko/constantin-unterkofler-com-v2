@@ -21,7 +21,7 @@ const listIn: Variants = {
 };
 
 const contactIn: Variants = {
-  hidden: { opacity: "var(--contact-list-initial-opacity)" },
+  hidden: { opacity: "var(--motion-initial-opacity)" },
   visible: {
     opacity: 1,
     transition: { duration: 0.5, ease: easeOutExpo },
@@ -34,7 +34,7 @@ export function ContactList({ links }: ContactListProps) {
       initial="hidden"
       animate="visible"
       variants={listIn}
-      className="w-full border-rule [--contact-list-initial-opacity:0] motion-reduce:[--contact-list-initial-opacity:1]"
+      className="w-full border-rule"
     >
       {links.map((link) => (
         <m.li key={link.label} variants={contactIn}>

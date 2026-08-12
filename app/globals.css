@@ -2,6 +2,15 @@
 @import "./theme.css";
 @import "./utilities.css";
 
+:root {
+  --motion-initial-opacity: 0;
+  --motion-initial-scale: 0.95;
+  --motion-initial-x: 8px;
+  --motion-initial-y: -8px;
+  --motion-initial-clip: inset(-10% 100% -10% 0);
+  --motion-initial-filter: blur(3px);
+}
+
 html {
   scroll-padding-top: 2rem;
 }
@@ -23,6 +32,15 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-initial-opacity: 1;
+    --motion-initial-scale: 1;
+    --motion-initial-x: 0px;
+    --motion-initial-y: 0px;
+    --motion-initial-clip: inset(-10% -10% -10% 0);
+    --motion-initial-filter: blur(0px);
+  }
+
   *,
   *::before,
   *::after {

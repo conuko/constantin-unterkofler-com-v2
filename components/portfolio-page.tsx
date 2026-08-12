@@ -16,8 +16,8 @@ const easeOutExpo = [0.16, 1, 0.3, 1] as const;
 
 const headingIn: Variants = {
   hidden: {
-    opacity: "var(--portfolio-page-initial-opacity)",
-    clipPath: "var(--portfolio-page-initial-clip)",
+    opacity: "var(--motion-initial-opacity)",
+    clipPath: "var(--motion-initial-clip)",
   },
   visible: {
     opacity: 1,
@@ -42,8 +42,8 @@ const contentStagger: Variants = {
 
 const introductionIn: Variants = {
   hidden: {
-    opacity: "var(--portfolio-page-initial-opacity)",
-    filter: "var(--portfolio-page-initial-filter)",
+    opacity: "var(--motion-initial-opacity)",
+    filter: "var(--motion-initial-filter)",
   },
   visible: {
     opacity: 1,
@@ -65,7 +65,7 @@ export function PortfolioPage({
     <m.div
       initial="hidden"
       animate="visible"
-      className="flex flex-col items-center gap-10 [--portfolio-page-initial-opacity:0] [--portfolio-page-initial-clip:inset(-10%_100%_-10%_0)] [--portfolio-page-initial-filter:blur(3px)] motion-reduce:[--portfolio-page-initial-opacity:1] motion-reduce:[--portfolio-page-initial-clip:inset(-10%_-10%_-10%_0)] motion-reduce:[--portfolio-page-initial-filter:blur(0px)]"
+      className="flex flex-col items-center gap-10"
     >
       <m.h1
         variants={headingIn}

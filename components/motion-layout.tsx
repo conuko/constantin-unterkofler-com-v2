@@ -36,10 +36,10 @@ export function MotionLayout({ children }: MotionLayoutProps) {
             {children}
 
             <m.footer
-              initial={{ opacity: "var(--footer-initial-opacity)" }}
+              initial={{ opacity: "var(--motion-initial-opacity)" }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6, duration: 0.4, ease: "easeOut" }}
-              className="mt-auto pt-8 pb-2 flex items-end justify-between lg:fixed lg:inset-x-0 lg:bottom-8 lg:px-6 lg:pointer-events-none [--footer-initial-opacity:0] motion-reduce:[--footer-initial-opacity:1]"
+              className="mt-auto pt-8 pb-2 flex items-end justify-between lg:fixed lg:inset-x-0 lg:bottom-8 lg:px-6 lg:pointer-events-none"
             >
               <p className="text-xs text-ink-muted lg:pointer-events-auto">
                 © 2026

@@ -23,8 +23,8 @@ const collectionIn: Variants = {
 
 const projectIn: Variants = {
   hidden: {
-    opacity: "var(--work-initial-opacity)",
-    scale: "var(--work-initial-scale)",
+    opacity: "var(--motion-initial-opacity)",
+    scale: "var(--motion-initial-scale)",
   },
   visible: {
     opacity: 1,
@@ -48,7 +48,7 @@ export function WorkPresentation({ entries }: WorkPresentationProps) {
       initial="hidden"
       animate="visible"
       variants={collectionIn}
-      className="grid grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-2 [--work-initial-opacity:0] [--work-initial-scale:0.95] motion-reduce:[--work-initial-opacity:1] motion-reduce:[--work-initial-scale:1]"
+      className="grid grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-2"
     >
       {entries.map((entry, index) => {
         const loadImmediately = index < 4;

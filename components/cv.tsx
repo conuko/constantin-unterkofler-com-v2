@@ -21,7 +21,7 @@ const cvIn: Variants = {
 };
 
 const sectionHeadingIn: Variants = {
-  hidden: { opacity: "var(--cv-initial-opacity)" },
+  hidden: { opacity: "var(--motion-initial-opacity)" },
   visible: {
     opacity: 1,
     transition: { duration: 0.5, ease: easeOutExpo },
@@ -38,7 +38,7 @@ const entryStagger: Variants = {
 };
 
 const entryIn: Variants = {
-  hidden: { opacity: "var(--cv-initial-opacity)" },
+  hidden: { opacity: "var(--motion-initial-opacity)" },
   visible: {
     opacity: 1,
     transition: { duration: 0.5, ease: easeOutExpo },
@@ -51,7 +51,7 @@ export function Cv({ sections }: CvProps) {
       initial="hidden"
       animate="visible"
       variants={cvIn}
-      className="flex w-full flex-col gap-10 [--cv-initial-opacity:0] motion-reduce:[--cv-initial-opacity:1]"
+      className="flex w-full flex-col gap-10"
     >
       {sections.map((section) => (
         <section key={section.title} className="w-full">

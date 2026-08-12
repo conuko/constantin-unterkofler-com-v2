@@ -24,8 +24,8 @@ const collectionIn: Variants = {
 
 const trackIn: Variants = {
   hidden: {
-    opacity: "var(--play-initial-opacity)",
-    scale: "var(--play-initial-scale)",
+    opacity: "var(--motion-initial-opacity)",
+    scale: "var(--motion-initial-scale)",
   },
   visible: {
     opacity: 1,
@@ -49,7 +49,7 @@ export function PlayPresentation({ entries }: PlayPresentationProps) {
       initial="hidden"
       animate="visible"
       variants={collectionIn}
-      className="grid w-full grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-2 [--play-initial-opacity:0] [--play-initial-scale:0.95] motion-reduce:[--play-initial-opacity:1] motion-reduce:[--play-initial-scale:1]"
+      className="grid w-full grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-2"
     >
       {entries.map((entry, index) => {
         const hasHighFetchPriority = index < 2;
