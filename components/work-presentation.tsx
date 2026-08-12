@@ -1,6 +1,6 @@
 "use client";
 
-import type { Variants } from "motion/react";
+import { useReducedMotion, type Variants } from "motion/react";
 import * as m from "motion/react-m";
 import Image from "next/image";
 import type { WorkEntry } from "@/content/site-content";
@@ -40,9 +40,11 @@ const projectInteraction = {
 } as const;
 
 export function WorkPresentation({ entries }: WorkPresentationProps) {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <m.div
-      initial="hidden"
+      initial={prefersReducedMotion ? false : "hidden"}
       animate="visible"
       variants={collectionIn}
       className="grid grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-2"
@@ -52,9 +54,10 @@ export function WorkPresentation({ entries }: WorkPresentationProps) {
 
         return (
           <m.article
+            initial={prefersReducedMotion ? false : undefined}
             key={entry.client}
             variants={projectIn}
-            whileHover={{ y: -4 }}
+            whileHover={prefersReducedMotion ? undefined : { y: -4 }}
             transition={projectInteraction}
             className="group flex flex-col gap-3"
           >
@@ -66,7 +69,7 @@ export function WorkPresentation({ entries }: WorkPresentationProps) {
             >
               <m.div
                 className="relative overflow-hidden rounded-sm border border-rule"
-                whileHover={{ scale: 1.02 }}
+                whileHover={prefersReducedMotion ? undefined : { scale: 1.02 }}
                 transition={projectInteraction}
               >
                 <Image

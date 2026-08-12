@@ -1,6 +1,6 @@
 "use client";
 
-import type { Variants } from "motion/react";
+import { useReducedMotion, type Variants } from "motion/react";
 import * as m from "motion/react-m";
 import Image from "next/image";
 import { AppleMusicIcon, SpotifyIcon } from "@/components/icons";
@@ -41,9 +41,11 @@ const trackInteraction = {
 } as const;
 
 export function PlayPresentation({ entries }: PlayPresentationProps) {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <m.div
-      initial="hidden"
+      initial={prefersReducedMotion ? false : "hidden"}
       animate="visible"
       variants={collectionIn}
       className="grid w-full grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-2"
@@ -53,15 +55,16 @@ export function PlayPresentation({ entries }: PlayPresentationProps) {
 
         return (
           <m.article
+            initial={prefersReducedMotion ? false : undefined}
             key={`${entry.title}-${entry.artist}`}
             variants={trackIn}
-            whileHover={{ y: -3 }}
+            whileHover={prefersReducedMotion ? undefined : { y: -3 }}
             transition={trackInteraction}
             className="flex flex-col gap-3"
           >
             <m.div
               className="relative aspect-square overflow-hidden rounded-sm"
-              whileHover={{ scale: 1.03 }}
+              whileHover={prefersReducedMotion ? undefined : { scale: 1.03 }}
               transition={trackInteraction}
             >
               <Image

@@ -1,6 +1,6 @@
 "use client";
 
-import type { Variants } from "motion/react";
+import { useReducedMotion, type Variants } from "motion/react";
 import * as m from "motion/react-m";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
@@ -55,13 +55,16 @@ export function PortfolioPage({
   children,
   width = "standard",
 }: PortfolioPageProps) {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <m.div
-      initial="hidden"
+      initial={prefersReducedMotion ? false : "hidden"}
       animate="visible"
       className="flex flex-col items-center gap-10"
     >
       <m.h1
+        initial={prefersReducedMotion ? false : undefined}
         variants={headingIn}
         className="font-heading text-center text-4xl font-semibold leading-none tracking-tight lg:text-6xl"
       >
@@ -75,7 +78,12 @@ export function PortfolioPage({
         )}
       >
         {introduction && (
-          <m.div variants={introductionIn}>{introduction}</m.div>
+          <m.div
+            initial={prefersReducedMotion ? false : undefined}
+            variants={introductionIn}
+          >
+            {introduction}
+          </m.div>
         )}
         {children}
       </m.div>

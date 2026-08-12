@@ -1,7 +1,7 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
-import { AnimatePresence } from "motion/react";
+import { AnimatePresence, useReducedMotion } from "motion/react";
 import * as m from "motion/react-m";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -42,6 +42,7 @@ function WayfindingLink({
   className,
   onSelect,
 }: WayfindingLinkProps) {
+  const prefersReducedMotion = useReducedMotion();
   const isCurrent =
     pathname === item.href ||
     (item.href !== "/" && pathname.startsWith(`${item.href}/`));
@@ -55,30 +56,34 @@ function WayfindingLink({
       aria-current={isCurrent ? "page" : undefined}
     >
       {item.label}
-      {isCurrent && (
-        <m.span
-          layoutId={underlineLayoutId}
-          className="absolute inset-x-0 bottom-0 h-0.5 bg-current"
-          transition={{
-            type: "spring",
-            visualDuration: 0.4,
-            bounce: 0.2,
-          }}
-        />
-      )}
+      {isCurrent &&
+        (prefersReducedMotion ? (
+          <span className="absolute inset-x-0 bottom-0 h-0.5 bg-current" />
+        ) : (
+          <m.span
+            layoutId={underlineLayoutId}
+            className="absolute inset-x-0 bottom-0 h-0.5 bg-current"
+            transition={{
+              type: "spring",
+              visualDuration: 0.4,
+              bounce: 0.2,
+            }}
+          />
+        ))}
     </Link>
   );
 }
 
 function AppearanceControl() {
+  const prefersReducedMotion = useReducedMotion();
   const { resolvedTheme, setTheme } = useTheme();
 
   return (
     <m.button
       type="button"
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-      whileHover={hoverScale}
-      whileTap={tapScale}
+      whileHover={prefersReducedMotion ? undefined : hoverScale}
+      whileTap={prefersReducedMotion ? undefined : tapScale}
       transition={springSnappy}
       className="group relative flex size-10 cursor-pointer items-center justify-center text-ink"
     >
@@ -95,16 +100,22 @@ type DesktopWayfindingProps = {
 };
 
 function DesktopWayfinding({ items, pathname }: DesktopWayfindingProps) {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <nav aria-label="Primary">
       <m.ul
+        initial={prefersReducedMotion ? false : "hidden"}
         variants={navStagger}
-        initial="hidden"
         animate="visible"
         className="flex flex-col items-end"
       >
         {items.map((item) => (
-          <m.li key={item.href} variants={fadeInUp}>
+          <m.li
+            initial={prefersReducedMotion ? false : undefined}
+            key={item.href}
+            variants={fadeInUp}
+          >
             <WayfindingLink
               item={item}
               pathname={pathname}
@@ -129,13 +140,15 @@ function DisclosureControl({
   isOpen,
   onToggle,
 }: DisclosureControlProps) {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <m.button
       ref={controlRef}
       type="button"
       onClick={onToggle}
-      whileHover={hoverScale}
-      whileTap={tapScale}
+      whileHover={prefersReducedMotion ? undefined : hoverScale}
+      whileTap={prefersReducedMotion ? undefined : tapScale}
       transition={springSnappy}
       aria-expanded={isOpen}
       aria-controls="site-header-mobile-wayfinding"
@@ -169,6 +182,7 @@ type MobileDisclosureProps = {
 };
 
 function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
+  const prefersReducedMotion = useReducedMotion();
   const [isOpen, setIsOpen] = useState(false);
   const previousPathnameRef = useRef(pathname);
   const disclosureControlRef = useRef<HTMLButtonElement>(null);
@@ -203,14 +217,14 @@ function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
         onToggle={() => setIsOpen((currentState) => !currentState)}
       />
 
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
         {isOpen && (
           <>
             <m.div
               key="site-header-mobile-backdrop"
-              initial={{ opacity: 0 }}
+              initial={prefersReducedMotion ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              exit={prefersReducedMotion ? undefined : { opacity: 0 }}
               className="fixed inset-0 z-[-1]"
               onClick={close}
               aria-hidden
@@ -221,9 +235,9 @@ function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
               id="site-header-mobile-wayfinding"
               aria-label="Mobile navigation"
               variants={menuPanel}
-              initial="hidden"
+              initial={prefersReducedMotion ? false : "hidden"}
               animate="visible"
-              exit="hidden"
+              exit={prefersReducedMotion ? undefined : "hidden"}
               transition={{
                 type: "spring",
                 visualDuration: 0.3,
@@ -232,9 +246,17 @@ function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
               style={{ transformOrigin: "top right" }}
               className="absolute right-0 top-full mt-2 min-w-[160px] rounded-xl border border-rule bg-paper/85 p-4 shadow-lg backdrop-blur-md"
             >
-              <m.ul variants={menuStagger} initial="hidden" animate="visible">
+              <m.ul
+                variants={menuStagger}
+                initial={prefersReducedMotion ? false : "hidden"}
+                animate="visible"
+              >
                 {items.map((item) => (
-                  <m.li key={item.href} variants={menuItem}>
+                  <m.li
+                    initial={prefersReducedMotion ? false : undefined}
+                    key={item.href}
+                    variants={menuItem}
+                  >
                     <WayfindingLink
                       item={item}
                       pathname={pathname}
@@ -258,12 +280,13 @@ function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
 }
 
 export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
+  const prefersReducedMotion = useReducedMotion();
   const pathname = usePathname();
   const isScrolled = useScrolled();
 
   return (
     <m.header
-      initial={{ opacity: 0 }}
+      initial={prefersReducedMotion ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
       className={`sticky top-4 z-10 flex justify-between gap-6 rounded-xl border border-transparent lg:z-0 lg:rounded-none lg:pb-8 max-lg:transition-[background-color,border-color,box-shadow,padding,backdrop-filter] max-lg:duration-normal max-lg:ease-default ${
@@ -273,8 +296,8 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
       }`}
     >
       <m.div
-        whileHover={hoverScale}
-        whileTap={tapScale}
+        whileHover={prefersReducedMotion ? undefined : hoverScale}
+        whileTap={prefersReducedMotion ? undefined : tapScale}
         transition={springSnappy}
         className="self-start"
       >

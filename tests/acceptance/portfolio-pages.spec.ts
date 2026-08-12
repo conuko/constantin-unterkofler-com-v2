@@ -210,6 +210,122 @@ test("Portfolio Pages preserve their normal heading and content entrance motion"
   }
 });
 
+test("reduced motion renders final content without CSS or Motion animation", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+
+  for (const portfolioPage of portfolioPages) {
+    await page.goto(portfolioPage.path);
+
+    await expect(
+      page.getByRole("heading", {
+        level: 1,
+        name: portfolioPage.heading,
+      }),
+    ).toBeVisible();
+    await expect(
+      page
+        .getByText(portfolioPage.representativeContent, { exact: false })
+        .first(),
+    ).toBeVisible();
+
+    const motionState = await page.evaluate(() => {
+      const animatedElements = [
+        ...document.querySelectorAll<HTMLElement>("header *, main *"),
+      ].filter((element) => {
+        const style = getComputedStyle(element);
+        return (
+          element.getClientRects().length > 0 &&
+          style.visibility !== "hidden" &&
+          element.closest('[aria-hidden="true"]') === null
+        );
+      });
+
+      return animatedElements.map((element) => {
+        const style = getComputedStyle(element);
+        return {
+          animationDuration: style.animationDuration,
+          animationName: style.animationName,
+          transitionDuration: style.transitionDuration,
+          transitionProperty: style.transitionProperty,
+        };
+      });
+    });
+
+    expect(
+      motionState.every(
+        ({ animationDuration, animationName, transitionDuration }) =>
+          animationName === "none" &&
+          animationDuration.split(",").every((duration) => duration === "0s") &&
+          transitionDuration
+            .split(",")
+            .every((duration) => duration.trim() === "0s"),
+      ),
+    ).toBe(true);
+  }
+});
+
+test("reduced motion preserves complete mobile disclosure interaction", async ({
+  page,
+}, testInfo) => {
+  test.skip(!testInfo.project.use.isMobile, "Mobile Site Header behavior");
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+
+  const menuButton = page.getByRole("button", { name: "Open menu" });
+  await menuButton.click();
+
+  const navigation = page.getByRole("navigation", {
+    name: "Mobile navigation",
+  });
+  await expect(navigation).toBeVisible();
+  for (const label of primaryWayfinding) {
+    await expect(navigation.getByRole("link", { name: label })).toBeVisible();
+  }
+
+  const openMenuMotionState = await navigation.evaluate((element) => {
+    return [...element.querySelectorAll<HTMLElement>("*")].map((child) => {
+      const style = getComputedStyle(child);
+      return {
+        animationName: style.animationName,
+        animationDuration: style.animationDuration,
+        transitionDuration: style.transitionDuration,
+      };
+    });
+  });
+  expect(
+    openMenuMotionState.every(
+      ({ animationName, animationDuration, transitionDuration }) =>
+        animationName === "none" &&
+        animationDuration.split(",").every((duration) => duration === "0s") &&
+        transitionDuration
+          .split(",")
+          .every((duration) => duration.trim() === "0s"),
+    ),
+  ).toBe(true);
+
+  const appearanceControl = navigation.getByRole("button", {
+    name: "Toggle theme",
+  });
+  const wasDark = await page
+    .locator("html")
+    .evaluate((element) => element.classList.contains("dark"));
+  await appearanceControl.click();
+  await expect
+    .poll(() =>
+      page
+        .locator("html")
+        .evaluate((element) => element.classList.contains("dark")),
+    )
+    .toBe(!wasDark);
+
+  await page.keyboard.press("Escape");
+  await expect(navigation).toBeHidden();
+  await expect(page.getByRole("button", { name: "Open menu" })).toBeFocused();
+});
+
 test("CV preserves the section and entry entrance sequence", async ({
   page,
 }) => {
