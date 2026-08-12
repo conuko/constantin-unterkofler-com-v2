@@ -10,7 +10,26 @@ type CvProps = {
 
 const easeOutExpo = [0.16, 1, 0.3, 1] as const;
 
+const cvIn: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      delayChildren: 0.72,
+      staggerChildren: 0.12,
+    },
+  },
+};
+
 const sectionIn: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.12,
+    },
+  },
+};
+
+const sectionHeadingIn: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -37,11 +56,16 @@ const entryIn: Variants = {
 
 export function Cv({ sections }: CvProps) {
   return (
-    <>
+    <m.div
+      initial="hidden"
+      animate="visible"
+      variants={cvIn}
+      className="flex w-full flex-col gap-10"
+    >
       {sections.map((section) => (
-        <section key={section.title} className="w-full">
+        <m.section key={section.title} variants={sectionIn} className="w-full">
           <m.h2
-            variants={sectionIn}
+            variants={sectionHeadingIn}
             className="text-xs font-medium uppercase tracking-widest text-ink-muted"
           >
             {section.title}
@@ -65,8 +89,8 @@ export function Cv({ sections }: CvProps) {
               </m.li>
             ))}
           </m.ol>
-        </section>
+        </m.section>
       ))}
-    </>
+    </m.div>
   );
 }

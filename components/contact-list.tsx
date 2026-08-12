@@ -1,18 +1,43 @@
 "use client";
 
+import type { Variants } from "motion/react";
 import * as m from "motion/react-m";
 import type { ContactLink } from "@/content/site-content";
-import { listStagger, slideInLeft } from "@/lib/motion";
 
 type ContactListProps = {
   links: ContactLink[];
 };
 
+const easeOutExpo = [0.16, 1, 0.3, 1] as const;
+
+const listIn: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      delayChildren: 0.6,
+      staggerChildren: 0.06,
+    },
+  },
+};
+
+const contactIn: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { duration: 0.5, ease: easeOutExpo },
+  },
+};
+
 export function ContactList({ links }: ContactListProps) {
   return (
-    <m.ul variants={listStagger} className="border-rule w-full">
+    <m.ul
+      initial="hidden"
+      animate="visible"
+      variants={listIn}
+      className="w-full border-rule"
+    >
       {links.map((link) => (
-        <m.li key={link.label} variants={slideInLeft}>
+        <m.li key={link.label} variants={contactIn}>
           <a
             href={link.href}
             target={link.href.startsWith("mailto:") ? undefined : "_blank"}

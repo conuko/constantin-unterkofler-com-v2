@@ -15,6 +15,7 @@ const collectionIn: Variants = {
   hidden: {},
   visible: {
     transition: {
+      delayChildren: 0.72,
       staggerChildren: 0.07,
     },
   },
@@ -41,6 +42,8 @@ const projectInteraction = {
 export function WorkPresentation({ entries }: WorkPresentationProps) {
   return (
     <m.div
+      initial="hidden"
+      animate="visible"
       variants={collectionIn}
       className="grid grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-2"
     >

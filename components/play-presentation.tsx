@@ -16,6 +16,7 @@ const collectionIn: Variants = {
   hidden: {},
   visible: {
     transition: {
+      delayChildren: 0.6,
       staggerChildren: 0.07,
     },
   },
@@ -42,6 +43,8 @@ const trackInteraction = {
 export function PlayPresentation({ entries }: PlayPresentationProps) {
   return (
     <m.div
+      initial="hidden"
+      animate="visible"
       variants={collectionIn}
       className="grid w-full grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-2"
     >

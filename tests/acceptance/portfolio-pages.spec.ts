@@ -8,6 +8,13 @@ type PlayMotionWindow = Window & {
   __playMotionStarts?: Record<number, number>;
 };
 
+type PortfolioPageMotionWindow = Window & {
+  __portfolioPageMotion?: {
+    content: boolean;
+    heading: boolean;
+  };
+};
+
 const portfolioPages = [
   {
     name: "Home",
@@ -132,6 +139,72 @@ for (const portfolioPage of portfolioPages) {
     expect(runtimeErrors, "browser runtime errors").toEqual([]);
   });
 }
+
+test("Portfolio Pages preserve their normal heading and content entrance motion", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    const motionWindow = window as PortfolioPageMotionWindow;
+    const portfolioPageMotion = {
+      content: false,
+      heading: false,
+    };
+    motionWindow.__portfolioPageMotion = portfolioPageMotion;
+
+    function observeEntranceStates() {
+      for (const element of document.querySelectorAll<HTMLElement>("main *")) {
+        const opacity = Number.parseFloat(getComputedStyle(element).opacity);
+        if (opacity !== 0) continue;
+
+        if (element.tagName === "H1") {
+          portfolioPageMotion.heading = true;
+        } else {
+          portfolioPageMotion.content = true;
+        }
+      }
+
+      if (!portfolioPageMotion.heading || !portfolioPageMotion.content) {
+        requestAnimationFrame(observeEntranceStates);
+      }
+    }
+
+    requestAnimationFrame(observeEntranceStates);
+  });
+
+  for (const portfolioPage of portfolioPages) {
+    await page.goto(portfolioPage.path);
+
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () =>
+            (window as PortfolioPageMotionWindow).__portfolioPageMotion
+              ?.heading ?? false,
+        ),
+      )
+      .toBe(true);
+    await expect(
+      page.getByRole("heading", {
+        level: 1,
+        name: portfolioPage.heading,
+      }),
+    ).toBeVisible();
+    await expect(
+      page
+        .getByText(portfolioPage.representativeContent, { exact: false })
+        .first(),
+    ).toBeVisible();
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () =>
+            (window as PortfolioPageMotionWindow).__portfolioPageMotion
+              ?.content ?? false,
+        ),
+      )
+      .toBe(true);
+  }
+});
 
 test("About Portfolio Page presents the complete ordered CV", async ({
   page,
