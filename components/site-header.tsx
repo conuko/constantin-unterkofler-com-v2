@@ -1,24 +1,61 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
-import { AnimatePresence, useReducedMotion } from "motion/react";
+import { AnimatePresence, useReducedMotion, type Variants } from "motion/react";
 import * as m from "motion/react-m";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { NavItem } from "@/content/site-content";
-import {
-  fadeInUp,
-  hoverScale,
-  menuItem,
-  menuPanel,
-  menuStagger,
-  navStagger,
-  springSnappy,
-  tapScale,
-} from "@/lib/motion";
 import { useScrolled } from "@/lib/use-scrolled";
+
+const hoverScale = { scale: 1.05 };
+const tapScale = { scale: 0.95 };
+
+const interactionTransition = {
+  type: "spring",
+  visualDuration: 0.3,
+  bounce: 0.25,
+} as const;
+
+const wayfindingItemIn: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+  },
+};
+
+const desktopWayfindingIn: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const mobileDisclosureIn: Variants = {
+  hidden: { opacity: 0, y: -8, scale: 0.95 },
+  visible: { opacity: 1, y: 0, scale: 1 },
+};
+
+const mobileWayfindingItemIn: Variants = {
+  hidden: { opacity: 0, x: 8 },
+  visible: { opacity: 1, x: 0 },
+};
+
+const mobileWayfindingIn: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.05,
+      delayChildren: 0.05,
+    },
+  },
+};
 
 type SiteHeaderProps = {
   identity: {
@@ -84,7 +121,7 @@ function AppearanceControl() {
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
       whileHover={prefersReducedMotion ? undefined : hoverScale}
       whileTap={prefersReducedMotion ? undefined : tapScale}
-      transition={springSnappy}
+      transition={interactionTransition}
       className="group relative flex size-10 cursor-pointer items-center justify-center text-ink"
     >
       <Sun className="size-4 scale-100 rotate-0 transition-transform duration-normal ease-spring group-hover:text-amber-500 dark:scale-0 dark:-rotate-90" />
@@ -106,7 +143,7 @@ function DesktopWayfinding({ items, pathname }: DesktopWayfindingProps) {
     <nav aria-label="Primary">
       <m.ul
         initial={prefersReducedMotion ? false : "hidden"}
-        variants={navStagger}
+        variants={desktopWayfindingIn}
         animate="visible"
         className="flex flex-col items-end"
       >
@@ -114,7 +151,7 @@ function DesktopWayfinding({ items, pathname }: DesktopWayfindingProps) {
           <m.li
             initial={prefersReducedMotion ? false : undefined}
             key={item.href}
-            variants={fadeInUp}
+            variants={wayfindingItemIn}
           >
             <WayfindingLink
               item={item}
@@ -149,7 +186,7 @@ function DisclosureControl({
       onClick={onToggle}
       whileHover={prefersReducedMotion ? undefined : hoverScale}
       whileTap={prefersReducedMotion ? undefined : tapScale}
-      transition={springSnappy}
+      transition={interactionTransition}
       aria-expanded={isOpen}
       aria-controls="site-header-mobile-wayfinding"
       aria-label={isOpen ? "Close menu" : "Open menu"}
@@ -158,17 +195,17 @@ function DisclosureControl({
       <div className="flex size-5 flex-col items-center justify-center">
         <m.span
           animate={isOpen ? { rotate: 45, y: 0 } : { rotate: 0, y: -6 }}
-          transition={springSnappy}
+          transition={interactionTransition}
           className="absolute h-0.5 w-5 rounded-full bg-current"
         />
         <m.span
           animate={isOpen ? { opacity: 0, scale: 0 } : { opacity: 1, scale: 1 }}
-          transition={springSnappy}
+          transition={interactionTransition}
           className="absolute h-0.5 w-5 rounded-full bg-current"
         />
         <m.span
           animate={isOpen ? { rotate: -45, y: 0 } : { rotate: 0, y: 6 }}
-          transition={springSnappy}
+          transition={interactionTransition}
           className="absolute h-0.5 w-5 rounded-full bg-current"
         />
       </div>
@@ -234,7 +271,7 @@ function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
               key="site-header-mobile-wayfinding"
               id="site-header-mobile-wayfinding"
               aria-label="Mobile navigation"
-              variants={menuPanel}
+              variants={mobileDisclosureIn}
               initial={prefersReducedMotion ? false : "hidden"}
               animate="visible"
               exit={prefersReducedMotion ? undefined : "hidden"}
@@ -247,7 +284,7 @@ function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
               className="absolute right-0 top-full mt-2 min-w-[160px] rounded-xl border border-rule bg-paper/85 p-4 shadow-lg backdrop-blur-md"
             >
               <m.ul
-                variants={menuStagger}
+                variants={mobileWayfindingIn}
                 initial={prefersReducedMotion ? false : "hidden"}
                 animate="visible"
               >
@@ -255,7 +292,7 @@ function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
                   <m.li
                     initial={prefersReducedMotion ? false : undefined}
                     key={item.href}
-                    variants={menuItem}
+                    variants={mobileWayfindingItemIn}
                   >
                     <WayfindingLink
                       item={item}
@@ -298,7 +335,7 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
       <m.div
         whileHover={prefersReducedMotion ? undefined : hoverScale}
         whileTap={prefersReducedMotion ? undefined : tapScale}
-        transition={springSnappy}
+        transition={interactionTransition}
         className="self-start"
       >
         <Link

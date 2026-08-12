@@ -1,13 +1,23 @@
 "use client";
 
-import { LazyMotion, MotionConfig, useReducedMotion } from "motion/react";
+import {
+  LazyMotion,
+  MotionConfig,
+  type Transition,
+  useReducedMotion,
+} from "motion/react";
 import * as m from "motion/react-m";
 import type { ReactNode } from "react";
 import { ThemeProvider } from "@/components/theme-provider";
-import { springDefault } from "@/lib/motion";
 
 const loadFeatures = () =>
-  import("@/lib/motion-features").then((res) => res.default);
+  import("motion/react").then((motion) => motion.domMax);
+
+const defaultTransition = {
+  type: "spring",
+  visualDuration: 0.5,
+  bounce: 0.15,
+} satisfies Transition;
 
 type MotionLayoutProps = {
   children: ReactNode;
@@ -25,7 +35,7 @@ export function MotionLayout({ children }: MotionLayoutProps) {
     >
       <LazyMotion features={loadFeatures} strict>
         <MotionConfig
-          transition={springDefault}
+          transition={defaultTransition}
           reducedMotion={prefersReducedMotion ? "always" : "user"}
         >
           <a href="#main-content" className="skip-link">
