@@ -20,15 +20,6 @@ const cvIn: Variants = {
   },
 };
 
-const sectionIn: Variants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.12,
-    },
-  },
-};
-
 const sectionHeadingIn: Variants = {
   hidden: { opacity: 0 },
   visible: {
@@ -63,7 +54,7 @@ export function Cv({ sections }: CvProps) {
       className="flex w-full flex-col gap-10"
     >
       {sections.map((section) => (
-        <m.section key={section.title} variants={sectionIn} className="w-full">
+        <section key={section.title} className="w-full">
           <m.h2
             variants={sectionHeadingIn}
             className="text-xs font-medium uppercase tracking-widest text-ink-muted"
@@ -89,7 +80,7 @@ export function Cv({ sections }: CvProps) {
               </m.li>
             ))}
           </m.ol>
-        </m.section>
+        </section>
       ))}
     </m.div>
   );

@@ -15,6 +15,10 @@ type PortfolioPageMotionWindow = Window & {
   };
 };
 
+type CvMotionWindow = Window & {
+  __cvMotionStarts?: Record<string, number>;
+};
+
 const portfolioPages = [
   {
     name: "Home",
@@ -204,6 +208,57 @@ test("Portfolio Pages preserve their normal heading and content entrance motion"
       )
       .toBe(true);
   }
+});
+
+test("CV preserves the section and entry entrance sequence", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    const motionWindow = window as CvMotionWindow;
+    const starts: Record<string, number> = {};
+    motionWindow.__cvMotionStarts = starts;
+
+    function observeMotion() {
+      const motionFrame = performance.now();
+      const elements = [
+        ...document.querySelectorAll("main h2"),
+        ...document.querySelectorAll("main ol > li"),
+      ];
+
+      for (const [index, element] of elements.entries()) {
+        const key = index < 2 ? `heading-${index}` : `entry-${index - 2}`;
+        const opacity = Number.parseFloat(getComputedStyle(element).opacity);
+
+        if (opacity > 0 && opacity < 1 && starts[key] === undefined) {
+          starts[key] = motionFrame;
+        }
+      }
+
+      if (Object.keys(starts).length < 8) {
+        requestAnimationFrame(observeMotion);
+      }
+    }
+
+    requestAnimationFrame(observeMotion);
+  });
+
+  await page.goto("/about");
+
+  await expect
+    .poll(() =>
+      page.evaluate(() =>
+        Object.keys((window as CvMotionWindow).__cvMotionStarts ?? {}),
+      ),
+    )
+    .toHaveLength(8);
+
+  const starts = await page.evaluate(
+    () => (window as CvMotionWindow).__cvMotionStarts ?? {},
+  );
+
+  expect(starts["heading-0"]).toBeLessThan(starts["entry-0"]);
+  expect(starts["entry-1"]).toBeLessThan(starts["heading-1"]);
+  expect(starts["heading-1"]).toBeLessThan(starts["entry-4"]);
 });
 
 test("About Portfolio Page presents the complete ordered CV", async ({
