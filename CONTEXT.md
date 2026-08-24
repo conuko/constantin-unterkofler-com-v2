@@ -19,3 +19,15 @@ _Avoid_: Resume, career list
 **Portfolio Page**:
 A public destination that presents one coherent area of Portfolio Content under its own title and metadata.
 _Avoid_: Page shell, route page
+
+**Engineering Notebook**:
+The portfolio's canonical editorial identity, presenting Portfolio Content as precise, structured records with selective human annotation and restrained technical instrumentation.
+_Avoid_: Technical Engineering Notebook, technical bulletpoints notebook, journal, field notebook, Knowledge Machine
+
+**Recent Reading**:
+The six books Constantin completed most recently, ordered from newest to oldest.
+_Avoid_: Reading list, bookshelf, book collection
+
+**Personal Rating**:
+Constantin's deliberate whole-number assessment of a completed book on an inclusive zero-to-five scale; zero is a rating, not an unrated state.
+_Avoid_: Star score, review score
