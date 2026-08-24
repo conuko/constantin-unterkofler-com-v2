@@ -1,121 +1,129 @@
 "use client";
 
 import type { Variants } from "motion/react";
-import * as m from "motion/react-m";
 import Image from "next/image";
-import type { WorkEntry } from "@/content/site-content";
+import {
+  NotebookAnnotation,
+  NotebookCollection,
+  NotebookIndex,
+  NotebookMedia,
+  NotebookMetadata,
+  NotebookRecord,
+  NotebookTag,
+  NotebookTags,
+  NotebookTitle,
+} from "@/components/notebook-primitives";
+import type { WorkEntry, WorkMark } from "@/content/site-content";
 
 type WorkPresentationProps = {
   entries: WorkEntry[];
 };
 
-const easeOutExpo = [0.16, 1, 0.3, 1] as const;
-
-const collectionIn: Variants = {
+const workGroupSequence: Variants = {
   hidden: {},
   visible: {
     transition: {
-      delayChildren: 0.72,
-      staggerChildren: 0.07,
+      delayChildren: 0.08,
+      staggerChildren: 0.08,
     },
   },
 };
 
-const projectIn: Variants = {
-  hidden: {
-    opacity: "var(--motion-initial-opacity)",
-    scale: "var(--motion-initial-scale)",
-  },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: {
-      duration: 0.6,
-      ease: easeOutExpo,
-    },
-  },
+const workRecordSequence = {
+  delayChildren: 0.04,
+  staggerChildren: 0.045,
 };
 
-const projectInteraction = {
-  type: "spring",
-  visualDuration: 0.3,
-  bounce: 0.25,
-} as const;
+const markSizeClasses: Record<WorkMark["src"], string> = {
+  "/marks/levi.svg": "w-[42%] max-w-44",
+  "/marks/harrods.svg": "w-[55%] max-w-48",
+  "/marks/fielmann.svg": "w-[48%] max-w-44",
+  "/marks/scayle.svg": "w-[82%] max-w-40",
+  "/marks/about-you.svg": "w-[82%] max-w-40",
+  "/marks/fifa.svg": "w-[40%] max-w-40",
+  "/marks/tennet.svg": "w-[58%] max-w-56",
+  "/marks/fussball-de.svg": "w-[22%] max-w-24",
+};
+
+function WorkMarks({
+  marks,
+  loadImmediately,
+}: {
+  marks: WorkMark[];
+  loadImmediately: boolean;
+}) {
+  return (
+    <div
+      className={
+        marks.length > 1
+          ? "grid h-full w-full grid-cols-2 items-center divide-x divide-rule"
+          : "flex h-full w-full items-center justify-center"
+      }
+    >
+      {marks.map((mark) => (
+        <div
+          key={mark.src}
+          className="flex h-full w-full min-w-0 items-center justify-center px-3 sm:px-6"
+        >
+          <Image
+            src={mark.src}
+            alt={mark.alt}
+            width={mark.width}
+            height={mark.height}
+            loading={loadImmediately ? "eager" : "lazy"}
+            fetchPriority={loadImmediately ? "high" : undefined}
+            sizes="(min-width: 1152px) 456px, (min-width: 768px) calc((100vw - 96px) / 2), calc(100vw - 48px)"
+            unoptimized
+            className={`h-auto object-contain ${markSizeClasses[mark.src]}`}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function WorkPresentation({ entries }: WorkPresentationProps) {
   return (
-    <m.div
-      initial="hidden"
-      animate="visible"
-      variants={collectionIn}
-      className="grid grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-2"
-    >
+    <NotebookCollection variants={workGroupSequence}>
       {entries.map((entry, index) => {
-        const loadImmediately = index < 4;
+        const loadImmediately = index < 2;
 
         return (
-          <m.article
-            key={entry.client}
-            variants={projectIn}
-            whileHover={{ y: -4 }}
-            transition={projectInteraction}
-            className="group flex flex-col gap-3"
-          >
-            <a
-              href={entry.url}
-              target="_blank"
-              rel="noreferrer noopener"
-              aria-label={`Visit ${entry.client}`}
+          <NotebookRecord key={entry.client} sequence={workRecordSequence}>
+            <NotebookIndex>{`W–${String(index + 1).padStart(2, "0")}`}</NotebookIndex>
+            <NotebookMedia
+              link={
+                entry.url
+                  ? {
+                      href: entry.url,
+                      label: `View ${entry.client} project`,
+                    }
+                  : undefined
+              }
             >
-              <m.div
-                className="relative overflow-hidden rounded-sm border border-rule"
-                whileHover={{ scale: 1.02 }}
-                transition={projectInteraction}
-              >
-                <Image
-                  src={entry.image.src}
-                  alt={entry.image.alt}
-                  placeholder="blur"
-                  loading={loadImmediately ? "eager" : "lazy"}
-                  fetchPriority={loadImmediately ? "high" : undefined}
-                  sizes="(min-width: 816px) 372px, (min-width: 768px) calc((100vw - 72px) / 2), calc(100vw - 48px)"
-                  quality={85}
-                  className="block w-full"
-                />
-
-                <div
-                  className="absolute inset-0 hidden items-center bg-ink/50 p-5 opacity-0 backdrop-blur-md transition-opacity duration-normal ease-default lg:flex lg:group-hover:opacity-100"
-                  aria-hidden="true"
-                >
-                  <p className="text-sm leading-relaxed text-paper">
-                    {entry.description}
-                  </p>
-                </div>
-              </m.div>
-            </a>
-
-            <div className="flex flex-col gap-1.5">
-              <h2 className="font-heading text-xl leading-tight font-semibold">
-                {entry.client}
-              </h2>
-              <div className="flex flex-wrap gap-1.5">
-                {entry.techStack.map((technology) => (
-                  <span
-                    key={technology}
-                    className="rounded-full border border-rule px-2 py-0.5 text-xs text-ink-muted"
-                  >
-                    {technology}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <p className="text-sm leading-relaxed text-ink-muted lg:hidden">
-              {entry.description}
-            </p>
-          </m.article>
+              <WorkMarks
+                marks={entry.marks}
+                loadImmediately={loadImmediately}
+              />
+            </NotebookMedia>
+            <NotebookTitle>{entry.client}</NotebookTitle>
+            <NotebookMetadata>{entry.primaryMetadata}</NotebookMetadata>
+            <NotebookAnnotation>
+              <p>{entry.description}</p>
+              {entry.descriptionReview === "owner" && (
+                <p className="label mt-3 inline-flex border border-rule bg-card-glass px-2 py-1 text-[0.625rem] text-ink backdrop-blur-sm">
+                  Draft description · Owner editorial review
+                </p>
+              )}
+            </NotebookAnnotation>
+            <NotebookTags label={`${entry.client} technologies`}>
+              {entry.techStack.map((technology) => (
+                <NotebookTag key={technology}>{technology}</NotebookTag>
+              ))}
+            </NotebookTags>
+          </NotebookRecord>
         );
       })}
-    </m.div>
+    </NotebookCollection>
   );
 }
