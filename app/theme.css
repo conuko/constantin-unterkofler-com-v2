@@ -28,7 +28,12 @@
   --font-sans: var(--font-body), sans-serif;
   --font-heading: var(--font-display), serif;
 
+  --text-label: 0.6875rem;
+  --text-micro: 0.625rem;
+
   --radius: 0.625rem;
+
+  --shadow-media-field: inset 0 1px 0 var(--color-media-field-highlight);
 
   --duration-fast: 150ms;
   --duration-normal: 300ms;

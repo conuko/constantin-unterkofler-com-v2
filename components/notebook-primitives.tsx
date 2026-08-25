@@ -1,8 +1,8 @@
 "use client";
 
-import type { Variants } from "motion/react";
+import { useInView, type Variants } from "motion/react";
 import * as m from "motion/react-m";
-import type { ReactNode } from "react";
+import { createContext, type ReactNode, useContext, useRef } from "react";
 import {
   createNotebookRecordReveal,
   notebookInteractionTransition,
@@ -19,11 +19,28 @@ type NotebookCollectionProps = {
   className?: string;
 };
 
+const NotebookPageIdentityContext = createContext(true);
+
+export function NotebookPageIdentityProvider({
+  children,
+  settled,
+}: {
+  children: ReactNode;
+  settled: boolean;
+}) {
+  return (
+    <NotebookPageIdentityContext.Provider value={settled}>
+      {children}
+    </NotebookPageIdentityContext.Provider>
+  );
+}
+
 type NotebookPageHeaderProps = {
   introduction?: ReactNode;
   sectionCode: string;
   sequence: Variants;
   title: string;
+  onIdentitySettled?: () => void;
 };
 
 export function NotebookPageHeader({
@@ -31,7 +48,26 @@ export function NotebookPageHeader({
   sectionCode,
   sequence,
   title,
+  onIdentitySettled,
 }: NotebookPageHeaderProps) {
+  const identityProgress = useRef({
+    completedParts: new Set<"introduction" | "title">(),
+    notified: false,
+  });
+
+  function markIdentityPartComplete(part: "introduction" | "title") {
+    identityProgress.current.completedParts.add(part);
+    const requiredPartCount = introduction ? 2 : 1;
+
+    if (
+      !identityProgress.current.notified &&
+      identityProgress.current.completedParts.size === requiredPartCount
+    ) {
+      identityProgress.current.notified = true;
+      onIdentitySettled?.();
+    }
+  }
+
   return (
     <m.header
       variants={sequence}
@@ -40,12 +76,13 @@ export function NotebookPageHeader({
     >
       <m.p
         variants={notebookPageIntroductionReveal}
-        className="label mb-4 text-[0.6875rem] text-ink-muted"
+        className="label mb-4 text-label text-ink-muted"
       >
         {sectionCode}
       </m.p>
       <m.h1
         variants={notebookPageHeadingReveal}
+        onAnimationComplete={() => markIdentityPartComplete("title")}
         className="font-heading text-5xl leading-none font-semibold tracking-tight lg:text-7xl"
       >
         {title}
@@ -53,8 +90,9 @@ export function NotebookPageHeader({
       {introduction && (
         <m.div
           variants={notebookPageIntroductionReveal}
+          onAnimationComplete={() => markIdentityPartComplete("introduction")}
           data-notebook-introduction
-          className="mt-6 w-full max-w-[45rem] text-sm text-ink-muted"
+          className="mt-6 w-full max-w-180 text-sm text-ink-muted"
         >
           {introduction}
         </m.div>
@@ -73,11 +111,18 @@ export function NotebookCollection({
   variants,
   className,
 }: NotebookCollectionProps) {
+  const collectionRef = useRef<HTMLDivElement>(null);
+  const hasEnteredViewport = useInView(collectionRef, {
+    once: true,
+    amount: 0.08,
+  });
+  const pageIdentitySettled = useContext(NotebookPageIdentityContext);
+
   return (
     <m.div
+      ref={collectionRef}
       initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.08 }}
+      animate={pageIdentitySettled && hasEnteredViewport ? "visible" : "hidden"}
       variants={variants}
       data-notebook-collection
       className={cn(
@@ -127,7 +172,7 @@ export function NotebookIndex({ children }: { children: ReactNode }) {
     <m.p
       variants={notebookPartReveal}
       data-entry-part="index"
-      className="label mb-3 text-[0.6875rem] text-ink-muted"
+      className="label mb-3 text-label text-ink-muted"
     >
       {children}
     </m.p>
@@ -150,7 +195,7 @@ export function NotebookMedia({ children, link }: NotebookMediaProps) {
       data-notebook-media-field
       whileHover={{ scale: "var(--notebook-media-hover-scale)" }}
       transition={notebookInteractionTransition}
-      className="relative flex aspect-[16/9] items-center justify-center overflow-hidden border border-[var(--color-media-field-rule)] bg-[var(--color-media-field)] p-7 shadow-[inset_0_1px_0_var(--color-media-field-highlight)] sm:p-10"
+      className="relative flex aspect-video items-center justify-center overflow-hidden border border-media-field-rule bg-media-field p-7 shadow-media-field sm:p-10"
     >
       {children}
     </m.div>
@@ -198,7 +243,7 @@ export function NotebookMetadata({ children }: { children: ReactNode }) {
     <m.p
       variants={notebookPartReveal}
       data-entry-part="metadata"
-      className="label mt-2 text-[0.6875rem] text-ink-muted"
+      className="label mt-2 text-label text-ink-muted"
     >
       {children}
     </m.p>
@@ -237,7 +282,7 @@ export function NotebookTags({ children, label }: NotebookTagsProps) {
 
 export function NotebookTag({ children }: { children: ReactNode }) {
   return (
-    <li className="label text-[0.625rem] text-ink-muted before:mr-1.5 before:text-rule before:content-['+']">
+    <li className="label notebook-tag-marker text-micro text-ink-muted">
       {children}
     </li>
   );

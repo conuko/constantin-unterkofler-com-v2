@@ -2,8 +2,11 @@
 
 import type { Variants } from "motion/react";
 import * as m from "motion/react-m";
-import type { ReactNode } from "react";
-import { NotebookPageHeader } from "@/components/notebook-primitives";
+import { type ReactNode, useCallback, useState } from "react";
+import {
+  NotebookPageHeader,
+  NotebookPageIdentityProvider,
+} from "@/components/notebook-primitives";
 import { notebookEase } from "@/lib/notebook-motion";
 import { cn } from "@/lib/utils/cn";
 
@@ -63,41 +66,52 @@ export function PortfolioPage({
   children,
   width = "standard",
 }: PortfolioPageProps) {
+  const [pageIdentitySettled, setPageIdentitySettled] = useState(!sectionCode);
+  const settlePageIdentity = useCallback(() => {
+    setPageIdentitySettled(true);
+  }, []);
+
   return (
-    <m.div
-      initial="hidden"
-      animate="visible"
-      className="flex w-full flex-col gap-10"
-    >
-      {sectionCode ? (
-        <NotebookPageHeader
-          sectionCode={sectionCode}
-          sequence={contentStagger}
-          title={title}
-          introduction={introduction}
-        />
-      ) : (
-        <m.h1
-          variants={headingIn}
-          className="font-heading text-center text-4xl leading-none font-semibold tracking-tight lg:text-6xl"
-        >
-          {title}
-        </m.h1>
-      )}
+    <NotebookPageIdentityProvider settled={pageIdentitySettled}>
       <m.div
-        variants={contentStagger}
-        className={cn(
-          "flex w-full flex-col gap-10",
-          width === "collection" && "max-w-[67.5rem]",
-          width === "standard" && "mx-auto max-w-3xl items-center",
-          width === "narrow" && "mx-auto max-w-xl",
-        )}
+        initial="hidden"
+        animate="visible"
+        data-page-identity-state={
+          pageIdentitySettled ? "settled" : "registering"
+        }
+        className="flex w-full flex-col gap-10"
       >
-        {!sectionCode && introduction && (
-          <m.div variants={introductionIn}>{introduction}</m.div>
+        {sectionCode ? (
+          <NotebookPageHeader
+            sectionCode={sectionCode}
+            sequence={contentStagger}
+            title={title}
+            introduction={introduction}
+            onIdentitySettled={settlePageIdentity}
+          />
+        ) : (
+          <m.h1
+            variants={headingIn}
+            className="font-heading text-center text-4xl leading-none font-semibold tracking-tight lg:text-6xl"
+          >
+            {title}
+          </m.h1>
         )}
-        {children}
+        <m.div
+          variants={contentStagger}
+          className={cn(
+            "flex w-full flex-col gap-10",
+            width === "collection" && "max-w-270",
+            width === "standard" && "mx-auto max-w-3xl items-center",
+            width === "narrow" && "mx-auto max-w-xl",
+          )}
+        >
+          {!sectionCode && introduction && (
+            <m.div variants={introductionIn}>{introduction}</m.div>
+          )}
+          {children}
+        </m.div>
       </m.div>
-    </m.div>
+    </NotebookPageIdentityProvider>
   );
 }

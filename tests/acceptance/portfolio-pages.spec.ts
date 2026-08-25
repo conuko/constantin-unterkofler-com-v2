@@ -3,6 +3,7 @@ import { expect, type Locator, type Page, test } from "@playwright/test";
 type WorkMotionWindow = Window & {
   __workMotionStarts?: Record<number, number>;
   __workMotionAfterSettle?: number;
+  __workPageIdentitySettledAt?: number;
   __workPartMotionStarts?: Record<string, number>;
 };
 
@@ -683,6 +684,10 @@ test("Work Portfolio Page presents its ordered responsive project collection", a
         const target = mutation.target;
         if (!(target instanceof HTMLElement)) continue;
 
+        if (target.dataset.pageIdentityState === "settled") {
+          motionWindow.__workPageIdentitySettledAt ??= motionFrame;
+        }
+
         const project = target.closest("article");
         if (!project) continue;
 
@@ -716,7 +721,7 @@ test("Work Portfolio Page presents its ordered responsive project collection", a
       }
     }).observe(document, {
       attributes: true,
-      attributeFilter: ["style"],
+      attributeFilter: ["data-page-identity-state", "style"],
       subtree: true,
     });
   });
@@ -866,6 +871,11 @@ test("Work Portfolio Page presents its ordered responsive project collection", a
   const motionStarts = await page.evaluate(
     () => (window as WorkMotionWindow).__workMotionStarts ?? {},
   );
+  const pageIdentitySettledAt = await page.evaluate(
+    () => (window as WorkMotionWindow).__workPageIdentitySettledAt,
+  );
+  expect(pageIdentitySettledAt).toBeDefined();
+  expect(motionStarts[0]).toBeGreaterThanOrEqual(pageIdentitySettledAt ?? 0);
   for (let projectIndex = 1; projectIndex < projects.length; projectIndex++) {
     expect(motionStarts[projectIndex]).toBeGreaterThan(
       motionStarts[projectIndex - 1],

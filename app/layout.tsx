@@ -46,7 +46,7 @@ export default function RootLayout({
           />
           <main
             id="main-content"
-            className="mx-auto w-full max-w-[67.5rem] flex-1 pb-16"
+            className="mx-auto w-full max-w-270 flex-1 pb-16"
           >
             {children}
           </main>

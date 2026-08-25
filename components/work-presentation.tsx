@@ -35,14 +35,14 @@ const workRecordSequence = {
 };
 
 const markSizeClasses: Record<WorkMark["src"], string> = {
-  "/marks/levi.svg": "w-[42%] max-w-44",
-  "/marks/harrods.svg": "w-[55%] max-w-48",
-  "/marks/fielmann.svg": "w-[48%] max-w-44",
-  "/marks/scayle.svg": "w-[82%] max-w-40",
-  "/marks/about-you.svg": "w-[82%] max-w-40",
-  "/marks/fifa.svg": "w-[40%] max-w-40",
-  "/marks/tennet.svg": "w-[58%] max-w-56",
-  "/marks/fussball-de.svg": "w-[22%] max-w-24",
+  "/marks/levi.svg": "w-21/50 max-w-44",
+  "/marks/harrods.svg": "w-11/20 max-w-48",
+  "/marks/fielmann.svg": "w-12/25 max-w-44",
+  "/marks/scayle.svg": "w-41/50 max-w-40",
+  "/marks/about-you.svg": "w-41/50 max-w-40",
+  "/marks/fifa.svg": "w-2/5 max-w-40",
+  "/marks/tennet.svg": "w-29/50 max-w-56",
+  "/marks/fussball-de.svg": "w-11/50 max-w-24",
 };
 
 function WorkMarks({
@@ -111,7 +111,7 @@ export function WorkPresentation({ entries }: WorkPresentationProps) {
             <NotebookAnnotation>
               <p>{entry.description}</p>
               {entry.descriptionReview === "owner" && (
-                <p className="label mt-3 inline-flex border border-rule bg-card-glass px-2 py-1 text-[0.625rem] text-ink backdrop-blur-sm">
+                <p className="label mt-3 inline-flex border border-rule bg-card-glass px-2 py-1 text-micro text-ink backdrop-blur-sm">
                   Draft description · Owner editorial review
                 </p>
               )}

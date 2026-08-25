@@ -62,7 +62,7 @@ A card inspired by `MusicCard` but adapted for project work:
 
 **Default state (visible):**
 
-- Colored placeholder block (aspect-[3/2] or aspect-video) with client initial/name
+- Colored placeholder block (aspect-3/2 or aspect-video) with client initial/name
 - Client name as heading
 - Tech stack as small inline pills/tags
 
@@ -79,7 +79,7 @@ A card inspired by `MusicCard` but adapted for project work:
 ```tsx
 <article className="group relative flex flex-col gap-3">
   <a href={entry.url} target="_blank" rel="noreferrer noopener">
-    <div className="relative aspect-[3/2] overflow-hidden rounded-sm bg-rule">
+    <div className="relative aspect-3/2 overflow-hidden rounded-sm bg-rule">
       {/* Placeholder / future image */}
       <div className="flex items-center justify-center h-full">
         <span className="font-heading text-2xl font-semibold">
