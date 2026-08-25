@@ -1,6 +1,6 @@
 "use client";
 
-import type { Variants } from "motion/react";
+import { stagger, type Variants } from "motion/react";
 import Image from "next/image";
 import {
   NotebookAnnotation,
@@ -23,14 +23,13 @@ const workGroupSequence: Variants = {
   hidden: {},
   visible: {
     transition: {
-      delayChildren: 0.08,
-      staggerChildren: 0.08,
+      delayChildren: stagger(0.08),
     },
   },
 };
 
 const workRecordSequence = {
-  delayChildren: 0.04,
+  delayChildren: 0,
   staggerChildren: 0.045,
 };
 

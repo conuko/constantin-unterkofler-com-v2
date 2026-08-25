@@ -152,7 +152,7 @@ describe("Portfolio Content", () => {
       "Commerce delivery",
       "Commerce platform",
       "Commerce platform",
-      "Digital product",
+      "Web platform",
       "Web platform",
       "Platform migration",
     ]);
@@ -184,10 +184,14 @@ describe("Portfolio Content", () => {
       },
       {
         client: "SCAYLE / ABOUT YOU",
-        url: undefined,
-        descriptionReview: "owner",
+        url: "https://www.scayle.com/",
+        descriptionReview: undefined,
       },
-      { client: "FIFA", url: undefined, descriptionReview: "owner" },
+      {
+        client: "FIFA",
+        url: "https://publications.fifa.com/en/talent-development/",
+        descriptionReview: undefined,
+      },
       {
         client: "TenneT",
         url: "https://www.tennet.eu/",

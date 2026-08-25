@@ -1,6 +1,6 @@
 "use client";
 
-import type { Variants } from "motion/react";
+import { stagger, type Variants } from "motion/react";
 import * as m from "motion/react-m";
 import { type ReactNode, useCallback, useState } from "react";
 import {
@@ -46,7 +46,11 @@ const contentStagger: Variants = {
 
 const pageIdentitySequence: Variants = {
   hidden: {},
-  visible: {},
+  visible: {
+    transition: {
+      delayChildren: stagger(0.04, { startDelay: 0.04 }),
+    },
+  },
 };
 
 const introductionIn: Variants = {

@@ -63,7 +63,9 @@ const portfolioPages = [
 ] as const;
 
 const primaryWayfinding = ["About me", "Contact", "Work", "Play"];
-const maximumPageIdentityStartDelay = 500;
+const maximumCollectionHandoffDelay = 100;
+const maximumPageIdentityStartDelay = 600;
+const minimumPageIdentitySequenceDuration = 700;
 
 async function openMobileNavigation(page: Page): Promise<Locator> {
   const menuButton = page.getByRole("button", { name: "Open menu" });
@@ -622,6 +624,112 @@ test("About Portfolio Page presents the complete ordered CV", async ({
   }
 });
 
+test("Work page identity is perceptible and hands off directly to its entries", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.addInitScript(() => {
+    const motionWindow = window as WorkMotionWindow;
+    const identityStarts: Partial<Record<"introduction" | "title", number>> =
+      {};
+    motionWindow.__workPageIdentityMotionStarts = identityStarts;
+
+    function observeMotion() {
+      const motionFrame = performance.now();
+      const identityParts = {
+        introduction: document.querySelector<HTMLElement>(
+          "[data-notebook-introduction]",
+        ),
+        title: document.querySelector<HTMLElement>("main h1"),
+      };
+
+      for (const [part, element] of Object.entries(identityParts)) {
+        if (!element) continue;
+        const identityPart = part as "introduction" | "title";
+        const opacity = Number.parseFloat(getComputedStyle(element).opacity);
+
+        if (opacity === 0) {
+          motionWindow.__workFirstMainMotionAt ??= motionFrame;
+        } else if (opacity < 1 && identityStarts[identityPart] === undefined) {
+          identityStarts[identityPart] = motionFrame;
+        }
+      }
+
+      const pageIdentity = document.querySelector<HTMLElement>(
+        "[data-page-identity-state]",
+      );
+      if (pageIdentity?.dataset.pageIdentityState === "settled") {
+        motionWindow.__workPageIdentitySettledAt ??= motionFrame;
+      }
+
+      const firstEntry = document.querySelector<HTMLElement>(
+        '[data-entry-part="index"]',
+      );
+      if (firstEntry) {
+        const opacity = Number.parseFloat(getComputedStyle(firstEntry).opacity);
+        if (opacity > 0 && opacity < 1) {
+          motionWindow.__workMotionStarts ??= { 0: motionFrame };
+        }
+      }
+
+      if (
+        Object.keys(identityStarts).length < 2 ||
+        motionWindow.__workPageIdentitySettledAt === undefined ||
+        motionWindow.__workMotionStarts?.[0] === undefined
+      ) {
+        requestAnimationFrame(observeMotion);
+      }
+    }
+
+    requestAnimationFrame(observeMotion);
+  });
+
+  await page.goto("/work");
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const motionWindow = window as WorkMotionWindow;
+        return {
+          firstEntry: motionWindow.__workMotionStarts?.[0],
+          identityStarts: motionWindow.__workPageIdentityMotionStarts,
+          identitySettled: motionWindow.__workPageIdentitySettledAt,
+        };
+      }),
+    )
+    .toMatchObject({
+      firstEntry: expect.any(Number),
+      identityStarts: {
+        introduction: expect.any(Number),
+        title: expect.any(Number),
+      },
+      identitySettled: expect.any(Number),
+    });
+
+  const timing = await page.evaluate(() => {
+    const motionWindow = window as WorkMotionWindow;
+    return {
+      firstEntry: motionWindow.__workMotionStarts?.[0] ?? 0,
+      firstMainMotion: motionWindow.__workFirstMainMotionAt ?? 0,
+      identitySettled: motionWindow.__workPageIdentitySettledAt ?? 0,
+      identityStarts: motionWindow.__workPageIdentityMotionStarts ?? {},
+    };
+  });
+
+  for (const identityPart of ["introduction", "title"] as const) {
+    expect(
+      (timing.identityStarts[identityPart] ?? 0) - timing.firstMainMotion,
+    ).toBeLessThan(maximumPageIdentityStartDelay);
+  }
+  const latestIdentityStart = Math.max(...Object.values(timing.identityStarts));
+  expect(timing.identitySettled - latestIdentityStart).toBeGreaterThanOrEqual(
+    minimumPageIdentitySequenceDuration,
+  );
+  expect(timing.firstEntry).toBeGreaterThanOrEqual(timing.identitySettled);
+  expect(timing.firstEntry - timing.identitySettled).toBeLessThan(
+    maximumCollectionHandoffDelay,
+  );
+});
+
 test("Work Portfolio Page presents its ordered responsive project collection", async ({
   page,
 }, testInfo) => {
@@ -648,18 +756,18 @@ test("Work Portfolio Page presents its ordered responsive project collection", a
     },
     {
       client: "SCAYLE / ABOUT YOU",
+      url: "https://www.scayle.com/",
       primaryMetadata: "Commerce platform",
       imageDescriptions: [
         "SCAYLE wordmark with green directional accents",
         "ABOUT YOU black-and-white wordmark",
       ],
-      editorialReview: true,
     },
     {
       client: "FIFA",
-      primaryMetadata: "Digital product",
+      url: "https://publications.fifa.com/en/talent-development/",
+      primaryMetadata: "Web platform",
       imageDescriptions: ["FIFA blue wordmark"],
-      editorialReview: true,
     },
     {
       client: "TenneT",
@@ -846,7 +954,7 @@ test("Work Portfolio Page presents its ordered responsive project collection", a
 
   await expect(
     projectsInOrder.getByText("Draft description · Owner editorial review"),
-  ).toHaveCount(2);
+  ).toHaveCount(0);
 
   const collectionBox = await main
     .locator("[data-notebook-collection]")
