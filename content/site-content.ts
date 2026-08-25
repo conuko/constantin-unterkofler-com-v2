@@ -274,7 +274,7 @@ const workEntries: WorkEntry[] = [
     url: "https://www.scayle.com/",
     primaryMetadata: "Commerce platform",
     description:
-      "Built commerce experiences with SCAYLE on various client projects.",
+      "Built and maintained commerce storefronts on the SCAYLE Commerce Engine across multiple client projects, contributing reusable component patterns, CMS integrations, and shared tooling used across delivery teams.",
     techStack: [
       "Vue 3",
       "Nuxt 3",
@@ -303,7 +303,7 @@ const workEntries: WorkEntry[] = [
     url: "https://publications.fifa.com/en/talent-development/",
     primaryMetadata: "Web platform",
     description:
-      "Contributed engineering work to the FIFA Publications platform.",
+      "Contributed to the FIFA Publications platform — a multilingual content hub delivering global reports and studies, with performance-optimized AMP pages and a Contentful-powered content pipeline.",
     techStack: ["JavaScript", "AMP", "Contentful", "Python"],
     marks: [
       {
