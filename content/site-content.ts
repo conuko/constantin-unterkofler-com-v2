@@ -271,11 +271,18 @@ const workEntries: WorkEntry[] = [
   },
   {
     client: "SCAYLE / ABOUT YOU",
+    url: "https://www.scayle.com/",
     primaryMetadata: "Commerce platform",
     description:
-      "Built commerce experiences on SCAYLE, the enterprise platform developed from ABOUT YOU's own retail technology.",
-    descriptionReview: "owner",
-    techStack: ["SCAYLE"],
+      "Built commerce experiences with SCAYLE on various client projects.",
+    techStack: [
+      "Vue 3",
+      "Nuxt 3",
+      "TypeScript",
+      "Storyblok",
+      "Tailwind CSS",
+      "SCAYLE",
+    ],
     marks: [
       {
         src: "/marks/scayle.svg",
@@ -293,11 +300,11 @@ const workEntries: WorkEntry[] = [
   },
   {
     client: "FIFA",
-    primaryMetadata: "Digital product",
+    url: "https://publications.fifa.com/en/talent-development/",
+    primaryMetadata: "Web platform",
     description:
-      "Contributed engineering work to a digital football experience for FIFA.",
-    descriptionReview: "owner",
-    techStack: [],
+      "Contributed engineering work to the FIFA Publications platform.",
+    techStack: ["JavaScript", "AMP", "Contentful", "Python"],
     marks: [
       {
         src: "/marks/fifa.svg",
