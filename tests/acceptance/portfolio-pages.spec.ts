@@ -1,8 +1,12 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
 
 type WorkMotionWindow = Window & {
+  __workFirstMainMotionAt?: number;
   __workMotionStarts?: Record<number, number>;
   __workMotionAfterSettle?: number;
+  __workPageIdentityMotionStarts?: Partial<
+    Record<"introduction" | "title", number>
+  >;
   __workPageIdentitySettledAt?: number;
   __workPartMotionStarts?: Record<string, number>;
 };
@@ -59,6 +63,7 @@ const portfolioPages = [
 ] as const;
 
 const primaryWayfinding = ["About me", "Contact", "Work", "Play"];
+const maximumPageIdentityStartDelay = 500;
 
 async function openMobileNavigation(page: Page): Promise<Locator> {
   const menuButton = page.getByRole("button", { name: "Open menu" });
@@ -673,8 +678,12 @@ test("Work Portfolio Page presents its ordered responsive project collection", a
   await page.addInitScript(() => {
     const motionWindow = window as WorkMotionWindow;
     const workMotionStarts: Record<number, number> = {};
+    const workPageIdentityMotionStarts: Partial<
+      Record<"introduction" | "title", number>
+    > = {};
     const workPartMotionStarts: Record<string, number> = {};
     motionWindow.__workMotionStarts = workMotionStarts;
+    motionWindow.__workPageIdentityMotionStarts = workPageIdentityMotionStarts;
     motionWindow.__workPartMotionStarts = workPartMotionStarts;
 
     new MutationObserver((mutations) => {
@@ -724,6 +733,38 @@ test("Work Portfolio Page presents its ordered responsive project collection", a
       attributeFilter: ["data-page-identity-state", "style"],
       subtree: true,
     });
+
+    function observePageIdentityMotion() {
+      const motionFrame = performance.now();
+      const identityParts = {
+        introduction: document.querySelector<HTMLElement>(
+          "[data-notebook-introduction]",
+        ),
+        title: document.querySelector<HTMLElement>("main h1"),
+      };
+
+      for (const [part, element] of Object.entries(identityParts)) {
+        if (!element) continue;
+        const opacity = Number.parseFloat(getComputedStyle(element).opacity);
+
+        if (opacity === 0) {
+          motionWindow.__workFirstMainMotionAt ??= motionFrame;
+        } else if (
+          opacity < 1 &&
+          workPageIdentityMotionStarts[part as "introduction" | "title"] ===
+            undefined
+        ) {
+          workPageIdentityMotionStarts[part as "introduction" | "title"] =
+            motionFrame;
+        }
+      }
+
+      if (Object.keys(workPageIdentityMotionStarts).length < 2) {
+        requestAnimationFrame(observePageIdentityMotion);
+      }
+    }
+
+    requestAnimationFrame(observePageIdentityMotion);
   });
 
   await page.goto("/work");
@@ -874,6 +915,19 @@ test("Work Portfolio Page presents its ordered responsive project collection", a
   const pageIdentitySettledAt = await page.evaluate(
     () => (window as WorkMotionWindow).__workPageIdentitySettledAt,
   );
+  const firstMainMotionAt = await page.evaluate(
+    () => (window as WorkMotionWindow).__workFirstMainMotionAt,
+  );
+  const pageIdentityMotionStarts = await page.evaluate(
+    () => (window as WorkMotionWindow).__workPageIdentityMotionStarts ?? {},
+  );
+  expect(firstMainMotionAt).toBeDefined();
+  expect(Object.keys(pageIdentityMotionStarts)).toHaveLength(2);
+  for (const identityMotionStart of Object.values(pageIdentityMotionStarts)) {
+    expect(identityMotionStart - (firstMainMotionAt ?? 0)).toBeLessThan(
+      maximumPageIdentityStartDelay,
+    );
+  }
   expect(pageIdentitySettledAt).toBeDefined();
   expect(motionStarts[0]).toBeGreaterThanOrEqual(pageIdentitySettledAt ?? 0);
   for (let projectIndex = 1; projectIndex < projects.length; projectIndex++) {

@@ -44,6 +44,11 @@ const contentStagger: Variants = {
   },
 };
 
+const pageIdentitySequence: Variants = {
+  hidden: {},
+  visible: {},
+};
+
 const introductionIn: Variants = {
   hidden: {
     opacity: "var(--motion-initial-opacity)",
@@ -84,7 +89,7 @@ export function PortfolioPage({
         {sectionCode ? (
           <NotebookPageHeader
             sectionCode={sectionCode}
-            sequence={contentStagger}
+            sequence={pageIdentitySequence}
             title={title}
             introduction={introduction}
             onIdentitySettled={settlePageIdentity}
