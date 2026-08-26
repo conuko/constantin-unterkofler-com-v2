@@ -43,6 +43,8 @@ type NotebookPageHeaderProps = {
   onIdentitySettled?: () => void;
 };
 
+const identitySettlementOpacity = 0.95;
+
 export function NotebookPageHeader({
   introduction,
   sectionCode,
@@ -51,20 +53,29 @@ export function NotebookPageHeader({
   onIdentitySettled,
 }: NotebookPageHeaderProps) {
   const identityProgress = useRef({
-    completedParts: new Set<"introduction" | "title">(),
+    settledParts: new Set<"introduction" | "title">(),
     notified: false,
   });
 
-  function markIdentityPartComplete(part: "introduction" | "title") {
-    identityProgress.current.completedParts.add(part);
+  function markIdentityPartSettled(part: "introduction" | "title") {
+    identityProgress.current.settledParts.add(part);
     const requiredPartCount = introduction ? 2 : 1;
 
     if (
       !identityProgress.current.notified &&
-      identityProgress.current.completedParts.size === requiredPartCount
+      identityProgress.current.settledParts.size === requiredPartCount
     ) {
       identityProgress.current.notified = true;
       onIdentitySettled?.();
+    }
+  }
+
+  function markIdentityPartVisible(
+    part: "introduction" | "title",
+    opacity: unknown,
+  ) {
+    if (typeof opacity === "number" && opacity >= identitySettlementOpacity) {
+      markIdentityPartSettled(part);
     }
   }
 
@@ -82,7 +93,8 @@ export function NotebookPageHeader({
       </m.p>
       <m.h1
         variants={notebookPageHeadingReveal}
-        onAnimationComplete={() => markIdentityPartComplete("title")}
+        onUpdate={({ opacity }) => markIdentityPartVisible("title", opacity)}
+        onAnimationComplete={() => markIdentityPartSettled("title")}
         className="font-heading text-5xl leading-none font-semibold tracking-tight lg:text-7xl"
       >
         {title}
@@ -90,7 +102,10 @@ export function NotebookPageHeader({
       {introduction && (
         <m.div
           variants={notebookPageIntroductionReveal}
-          onAnimationComplete={() => markIdentityPartComplete("introduction")}
+          onUpdate={({ opacity }) =>
+            markIdentityPartVisible("introduction", opacity)
+          }
+          onAnimationComplete={() => markIdentityPartSettled("introduction")}
           data-notebook-introduction
           className="mt-6 w-full max-w-180 text-sm text-ink-muted"
         >

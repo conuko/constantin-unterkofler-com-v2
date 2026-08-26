@@ -68,7 +68,7 @@ export const notebookPageHeadingReveal: Variants = {
     transition: {
       duration: 0.9,
       ease: notebookEase,
-      opacity: { duration: 0.65, ease: notebookEase },
+      opacity: { duration: 0.42, ease: notebookEase },
     },
   },
 };
@@ -84,6 +84,7 @@ export const notebookPageIntroductionReveal: Variants = {
     transition: {
       duration: 0.75,
       ease: notebookEase,
+      opacity: { duration: 0.42, ease: notebookEase },
     },
   },
 };

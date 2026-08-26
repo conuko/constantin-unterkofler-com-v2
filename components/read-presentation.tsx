@@ -1,5 +1,6 @@
 "use client";
 
+import { Star } from "lucide-react";
 import { stagger, type Variants } from "motion/react";
 import Image from "next/image";
 import {
@@ -40,24 +41,26 @@ function formatCompletionMonth(completedAt: BookEntry["completedAt"]) {
 
 export function ReadPresentation({ entries }: ReadPresentationProps) {
   return (
-    <NotebookCollection variants={readGroupSequence}>
+    <NotebookCollection
+      variants={readGroupSequence}
+      className="mx-auto max-w-4xl"
+    >
       {entries.map((entry, index) => {
         const loadImmediately = index < 2;
 
         return (
           <NotebookRecord key={entry.title} sequence={readRecordSequence}>
             <NotebookIndex>{`R–${String(index + 1).padStart(2, "0")}`}</NotebookIndex>
-            <NotebookMedia mediaClassName="aspect-2/3 p-0 sm:p-0">
+            <NotebookMedia mediaClassName="aspect-auto p-0 sm:p-0">
               <Image
                 src={entry.cover.src}
                 alt={entry.cover.alt}
                 placeholder="blur"
                 loading={loadImmediately ? "eager" : "lazy"}
                 fetchPriority={loadImmediately ? "high" : undefined}
-                fill
-                sizes="(min-width: 1128px) 516px, (min-width: 1024px) calc((100vw - 96px) / 2), (min-width: 768px) calc((100vw - 80px) / 2), calc(100vw - 48px)"
+                sizes="(min-width: 1024px) 424px, (min-width: 768px) calc((100vw - 80px) / 2), calc(100vw - 48px)"
                 quality={85}
-                className="object-contain"
+                className="h-auto w-full"
               />
             </NotebookMedia>
             <NotebookTitle>{entry.title}</NotebookTitle>
@@ -81,14 +84,16 @@ export function ReadPresentation({ entries }: ReadPresentationProps) {
                         const filled = position <= entry.personalRating;
 
                         return (
-                          <span
+                          <Star
                             key={position}
                             data-rating-star
                             data-filled={filled}
+                            aria-hidden="true"
+                            fill={filled ? "currentColor" : "none"}
+                            size={16}
+                            strokeWidth={1.5}
                             className={filled ? "text-ink" : "text-rule"}
-                          >
-                            {filled ? "★" : "☆"}
-                          </span>
+                          />
                         );
                       })}
                     </span>

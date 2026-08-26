@@ -39,17 +39,15 @@ export default function RootLayout({
       className={`${displayFont.variable} ${bodyFont.variable}`}
     >
       <body className="flex min-h-dvh flex-col bg-paper text-ink leading-relaxed">
-        <MotionLayout>
-          <SiteHeader
-            identity={portfolioContent.identity}
-            primaryWayfinding={portfolioContent.primaryWayfinding}
-          />
-          <main
-            id="main-content"
-            className="mx-auto w-full max-w-270 flex-1 pb-16"
-          >
-            {children}
-          </main>
+        <MotionLayout
+          header={
+            <SiteHeader
+              identity={portfolioContent.identity}
+              primaryWayfinding={portfolioContent.primaryWayfinding}
+            />
+          }
+        >
+          {children}
         </MotionLayout>
       </body>
     </html>
