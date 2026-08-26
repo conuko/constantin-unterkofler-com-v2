@@ -1,4 +1,5 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
+import { expectedRecentReading } from "@/tests/fixtures/recent-reading";
 
 type WorkMotionWindow = Window & {
   __workFirstMainMotionAt?: number;
@@ -15,6 +16,12 @@ type PlayMotionWindow = Window & {
   __playMotionStarts?: Record<number, number>;
   __playPageIdentitySettledAt?: number;
   __playPartMotionOrder?: string[];
+};
+
+type ReadMotionWindow = Window & {
+  __readMotionStarts?: Record<number, number>;
+  __readPageIdentitySettledAt?: number;
+  __readPartMotionOrder?: string[];
 };
 
 type PortfolioPageMotionWindow = Window & {
@@ -55,6 +62,14 @@ const portfolioPages = [
     representativeImageDescription: "Levi's red Batwing mark",
   },
   {
+    name: "Read",
+    path: "/read",
+    heading: "Recent Reading",
+    representativeContent: "Tomorrow, and Tomorrow, and Tomorrow",
+    representativeImageDescription:
+      "Tomorrow, and Tomorrow, and Tomorrow cover with colorful stacked lettering over stylized ocean waves",
+  },
+  {
     name: "Play",
     path: "/play",
     heading: "What I currently play",
@@ -64,7 +79,7 @@ const portfolioPages = [
   },
 ] as const;
 
-const primaryWayfinding = ["About me", "Contact", "Work", "Play"];
+const primaryWayfinding = ["About me", "Work", "Read", "Play", "Contact"];
 const maximumCollectionHandoffDelay = 100;
 const maximumPageIdentityStartDelay = 600;
 const minimumPageIdentitySequenceDuration = 700;
@@ -1567,6 +1582,279 @@ test("Play Engineering Notebook presents its ordered responsive track collection
         firstTrack.evaluate((element) => getComputedStyle(element).transform),
       )
       .not.toBe("none");
+  }
+});
+
+test("Read Engineering Notebook presents its ordered responsive Recent Reading collection", async ({
+  page,
+}, testInfo) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+
+  const books = expectedRecentReading.map((book) => {
+    const [year, month] = book.completedAt.split("-");
+
+    return {
+      ...book,
+      completed: `${month}/${year}`,
+      rating: book.personalRating,
+    };
+  });
+
+  await page.addInitScript(() => {
+    const motionWindow = window as ReadMotionWindow;
+    const readMotionStarts: Record<number, number> = {};
+    const readPartMotionOrder: string[] = [];
+    motionWindow.__readMotionStarts = readMotionStarts;
+    motionWindow.__readPartMotionOrder = readPartMotionOrder;
+
+    new MutationObserver((mutations) => {
+      const motionFrame = performance.now();
+
+      for (const mutation of mutations) {
+        const target = mutation.target;
+        if (!(target instanceof HTMLElement)) continue;
+
+        if (target.dataset.pageIdentityState === "settled") {
+          motionWindow.__readPageIdentitySettledAt ??= motionFrame;
+        }
+
+        const book = target.closest("article");
+        if (!book) continue;
+        const bookIndex = Array.from(
+          document.querySelectorAll("main article"),
+        ).indexOf(book);
+        const opacity = Number.parseFloat(getComputedStyle(target).opacity);
+        const partName = target.hasAttribute("data-notebook-record-rule")
+          ? "rule"
+          : target.getAttribute("data-entry-part");
+
+        if (
+          bookIndex >= 0 &&
+          partName === "index" &&
+          opacity > 0 &&
+          opacity < 1 &&
+          readMotionStarts[bookIndex] === undefined
+        ) {
+          readMotionStarts[bookIndex] = motionFrame;
+        }
+
+        if (
+          bookIndex === 0 &&
+          partName &&
+          opacity > 0 &&
+          opacity < 1 &&
+          !readPartMotionOrder.includes(partName)
+        ) {
+          readPartMotionOrder.push(partName);
+        }
+      }
+    }).observe(document, {
+      attributes: true,
+      attributeFilter: ["data-page-identity-state", "style"],
+      subtree: true,
+    });
+  });
+
+  await page.goto("/read");
+
+  const main = page.getByRole("main");
+  await expect(main.getByText("R", { exact: true })).toBeVisible();
+  await expect(main.locator("[data-notebook-header-rule]")).toBeVisible();
+
+  const booksInOrder = main.locator("article");
+  await expect(booksInOrder).toHaveCount(books.length);
+  await expect(booksInOrder.getByRole("heading", { level: 2 })).toHaveText(
+    books.map(({ title }) => title),
+  );
+
+  for (const [index, book] of books.entries()) {
+    const renderedBook = booksInOrder.nth(index);
+
+    await expect(
+      renderedBook.getByText(`R–${String(index + 1).padStart(2, "0")}`, {
+        exact: true,
+      }),
+    ).toBeVisible();
+    expect(
+      await renderedBook
+        .locator(":scope > [data-entry-part]")
+        .evaluateAll((parts) =>
+          parts.map((part) => part.getAttribute("data-entry-part")),
+        ),
+    ).toEqual(["index", "media", "title", "metadata", "annotation"]);
+    await expect(
+      renderedBook
+        .locator('[data-entry-part="metadata"]')
+        .getByText(book.author, { exact: true }),
+    ).toBeVisible();
+    await expect(
+      renderedBook.getByText(book.completed, { exact: true }),
+    ).toBeVisible();
+    await expect(
+      renderedBook.getByText(`${book.rating} out of 5`, { exact: true }),
+    ).toBeAttached();
+
+    const ratingStars = renderedBook.locator("[data-rating-star]");
+    await expect(ratingStars).toHaveCount(5);
+    await expect(
+      renderedBook.locator('[data-rating-star][data-filled="true"]'),
+    ).toHaveCount(book.rating);
+    await expect(
+      renderedBook.locator('[data-rating-star][data-filled="false"]'),
+    ).toHaveCount(5 - book.rating);
+
+    const cover = renderedBook.getByRole("img", {
+      name: book.imageDescription,
+    });
+    await expect(cover).toBeVisible();
+    await cover.scrollIntoViewIfNeeded();
+    await expect
+      .poll(() =>
+        cover.evaluate((image) => (image as HTMLImageElement).naturalWidth),
+      )
+      .toBeGreaterThan(0);
+    const loadedCover = await cover.evaluate((image) => ({
+      currentSrc: (image as HTMLImageElement).currentSrc,
+      height: (image as HTMLImageElement).naturalHeight,
+      width: (image as HTMLImageElement).naturalWidth,
+    }));
+    expect(loadedCover.currentSrc).toContain("/_next/image?");
+    expect(loadedCover.height).toBeGreaterThan(0);
+
+    const mediaBox = await renderedBook
+      .locator("[data-notebook-media-field]")
+      .boundingBox();
+    expect(mediaBox).not.toBeNull();
+    if (!mediaBox) throw new Error("Expected portrait book artwork");
+    expect(mediaBox.height / mediaBox.width).toBeGreaterThan(1.45);
+  }
+
+  const collection = main.locator("[data-notebook-collection]");
+  const collectionStyle = await collection.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      columnCount: style.gridTemplateColumns.split(" ").length,
+      columnGap: style.columnGap,
+      rowGap: style.rowGap,
+    };
+  });
+  expect(collectionStyle).toEqual({
+    columnCount: testInfo.project.use.isMobile ? 1 : 2,
+    columnGap: testInfo.project.use.isMobile ? "32px" : "48px",
+    rowGap: testInfo.project.use.isMobile ? "56px" : "72px",
+  });
+
+  const imageLoading = await booksInOrder.locator("img").evaluateAll((images) =>
+    images.map((image) => ({
+      fetchPriority: (image as HTMLImageElement).fetchPriority,
+      loading: (image as HTMLImageElement).loading,
+    })),
+  );
+  expect(imageLoading).toEqual([
+    { fetchPriority: "high", loading: "eager" },
+    { fetchPriority: "high", loading: "eager" },
+    { fetchPriority: "auto", loading: "lazy" },
+    { fetchPriority: "auto", loading: "lazy" },
+    { fetchPriority: "auto", loading: "lazy" },
+    { fetchPriority: "auto", loading: "lazy" },
+  ]);
+
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          Object.keys((window as ReadMotionWindow).__readMotionStarts ?? {})
+            .length,
+      ),
+    )
+    .toBe(books.length);
+  const motionStarts = await page.evaluate(
+    () => (window as ReadMotionWindow).__readMotionStarts ?? {},
+  );
+  const pageIdentitySettledAt = await page.evaluate(
+    () => (window as ReadMotionWindow).__readPageIdentitySettledAt,
+  );
+  expect(pageIdentitySettledAt).toBeDefined();
+  expect(motionStarts[0]).toBeGreaterThanOrEqual(pageIdentitySettledAt ?? 0);
+  for (let bookIndex = 1; bookIndex < books.length; bookIndex++) {
+    expect(motionStarts[bookIndex]).toBeGreaterThan(
+      motionStarts[bookIndex - 1],
+    );
+  }
+  expect(
+    await page.evaluate(
+      () => (window as ReadMotionWindow).__readPartMotionOrder ?? [],
+    ),
+  ).toEqual(["rule", "index", "media", "title", "metadata", "annotation"]);
+});
+
+test("Read remains keyboard reachable and legible in light and dark themes", async ({
+  page,
+}, testInfo) => {
+  await page.goto("/");
+
+  if (testInfo.project.use.isMobile) {
+    const menuButton = page.getByRole("button", { name: "Open menu" });
+    for (let tabIndex = 0; tabIndex < 6; tabIndex++) {
+      if (
+        await menuButton.evaluate((button) => button === document.activeElement)
+      )
+        break;
+      await page.keyboard.press("Tab");
+    }
+    await expect(menuButton).toBeFocused();
+    await page.keyboard.press("Enter");
+  }
+
+  const navigation = testInfo.project.use.isMobile
+    ? page.getByRole("navigation", { name: "Mobile navigation" })
+    : page.getByRole("navigation", { name: "Primary" });
+  const readLink = navigation.getByRole("link", { name: "Read" });
+  for (let tabIndex = 0; tabIndex < 12; tabIndex++) {
+    if (await readLink.evaluate((link) => link === document.activeElement))
+      break;
+    await page.keyboard.press("Tab");
+  }
+  await expect(readLink).toBeFocused();
+  expect(
+    await readLink.evaluate(
+      (element) => getComputedStyle(element).outlineStyle,
+    ),
+  ).not.toBe("none");
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL("/read");
+
+  for (const theme of ["light", "dark"] as const) {
+    await page.evaluate((nextTheme) => {
+      localStorage.setItem("theme", nextTheme);
+    }, theme);
+    await page.reload();
+
+    await expect(page.locator("html")).toHaveClass(new RegExp(theme));
+    await expect(page.getByRole("main").locator("article")).toHaveCount(6);
+    await expect(
+      page.getByRole("img", {
+        name: "Tomorrow, and Tomorrow, and Tomorrow cover with colorful stacked lettering over stylized ocean waves",
+      }),
+    ).toBeVisible();
+
+    const partiallyFilledRating = page
+      .getByRole("main")
+      .locator("article")
+      .nth(1);
+    const [filledColor, emptyColor] = await Promise.all([
+      partiallyFilledRating
+        .locator('[data-rating-star][data-filled="true"]')
+        .first()
+        .evaluate((star) => getComputedStyle(star).color),
+      partiallyFilledRating
+        .locator('[data-rating-star][data-filled="false"]')
+        .evaluate((star) => getComputedStyle(star).color),
+    ]);
+    expect(filledColor).not.toBe(emptyColor);
+    await expect(
+      partiallyFilledRating.getByText("4 out of 5", { exact: true }),
+    ).toBeAttached();
   }
 });
 
