@@ -63,12 +63,12 @@ export function PlayPresentation({ entries }: PlayPresentationProps) {
             <NotebookMetadata>{entry.artist}</NotebookMetadata>
             <NotebookAnnotation>
               <dl className="flex flex-col gap-1">
-                <div className="flex gap-3">
-                  <dt className="label w-8 shrink-0 text-micro">Album</dt>
+                <div className="flex items-baseline gap-3">
+                  <dt className="label w-11 shrink-0 text-micro">Album</dt>
                   <dd className="min-w-0">{entry.album}</dd>
                 </div>
-                <div className="flex gap-3">
-                  <dt className="label w-8 shrink-0 text-micro">Key</dt>
+                <div className="flex items-baseline gap-3">
+                  <dt className="label w-11 shrink-0 text-micro">Key</dt>
                   <dd>{entry.musicalKey}</dd>
                 </div>
               </dl>
