@@ -13,6 +13,8 @@ type WorkMotionWindow = Window & {
 
 type PlayMotionWindow = Window & {
   __playMotionStarts?: Record<number, number>;
+  __playPageIdentitySettledAt?: number;
+  __playPartMotionStarts?: Record<string, number>;
 };
 
 type PortfolioPageMotionWindow = Window & {
@@ -1219,9 +1221,11 @@ test("Work Engineering Notebook preserves its marks and content across theme and
   }
 });
 
-test("Play Portfolio Page presents its ordered responsive track collection", async ({
+test("Play Engineering Notebook presents its ordered responsive track collection", async ({
   page,
 }, testInfo) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+
   const tracks = [
     {
       title: "Oh Chérie",
@@ -1299,41 +1303,65 @@ test("Play Portfolio Page presents its ordered responsive track collection", asy
   await page.addInitScript(() => {
     const motionWindow = window as PlayMotionWindow;
     const playMotionStarts: Record<number, number> = {};
+    const playPartMotionStarts: Record<string, number> = {};
     motionWindow.__playMotionStarts = playMotionStarts;
+    motionWindow.__playPartMotionStarts = playPartMotionStarts;
 
     new MutationObserver((mutations) => {
       const motionFrame = performance.now();
 
       for (const mutation of mutations) {
-        const track = mutation.target;
-        if (!(track instanceof HTMLElement) || track.tagName !== "ARTICLE") {
-          continue;
+        const target = mutation.target;
+        if (!(target instanceof HTMLElement)) continue;
+
+        if (target.dataset.pageIdentityState === "settled") {
+          motionWindow.__playPageIdentitySettledAt ??= motionFrame;
         }
 
+        const track = target.closest("article");
+        if (!track) continue;
         const trackIndex = Array.from(
           document.querySelectorAll("main article"),
         ).indexOf(track);
-        const opacity = Number.parseFloat(getComputedStyle(track).opacity);
+        const opacity = Number.parseFloat(getComputedStyle(target).opacity);
+        const partName = target.hasAttribute("data-notebook-record-rule")
+          ? "rule"
+          : target.getAttribute("data-entry-part");
 
         if (
           trackIndex >= 0 &&
+          partName === "index" &&
           opacity > 0 &&
           opacity < 1 &&
           playMotionStarts[trackIndex] === undefined
         ) {
           playMotionStarts[trackIndex] = motionFrame;
         }
+
+        if (
+          trackIndex === 0 &&
+          partName &&
+          opacity > 0 &&
+          opacity < 1 &&
+          playPartMotionStarts[partName] === undefined
+        ) {
+          playPartMotionStarts[partName] = motionFrame;
+        }
       }
     }).observe(document, {
       attributes: true,
-      attributeFilter: ["style"],
+      attributeFilter: ["data-page-identity-state", "style"],
       subtree: true,
     });
   });
 
   await page.goto("/play");
 
-  const tracksInOrder = page.getByRole("main").locator("article");
+  const main = page.getByRole("main");
+  await expect(main.getByText("P", { exact: true })).toBeVisible();
+  await expect(main.locator("[data-notebook-header-rule]")).toBeVisible();
+
+  const tracksInOrder = main.locator("article");
   await expect(tracksInOrder).toHaveCount(tracks.length);
   await expect(tracksInOrder.getByRole("heading", { level: 2 })).toHaveText(
     tracks.map(({ title }) => title),
@@ -1342,12 +1370,29 @@ test("Play Portfolio Page presents its ordered responsive track collection", asy
   for (const [index, track] of tracks.entries()) {
     const renderedTrack = tracksInOrder.nth(index);
 
-    await expect(renderedTrack.locator("p")).toHaveText([
-      track.artist,
-      track.album,
-    ]);
     await expect(
-      renderedTrack.getByText(track.musicalKey, { exact: true }),
+      renderedTrack.getByText(`P–${String(index + 1).padStart(2, "0")}`, {
+        exact: true,
+      }),
+    ).toBeVisible();
+    expect(
+      await renderedTrack
+        .locator(":scope > [data-entry-part]")
+        .evaluateAll((parts) =>
+          parts.map((part) => part.getAttribute("data-entry-part")),
+        ),
+    ).toEqual(["index", "media", "title", "metadata", "annotation", "actions"]);
+    await expect(
+      renderedTrack
+        .locator('[data-entry-part="metadata"]')
+        .getByText(track.artist, { exact: true }),
+    ).toBeVisible();
+    const annotation = renderedTrack.locator('[data-entry-part="annotation"]');
+    await expect(
+      annotation.getByText(track.album, { exact: true }),
+    ).toBeVisible();
+    await expect(
+      annotation.getByText(track.musicalKey, { exact: true }),
     ).toBeVisible();
     await expect(
       renderedTrack.getByRole("img", { name: track.imageDescription }),
@@ -1364,17 +1409,63 @@ test("Play Portfolio Page presents its ordered responsive track collection", asy
       await expect(link).toHaveAttribute("href", listeningLink.url);
       await expect(link).toHaveAttribute("target", "_blank");
       await expect(link).toHaveAttribute("rel", /noopener/);
+      await expect(link.getByText(listeningLink.service)).toBeVisible();
+      const actionBox = await link.boundingBox();
+      expect(actionBox).not.toBeNull();
+      if (!actionBox) throw new Error("Expected a listening action");
+      expect(actionBox.width).toBeGreaterThan(30);
+      expect(actionBox.height).toBeGreaterThan(30);
     }
+
+    const mediaBox = await renderedTrack
+      .locator("[data-notebook-media-field]")
+      .boundingBox();
+    expect(mediaBox).not.toBeNull();
+    if (!mediaBox) throw new Error("Expected square album artwork");
+    expect(Math.abs(mediaBox.width - mediaBox.height)).toBeLessThan(2);
   }
 
-  const renderedColumnCount = await tracksInOrder
-    .first()
-    .locator("..")
-    .evaluate(
-      (collection) =>
-        getComputedStyle(collection).gridTemplateColumns.split(" ").length,
+  const collection = main.locator("[data-notebook-collection]");
+  const collectionStyle = await collection.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      columnCount: style.gridTemplateColumns.split(" ").length,
+      columnGap: style.columnGap,
+      rowGap: style.rowGap,
+    };
+  });
+  expect(collectionStyle).toEqual({
+    columnCount: testInfo.project.use.isMobile ? 1 : 2,
+    columnGap: testInfo.project.use.isMobile ? "32px" : "48px",
+    rowGap: testInfo.project.use.isMobile ? "56px" : "72px",
+  });
+
+  const collectionBox = await collection.boundingBox();
+  expect(collectionBox).not.toBeNull();
+  if (!collectionBox) throw new Error("Expected the Play collection");
+  expect(collectionBox.width).toBeLessThanOrEqual(1082);
+  if (!testInfo.project.use.isMobile) {
+    expect(collectionBox.width).toBeGreaterThan(1000);
+  }
+
+  const [firstTrackPosition, secondTrackPosition] =
+    await tracksInOrder.evaluateAll((tracks) =>
+      tracks.slice(0, 2).map((track) => {
+        const element = track as HTMLElement;
+        return { x: element.offsetLeft, y: element.offsetTop };
+      }),
     );
-  expect(renderedColumnCount).toBe(testInfo.project.use.isMobile ? 1 : 2);
+  if (testInfo.project.use.isMobile) {
+    expect(secondTrackPosition.y).toBeGreaterThan(firstTrackPosition.y);
+    expect(Math.abs(secondTrackPosition.x - firstTrackPosition.x)).toBeLessThan(
+      2,
+    );
+  } else {
+    expect(Math.abs(secondTrackPosition.y - firstTrackPosition.y)).toBeLessThan(
+      2,
+    );
+    expect(secondTrackPosition.x).toBeGreaterThan(firstTrackPosition.x);
+  }
 
   const imageLoading = await tracksInOrder
     .locator("img")
@@ -1408,19 +1499,127 @@ test("Play Portfolio Page presents its ordered responsive track collection", asy
   const motionStarts = await page.evaluate(
     () => (window as PlayMotionWindow).__playMotionStarts ?? {},
   );
+  const pageIdentitySettledAt = await page.evaluate(
+    () => (window as PlayMotionWindow).__playPageIdentitySettledAt,
+  );
+  expect(pageIdentitySettledAt).toBeDefined();
+  expect(motionStarts[0]).toBeGreaterThanOrEqual(pageIdentitySettledAt ?? 0);
   for (let trackIndex = 1; trackIndex < tracks.length; trackIndex++) {
     expect(motionStarts[trackIndex]).toBeGreaterThan(
       motionStarts[trackIndex - 1],
     );
   }
 
+  const playPartMotionStarts = await page.evaluate(
+    () => (window as PlayMotionWindow).__playPartMotionStarts ?? {},
+  );
+  const partOrder = [
+    "rule",
+    "index",
+    "media",
+    "title",
+    "metadata",
+    "annotation",
+    "actions",
+  ];
+  expect(Object.keys(playPartMotionStarts)).toHaveLength(partOrder.length);
+  for (let partIndex = 1; partIndex < partOrder.length; partIndex++) {
+    expect(playPartMotionStarts[partOrder[partIndex]]).toBeGreaterThan(
+      playPartMotionStarts[partOrder[partIndex - 1]],
+    );
+  }
+
   const firstTrack = tracksInOrder.first();
-  await firstTrack.hover();
-  await expect
-    .poll(() =>
-      firstTrack.evaluate((element) => getComputedStyle(element).transform),
-    )
-    .not.toBe("none");
+  const firstSpotifyLink = firstTrack.getByRole("link", {
+    name: "Listen to Oh Chérie on Spotify",
+  });
+  await page.evaluate(() => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  });
+  for (let tabIndex = 0; tabIndex < 12; tabIndex++) {
+    if (
+      await firstSpotifyLink.evaluate((link) => link === document.activeElement)
+    ) {
+      break;
+    }
+    await page.keyboard.press("Tab");
+  }
+  await expect(firstSpotifyLink).toBeFocused();
+  expect(
+    await firstSpotifyLink.evaluate(
+      (element) => getComputedStyle(element).outlineStyle,
+    ),
+  ).not.toBe("none");
+
+  if (!testInfo.project.use.isMobile) {
+    await firstTrack.hover();
+    await expect
+      .poll(() =>
+        firstTrack.evaluate((element) => getComputedStyle(element).transform),
+      )
+      .not.toBe("none");
+  }
+});
+
+test("Play reduced motion renders complete static records and neutral interactions", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/play");
+
+  const main = page.getByRole("main");
+  const tracks = main.locator("article");
+  await expect(tracks).toHaveCount(6);
+  await expect(main.locator("[data-entry-part]")).toHaveCount(36);
+  expect(
+    await main.locator("[data-entry-part]").evaluateAll((parts) =>
+      parts.every((part) => {
+        const style = getComputedStyle(part);
+        return style.opacity === "1" && style.visibility === "visible";
+      }),
+    ),
+  ).toBe(true);
+
+  const firstTrack = tracks.first();
+  const mediaField = firstTrack.locator("[data-notebook-media-field]");
+  const spotifyLink = firstTrack.getByRole("link", {
+    name: "Listen to Oh Chérie on Spotify",
+  });
+
+  await firstTrack.scrollIntoViewIfNeeded();
+  const restingTrackBox = await firstTrack.boundingBox();
+  await firstTrack.hover({ position: { x: 1, y: 1 } });
+  const hoveredTrackBox = await firstTrack.boundingBox();
+  expect(hoveredTrackBox).toEqual(restingTrackBox);
+
+  const restingMediaBox = await mediaField.boundingBox();
+  await mediaField.hover();
+  const hoveredMediaBox = await mediaField.boundingBox();
+  expect(hoveredMediaBox).toEqual(restingMediaBox);
+
+  const restingActionBox = await spotifyLink.boundingBox();
+  await spotifyLink.dispatchEvent("pointerdown", {
+    button: 0,
+    isPrimary: true,
+    pointerId: 1,
+    pointerType: "mouse",
+  });
+  const pressedActionBox = await spotifyLink.boundingBox();
+  expect(pressedActionBox).toEqual(restingActionBox);
+  await spotifyLink.dispatchEvent("pointerup", {
+    button: 0,
+    isPrimary: true,
+    pointerId: 1,
+    pointerType: "mouse",
+  });
+
+  expect(
+    await spotifyLink.evaluate(
+      (link) => getComputedStyle(link).transitionDuration,
+    ),
+  ).toBe("0s");
 });
 
 test("Escape closes the mobile disclosure and restores focus", async ({

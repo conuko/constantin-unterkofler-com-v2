@@ -1,122 +1,99 @@
 "use client";
 
-import type { Variants } from "motion/react";
-import * as m from "motion/react-m";
+import { stagger, type Variants } from "motion/react";
 import Image from "next/image";
 import { AppleMusicIcon, SpotifyIcon } from "@/components/icons";
+import {
+  NotebookAction,
+  NotebookActions,
+  NotebookAnnotation,
+  NotebookCollection,
+  NotebookIndex,
+  NotebookMedia,
+  NotebookMetadata,
+  NotebookRecord,
+  NotebookTitle,
+} from "@/components/notebook-primitives";
 import type { TrackEntry } from "@/content/site-content";
 
 type PlayPresentationProps = {
   entries: TrackEntry[];
 };
 
-const easeOutExpo = [0.16, 1, 0.3, 1] as const;
-
-const collectionIn: Variants = {
+const playGroupSequence: Variants = {
   hidden: {},
   visible: {
     transition: {
-      delayChildren: 0.6,
-      staggerChildren: 0.07,
+      delayChildren: stagger(0.07),
     },
   },
 };
 
-const trackIn: Variants = {
-  hidden: {
-    opacity: "var(--motion-initial-opacity)",
-    scale: "var(--motion-initial-scale)",
-  },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: {
-      duration: 0.6,
-      ease: easeOutExpo,
-    },
-  },
+const playRecordSequence = {
+  delayChildren: 0,
+  staggerChildren: 0.04,
 };
-
-const trackInteraction = {
-  type: "spring",
-  visualDuration: 0.3,
-  bounce: 0.25,
-} as const;
 
 export function PlayPresentation({ entries }: PlayPresentationProps) {
   return (
-    <m.div
-      initial="hidden"
-      animate="visible"
-      variants={collectionIn}
-      className="grid w-full grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-2"
-    >
+    <NotebookCollection variants={playGroupSequence}>
       {entries.map((entry, index) => {
-        const hasHighFetchPriority = index < 2;
+        const loadImmediately = index < 2;
 
         return (
-          <m.article
+          <NotebookRecord
             key={`${entry.title}-${entry.artist}`}
-            variants={trackIn}
-            whileHover={{ y: -3 }}
-            transition={trackInteraction}
-            className="flex flex-col gap-3"
+            sequence={playRecordSequence}
           >
-            <m.div
-              className="relative aspect-square overflow-hidden rounded-sm"
-              whileHover={{ scale: 1.03 }}
-              transition={trackInteraction}
-            >
+            <NotebookIndex>{`P–${String(index + 1).padStart(2, "0")}`}</NotebookIndex>
+            <NotebookMedia mediaClassName="aspect-square p-0 sm:p-0">
               <Image
                 src={entry.cover.src}
                 alt={entry.cover.alt}
                 placeholder="blur"
-                loading={hasHighFetchPriority ? "eager" : "lazy"}
-                fetchPriority={hasHighFetchPriority ? "high" : undefined}
+                loading={loadImmediately ? "eager" : "lazy"}
+                fetchPriority={loadImmediately ? "high" : undefined}
                 fill
-                sizes="(min-width: 816px) 372px, (min-width: 768px) calc((100vw - 72px) / 2), calc(100vw - 48px)"
+                sizes="(min-width: 1152px) 456px, (min-width: 768px) calc((100vw - 96px) / 2), calc(100vw - 48px)"
                 quality={85}
                 className="object-cover"
               />
-            </m.div>
-
-            <div className="flex flex-col gap-1.5">
-              <div className="flex items-baseline justify-between gap-2">
-                <h2 className="font-heading text-xl leading-tight font-semibold">
-                  {entry.title}
-                </h2>
-                <span className="shrink-0 text-xs tracking-wide text-ink-muted">
-                  {entry.musicalKey}
-                </span>
-              </div>
-
-              <p className="text-sm text-ink-muted">{entry.artist}</p>
-              <p className="text-xs text-ink-muted">{entry.album}</p>
-            </div>
-
-            <div className="flex gap-3">
-              <a
+            </NotebookMedia>
+            <NotebookTitle>{entry.title}</NotebookTitle>
+            <NotebookMetadata>{entry.artist}</NotebookMetadata>
+            <NotebookAnnotation>
+              <dl className="flex flex-col gap-1">
+                <div className="flex gap-3">
+                  <dt className="label w-8 shrink-0 text-micro">Album</dt>
+                  <dd className="min-w-0">{entry.album}</dd>
+                </div>
+                <div className="flex gap-3">
+                  <dt className="label w-8 shrink-0 text-micro">Key</dt>
+                  <dd>{entry.musicalKey}</dd>
+                </div>
+              </dl>
+            </NotebookAnnotation>
+            <NotebookActions label={`Listen to ${entry.title}`}>
+              <NotebookAction
                 href={entry.spotifyUrl}
-                target="_blank"
-                rel="noreferrer noopener"
-                aria-label={`Listen to ${entry.title} on Spotify`}
-                className="text-ink-muted transition-colors duration-fast hover:text-brand-spotify"
+                label={`Listen to ${entry.title} on Spotify`}
+                className="hover:text-brand-spotify"
               >
-                <SpotifyIcon className="size-6" />
-              </a>
-              <a
+                <SpotifyIcon aria-hidden="true" className="size-4" />
+                <span>Spotify</span>
+              </NotebookAction>
+              <NotebookAction
                 href={entry.appleMusicUrl}
-                target="_blank"
-                rel="noreferrer noopener"
-                aria-label={`Listen to ${entry.title} on Apple Music`}
-                className="text-ink-muted transition-colors duration-fast hover:text-brand-apple-music"
+                label={`Listen to ${entry.title} on Apple Music`}
+                className="hover:text-brand-apple-music"
               >
-                <AppleMusicIcon className="size-6" />
-              </a>
-            </div>
-          </m.article>
+                <AppleMusicIcon aria-hidden="true" className="size-4" />
+                <span>Apple Music</span>
+              </NotebookAction>
+            </NotebookActions>
+          </NotebookRecord>
         );
       })}
-    </m.div>
+    </NotebookCollection>
   );
 }

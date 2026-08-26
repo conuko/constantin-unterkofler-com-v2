@@ -128,6 +128,79 @@ describe("Portfolio Content", () => {
     ]);
   });
 
+  test("keeps exact musical metadata and listening actions with every Play record", () => {
+    expect(
+      portfolioContent.pages.play.content.entries.map((entry) => ({
+        title: entry.title,
+        artist: entry.artist,
+        album: entry.album,
+        musicalKey: entry.musicalKey,
+        spotifyUrl: entry.spotifyUrl,
+        appleMusicUrl: entry.appleMusicUrl,
+      })),
+    ).toEqual([
+      {
+        title: "Oh Chérie",
+        artist: "DAS MAER",
+        album: "Oh Chérie",
+        musicalKey: "Am",
+        spotifyUrl:
+          "https://open.spotify.com/search/Oh%20Ch%C3%A9rie%20DAS%20MAER",
+        appleMusicUrl:
+          "https://music.apple.com/us/search?term=Oh%20Ch%C3%A9rie%20DAS%20MAER",
+      },
+      {
+        title: "Airplane Mode",
+        artist: "Cory Wong",
+        album: "Elevator Music for an Elevated Mood",
+        musicalKey: "Db",
+        spotifyUrl:
+          "https://open.spotify.com/search/Airplane%20Mode%20Cory%20Wong",
+        appleMusicUrl:
+          "https://music.apple.com/us/search?term=Airplane%20Mode%20Cory%20Wong",
+      },
+      {
+        title: "Isn't She Lovely",
+        artist: "Stevie Wonder",
+        album: "Songs in the Key of Life",
+        musicalKey: "E",
+        spotifyUrl:
+          "https://open.spotify.com/search/Isn't%20She%20Lovely%20Stevie%20Wonder",
+        appleMusicUrl:
+          "https://music.apple.com/us/search?term=Isn't%20She%20Lovely%20Stevie%20Wonder",
+      },
+      {
+        title: "Darn That Dream",
+        artist: "Bill Evans / Jim Hall",
+        album: "Undercurrent",
+        musicalKey: "G",
+        spotifyUrl:
+          "https://open.spotify.com/search/Darn%20That%20Dream%20Bill%20Evans%20Jim%20Hall",
+        appleMusicUrl:
+          "https://music.apple.com/us/search?term=Darn%20That%20Dream%20Bill%20Evans%20Jim%20Hall",
+      },
+      {
+        title: "Ace of Aces",
+        artist: "The Fearless Flyers",
+        album: "The Fearless Flyers",
+        musicalKey: "E",
+        spotifyUrl:
+          "https://open.spotify.com/search/Ace%20of%20Aces%20Fearless%20Flyers",
+        appleMusicUrl:
+          "https://music.apple.com/us/search?term=Ace%20of%20Aces%20Fearless%20Flyers",
+      },
+      {
+        title: "Stratus",
+        artist: "Jeff Beck",
+        album: "Live at Ronnie Scott's",
+        musicalKey: "Em",
+        spotifyUrl: "https://open.spotify.com/search/Stratus%20Jeff%20Beck",
+        appleMusicUrl:
+          "https://music.apple.com/us/search?term=Stratus%20Jeff%20Beck",
+      },
+    ]);
+  });
+
   test("keeps Work records in the specified order", () => {
     expect(
       portfolioContent.pages.work.content.entries.map((entry) => entry.client),
