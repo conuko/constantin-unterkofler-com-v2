@@ -54,7 +54,7 @@ export function PlayPresentation({ entries }: PlayPresentationProps) {
                 loading={loadImmediately ? "eager" : "lazy"}
                 fetchPriority={loadImmediately ? "high" : undefined}
                 fill
-                sizes="(min-width: 1152px) 456px, (min-width: 768px) calc((100vw - 96px) / 2), calc(100vw - 48px)"
+                sizes="(min-width: 1128px) 516px, (min-width: 1024px) calc((100vw - 96px) / 2), (min-width: 768px) calc((100vw - 80px) / 2), calc(100vw - 48px)"
                 quality={85}
                 className="object-cover"
               />

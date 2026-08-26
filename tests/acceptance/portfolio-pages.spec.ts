@@ -1483,6 +1483,17 @@ test("Play Engineering Notebook presents its ordered responsive track collection
     { fetchPriority: "auto", loading: "lazy" },
     { fetchPriority: "auto", loading: "lazy" },
   ]);
+  expect(
+    await tracksInOrder
+      .locator("img")
+      .evaluateAll((images) =>
+        images.map((image) => (image as HTMLImageElement).sizes),
+      ),
+  ).toEqual(
+    Array(6).fill(
+      "(min-width: 1128px) 516px, (min-width: 1024px) calc((100vw - 96px) / 2), (min-width: 768px) calc((100vw - 80px) / 2), calc(100vw - 48px)",
+    ),
+  );
   await expect(
     page.locator('head link[rel="preload"][as="image"]'),
   ).toHaveCount(2);
