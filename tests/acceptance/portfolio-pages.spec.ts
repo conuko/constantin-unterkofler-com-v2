@@ -14,7 +14,7 @@ type WorkMotionWindow = Window & {
 type PlayMotionWindow = Window & {
   __playMotionStarts?: Record<number, number>;
   __playPageIdentitySettledAt?: number;
-  __playPartMotionStarts?: Record<string, number>;
+  __playPartMotionOrder?: string[];
 };
 
 type PortfolioPageMotionWindow = Window & {
@@ -1303,9 +1303,9 @@ test("Play Engineering Notebook presents its ordered responsive track collection
   await page.addInitScript(() => {
     const motionWindow = window as PlayMotionWindow;
     const playMotionStarts: Record<number, number> = {};
-    const playPartMotionStarts: Record<string, number> = {};
+    const playPartMotionOrder: string[] = [];
     motionWindow.__playMotionStarts = playMotionStarts;
-    motionWindow.__playPartMotionStarts = playPartMotionStarts;
+    motionWindow.__playPartMotionOrder = playPartMotionOrder;
 
     new MutationObserver((mutations) => {
       const motionFrame = performance.now();
@@ -1343,9 +1343,9 @@ test("Play Engineering Notebook presents its ordered responsive track collection
           partName &&
           opacity > 0 &&
           opacity < 1 &&
-          playPartMotionStarts[partName] === undefined
+          !playPartMotionOrder.includes(partName)
         ) {
-          playPartMotionStarts[partName] = motionFrame;
+          playPartMotionOrder.push(partName);
         }
       }
     }).observe(document, {
@@ -1521,9 +1521,6 @@ test("Play Engineering Notebook presents its ordered responsive track collection
     );
   }
 
-  const playPartMotionStarts = await page.evaluate(
-    () => (window as PlayMotionWindow).__playPartMotionStarts ?? {},
-  );
   const partOrder = [
     "rule",
     "index",
@@ -1533,12 +1530,11 @@ test("Play Engineering Notebook presents its ordered responsive track collection
     "annotation",
     "actions",
   ];
-  expect(Object.keys(playPartMotionStarts)).toHaveLength(partOrder.length);
-  for (let partIndex = 1; partIndex < partOrder.length; partIndex++) {
-    expect(playPartMotionStarts[partOrder[partIndex]]).toBeGreaterThan(
-      playPartMotionStarts[partOrder[partIndex - 1]],
-    );
-  }
+  expect(
+    await page.evaluate(
+      () => (window as PlayMotionWindow).__playPartMotionOrder ?? [],
+    ),
+  ).toEqual(partOrder);
 
   const firstTrack = tracksInOrder.first();
   const firstSpotifyLink = firstTrack.getByRole("link", {
