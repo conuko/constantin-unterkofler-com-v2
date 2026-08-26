@@ -1,7 +1,14 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
 
 type WorkMotionWindow = Window & {
+  __workFirstMainMotionAt?: number;
   __workMotionStarts?: Record<number, number>;
+  __workMotionAfterSettle?: number;
+  __workPageIdentityMotionStarts?: Partial<
+    Record<"introduction" | "title", number>
+  >;
+  __workPageIdentitySettledAt?: number;
+  __workPartMotionStarts?: Record<string, number>;
 };
 
 type PlayMotionWindow = Window & {
@@ -43,8 +50,7 @@ const portfolioPages = [
     path: "/work",
     heading: "Work",
     representativeContent: "Levi's",
-    representativeImageDescription:
-      "Levi's homepage featuring the A New Shape of Blue denim campaign",
+    representativeImageDescription: "Levi's red Batwing mark",
   },
   {
     name: "Play",
@@ -57,6 +63,9 @@ const portfolioPages = [
 ] as const;
 
 const primaryWayfinding = ["About me", "Contact", "Work", "Play"];
+const maximumCollectionHandoffDelay = 100;
+const maximumPageIdentityStartDelay = 600;
+const minimumPageIdentitySequenceDuration = 700;
 
 async function openMobileNavigation(page: Page): Promise<Locator> {
   const menuButton = page.getByRole("button", { name: "Open menu" });
@@ -615,83 +624,264 @@ test("About Portfolio Page presents the complete ordered CV", async ({
   }
 });
 
+test("Work page identity is perceptible and hands off directly to its entries", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.addInitScript(() => {
+    const motionWindow = window as WorkMotionWindow;
+    const identityStarts: Partial<Record<"introduction" | "title", number>> =
+      {};
+    motionWindow.__workPageIdentityMotionStarts = identityStarts;
+
+    function observeMotion() {
+      const motionFrame = performance.now();
+      const identityParts = {
+        introduction: document.querySelector<HTMLElement>(
+          "[data-notebook-introduction]",
+        ),
+        title: document.querySelector<HTMLElement>("main h1"),
+      };
+
+      for (const [part, element] of Object.entries(identityParts)) {
+        if (!element) continue;
+        const identityPart = part as "introduction" | "title";
+        const opacity = Number.parseFloat(getComputedStyle(element).opacity);
+
+        if (opacity === 0) {
+          motionWindow.__workFirstMainMotionAt ??= motionFrame;
+        } else if (opacity < 1 && identityStarts[identityPart] === undefined) {
+          identityStarts[identityPart] = motionFrame;
+        }
+      }
+
+      const pageIdentity = document.querySelector<HTMLElement>(
+        "[data-page-identity-state]",
+      );
+      if (pageIdentity?.dataset.pageIdentityState === "settled") {
+        motionWindow.__workPageIdentitySettledAt ??= motionFrame;
+      }
+
+      const firstEntry = document.querySelector<HTMLElement>(
+        '[data-entry-part="index"]',
+      );
+      if (firstEntry) {
+        const opacity = Number.parseFloat(getComputedStyle(firstEntry).opacity);
+        if (opacity > 0 && opacity < 1) {
+          motionWindow.__workMotionStarts ??= { 0: motionFrame };
+        }
+      }
+
+      if (
+        Object.keys(identityStarts).length < 2 ||
+        motionWindow.__workPageIdentitySettledAt === undefined ||
+        motionWindow.__workMotionStarts?.[0] === undefined
+      ) {
+        requestAnimationFrame(observeMotion);
+      }
+    }
+
+    requestAnimationFrame(observeMotion);
+  });
+
+  await page.goto("/work");
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const motionWindow = window as WorkMotionWindow;
+        return {
+          firstEntry: motionWindow.__workMotionStarts?.[0],
+          identityStarts: motionWindow.__workPageIdentityMotionStarts,
+          identitySettled: motionWindow.__workPageIdentitySettledAt,
+        };
+      }),
+    )
+    .toMatchObject({
+      firstEntry: expect.any(Number),
+      identityStarts: {
+        introduction: expect.any(Number),
+        title: expect.any(Number),
+      },
+      identitySettled: expect.any(Number),
+    });
+
+  const timing = await page.evaluate(() => {
+    const motionWindow = window as WorkMotionWindow;
+    return {
+      firstEntry: motionWindow.__workMotionStarts?.[0] ?? 0,
+      firstMainMotion: motionWindow.__workFirstMainMotionAt ?? 0,
+      identitySettled: motionWindow.__workPageIdentitySettledAt ?? 0,
+      identityStarts: motionWindow.__workPageIdentityMotionStarts ?? {},
+    };
+  });
+
+  for (const identityPart of ["introduction", "title"] as const) {
+    expect(
+      (timing.identityStarts[identityPart] ?? 0) - timing.firstMainMotion,
+    ).toBeLessThan(maximumPageIdentityStartDelay);
+  }
+  const latestIdentityStart = Math.max(...Object.values(timing.identityStarts));
+  expect(timing.identitySettled - latestIdentityStart).toBeGreaterThanOrEqual(
+    minimumPageIdentitySequenceDuration,
+  );
+  expect(timing.firstEntry).toBeGreaterThanOrEqual(timing.identitySettled);
+  expect(timing.firstEntry - timing.identitySettled).toBeLessThan(
+    maximumCollectionHandoffDelay,
+  );
+});
+
 test("Work Portfolio Page presents its ordered responsive project collection", async ({
   page,
 }, testInfo) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+
   const projects = [
     {
       client: "Levi's",
-      url: "https://www.levi.com/",
-      imageDescription:
-        "Levi's homepage featuring the A New Shape of Blue denim campaign",
+      url: "https://www.scayle.com/customers/levi-strauss/",
+      primaryMetadata: "Commerce migration",
+      imageDescriptions: ["Levi's red Batwing mark"],
     },
     {
       client: "Harrods",
-      url: "https://www.harrods.com/",
-      imageDescription:
-        "Harrods homepage featuring two fashion models in a summer garden",
+      url: "https://www.scayle.com/customers/harrods/",
+      primaryMetadata: "Commerce delivery",
+      imageDescriptions: ["Harrods green wordmark"],
     },
     {
       client: "Fielmann",
-      url: "https://www.fielmann.de/",
-      imageDescription:
-        "Fielmann homepage featuring two people wearing sunglasses",
+      url: "https://www.scayle.com/case-studies/fielmann/",
+      primaryMetadata: "Commerce platform",
+      imageDescriptions: ["Fielmann black wordmark"],
+    },
+    {
+      client: "SCAYLE / ABOUT YOU",
+      url: "https://www.scayle.com/",
+      primaryMetadata: "Commerce platform",
+      imageDescriptions: [
+        "SCAYLE wordmark with green directional accents",
+        "ABOUT YOU black-and-white wordmark",
+      ],
+    },
+    {
+      client: "FIFA",
+      url: "https://publications.fifa.com/en/talent-development/",
+      primaryMetadata: "Web platform",
+      imageDescriptions: ["FIFA blue wordmark"],
     },
     {
       client: "TenneT",
       url: "https://www.tennet.eu/",
-      imageDescription:
-        "TenneT Germany homepage with a wind turbine and solar panels in a green landscape",
+      primaryMetadata: "Web platform",
+      imageDescriptions: ["TenneT blue-and-green wordmark"],
     },
     {
       client: "fussball.de",
       url: "https://next.fussball.de/",
-      imageDescription:
-        "FUSSBALL.DE community homepage with an amateur football news feed and league subscriptions",
+      primaryMetadata: "Platform migration",
+      imageDescriptions: ["fussball.de green field mark"],
     },
   ];
 
   await page.addInitScript(() => {
     const motionWindow = window as WorkMotionWindow;
     const workMotionStarts: Record<number, number> = {};
+    const workPageIdentityMotionStarts: Partial<
+      Record<"introduction" | "title", number>
+    > = {};
+    const workPartMotionStarts: Record<string, number> = {};
     motionWindow.__workMotionStarts = workMotionStarts;
+    motionWindow.__workPageIdentityMotionStarts = workPageIdentityMotionStarts;
+    motionWindow.__workPartMotionStarts = workPartMotionStarts;
 
     new MutationObserver((mutations) => {
       const motionFrame = performance.now();
 
       for (const mutation of mutations) {
-        const project = mutation.target;
-        if (
-          !(project instanceof HTMLElement) ||
-          project.tagName !== "ARTICLE"
-        ) {
-          continue;
+        const target = mutation.target;
+        if (!(target instanceof HTMLElement)) continue;
+
+        if (target.dataset.pageIdentityState === "settled") {
+          motionWindow.__workPageIdentitySettledAt ??= motionFrame;
         }
+
+        const project = target.closest("article");
+        if (!project) continue;
 
         const projectIndex = Array.from(
           document.querySelectorAll("article"),
         ).indexOf(project);
-        const opacity = Number.parseFloat(getComputedStyle(project).opacity);
+        const opacity = Number.parseFloat(getComputedStyle(target).opacity);
+        const partName = target.hasAttribute("data-notebook-record-rule")
+          ? "rule"
+          : target.getAttribute("data-entry-part");
 
         if (
           projectIndex >= 0 &&
+          partName === "index" &&
           opacity > 0 &&
           opacity < 1 &&
           workMotionStarts[projectIndex] === undefined
         ) {
           workMotionStarts[projectIndex] = motionFrame;
         }
+
+        if (
+          projectIndex === 0 &&
+          partName &&
+          opacity > 0 &&
+          opacity < 1 &&
+          workPartMotionStarts[partName] === undefined
+        ) {
+          workPartMotionStarts[partName] = motionFrame;
+        }
       }
     }).observe(document, {
       attributes: true,
-      attributeFilter: ["style"],
+      attributeFilter: ["data-page-identity-state", "style"],
       subtree: true,
     });
+
+    function observePageIdentityMotion() {
+      const motionFrame = performance.now();
+      const identityParts = {
+        introduction: document.querySelector<HTMLElement>(
+          "[data-notebook-introduction]",
+        ),
+        title: document.querySelector<HTMLElement>("main h1"),
+      };
+
+      for (const [part, element] of Object.entries(identityParts)) {
+        if (!element) continue;
+        const opacity = Number.parseFloat(getComputedStyle(element).opacity);
+
+        if (opacity === 0) {
+          motionWindow.__workFirstMainMotionAt ??= motionFrame;
+        } else if (
+          opacity < 1 &&
+          workPageIdentityMotionStarts[part as "introduction" | "title"] ===
+            undefined
+        ) {
+          workPageIdentityMotionStarts[part as "introduction" | "title"] =
+            motionFrame;
+        }
+      }
+
+      if (Object.keys(workPageIdentityMotionStarts).length < 2) {
+        requestAnimationFrame(observePageIdentityMotion);
+      }
+    }
+
+    requestAnimationFrame(observePageIdentityMotion);
   });
 
   await page.goto("/work");
 
-  const projectsInOrder = page.getByRole("main").locator("article");
+  const main = page.getByRole("main");
+  await expect(main.getByText("W", { exact: true })).toBeVisible();
+  await expect(main.locator("[data-notebook-header-rule]")).toBeVisible();
+
+  const projectsInOrder = main.locator("article");
   await expect(projectsInOrder).toHaveCount(projects.length);
   await expect(projectsInOrder.getByRole("heading", { level: 2 })).toHaveText(
     projects.map(({ client }) => client),
@@ -699,16 +889,55 @@ test("Work Portfolio Page presents its ordered responsive project collection", a
 
   for (const [index, project] of projects.entries()) {
     const renderedProject = projectsInOrder.nth(index);
-    const clientLink = renderedProject.getByRole("link", {
-      name: `Visit ${project.client}`,
-    });
-
-    await expect(clientLink).toHaveAttribute("href", project.url);
-    await expect(clientLink).toHaveAttribute("target", "_blank");
-    await expect(clientLink).toHaveAttribute("rel", /noopener/);
     await expect(
-      renderedProject.getByRole("img", { name: project.imageDescription }),
+      renderedProject.getByText(project.primaryMetadata, { exact: true }),
     ).toBeVisible();
+    expect(
+      await renderedProject
+        .locator(":scope > [data-entry-part]")
+        .evaluateAll((parts) =>
+          parts.map((part) => part.getAttribute("data-entry-part")),
+        ),
+    ).toEqual(["index", "media", "title", "metadata", "annotation", "tags"]);
+
+    for (const imageDescription of project.imageDescriptions) {
+      const renderedMark = renderedProject.getByRole("img", {
+        name: imageDescription,
+      });
+      await expect(renderedMark).toBeVisible();
+      const markBox = await renderedMark.boundingBox();
+      const mediaBox = await renderedProject
+        .locator("[data-notebook-media-field]")
+        .boundingBox();
+      expect(markBox).not.toBeNull();
+      expect(mediaBox).not.toBeNull();
+      if (!markBox || !mediaBox) throw new Error("Expected rendered Work mark");
+      expect(markBox.width).toBeGreaterThan(50);
+      expect(markBox.height).toBeGreaterThan(12);
+      expect(markBox.x).toBeGreaterThanOrEqual(mediaBox.x);
+      expect(markBox.y).toBeGreaterThanOrEqual(mediaBox.y);
+      expect(markBox.x + markBox.width).toBeLessThanOrEqual(
+        mediaBox.x + mediaBox.width,
+      );
+      expect(markBox.y + markBox.height).toBeLessThanOrEqual(
+        mediaBox.y + mediaBox.height,
+      );
+    }
+
+    await expect(
+      renderedProject.locator('[data-entry-part="annotation"]'),
+    ).toBeVisible();
+
+    const clientLink = renderedProject.getByRole("link", {
+      name: `View ${project.client} project`,
+    });
+    if (project.url) {
+      await expect(clientLink).toHaveAttribute("href", project.url);
+      await expect(clientLink).toHaveAttribute("target", "_blank");
+      await expect(clientLink).toHaveAttribute("rel", /noopener/);
+    } else {
+      await expect(clientLink).toHaveCount(0);
+    }
   }
 
   const firstProject = projectsInOrder.first();
@@ -716,11 +945,32 @@ test("Work Portfolio Page presents its ordered responsive project collection", a
     firstProject.getByText("Currently collaborating with the team at SCAYLE", {
       exact: false,
     }),
-  ).toHaveCount(2);
+  ).toBeVisible();
   for (const technology of ["Vue 3", "Nuxt 4", "TypeScript", "SCAYLE"]) {
     await expect(
       firstProject.getByText(technology, { exact: true }),
     ).toBeVisible();
+  }
+
+  await expect(
+    projectsInOrder.getByText("Draft description · Owner editorial review"),
+  ).toHaveCount(0);
+
+  const collectionBox = await main
+    .locator("[data-notebook-collection]")
+    .boundingBox();
+  const introductionBox = await main
+    .locator("[data-notebook-introduction]")
+    .boundingBox();
+  expect(collectionBox).not.toBeNull();
+  expect(introductionBox).not.toBeNull();
+  if (!collectionBox || !introductionBox) {
+    throw new Error("Expected the Work collection and introduction measures");
+  }
+  expect(collectionBox.width).toBeLessThanOrEqual(1082);
+  expect(introductionBox.width).toBeLessThanOrEqual(722);
+  if (!testInfo.project.use.isMobile) {
+    expect(collectionBox.width).toBeGreaterThan(1000);
   }
 
   const firstProjectBox = await projectsInOrder.first().boundingBox();
@@ -750,13 +1000,13 @@ test("Work Portfolio Page presents its ordered responsive project collection", a
   expect(imageLoading).toEqual([
     { fetchPriority: "high", loading: "eager" },
     { fetchPriority: "high", loading: "eager" },
-    { fetchPriority: "high", loading: "eager" },
-    { fetchPriority: "high", loading: "eager" },
+    { fetchPriority: "auto", loading: "lazy" },
+    { fetchPriority: "auto", loading: "lazy" },
+    { fetchPriority: "auto", loading: "lazy" },
+    { fetchPriority: "auto", loading: "lazy" },
+    { fetchPriority: "auto", loading: "lazy" },
     { fetchPriority: "auto", loading: "lazy" },
   ]);
-  await expect(
-    page.locator('head link[rel="preload"][as="image"]'),
-  ).toHaveCount(4);
 
   await expect
     .poll(() =>
@@ -770,18 +1020,203 @@ test("Work Portfolio Page presents its ordered responsive project collection", a
   const motionStarts = await page.evaluate(
     () => (window as WorkMotionWindow).__workMotionStarts ?? {},
   );
+  const pageIdentitySettledAt = await page.evaluate(
+    () => (window as WorkMotionWindow).__workPageIdentitySettledAt,
+  );
+  const firstMainMotionAt = await page.evaluate(
+    () => (window as WorkMotionWindow).__workFirstMainMotionAt,
+  );
+  const pageIdentityMotionStarts = await page.evaluate(
+    () => (window as WorkMotionWindow).__workPageIdentityMotionStarts ?? {},
+  );
+  expect(firstMainMotionAt).toBeDefined();
+  expect(Object.keys(pageIdentityMotionStarts)).toHaveLength(2);
+  for (const identityMotionStart of Object.values(pageIdentityMotionStarts)) {
+    expect(identityMotionStart - (firstMainMotionAt ?? 0)).toBeLessThan(
+      maximumPageIdentityStartDelay,
+    );
+  }
+  expect(pageIdentitySettledAt).toBeDefined();
+  expect(motionStarts[0]).toBeGreaterThanOrEqual(pageIdentitySettledAt ?? 0);
   for (let projectIndex = 1; projectIndex < projects.length; projectIndex++) {
     expect(motionStarts[projectIndex]).toBeGreaterThan(
       motionStarts[projectIndex - 1],
     );
   }
+  const workPartMotionStarts = await page.evaluate(
+    () => (window as WorkMotionWindow).__workPartMotionStarts ?? {},
+  );
+  const partOrder = [
+    "rule",
+    "index",
+    "media",
+    "title",
+    "metadata",
+    "annotation",
+    "tags",
+  ];
+  expect(Object.keys(workPartMotionStarts)).toHaveLength(partOrder.length);
+  for (let partIndex = 1; partIndex < partOrder.length; partIndex++) {
+    expect(workPartMotionStarts[partOrder[partIndex]]).toBeGreaterThan(
+      workPartMotionStarts[partOrder[partIndex - 1]],
+    );
+  }
 
-  await firstProject.hover();
-  await expect
-    .poll(() =>
-      firstProject.evaluate((element) => getComputedStyle(element).transform),
-    )
-    .not.toBe("none");
+  await page.waitForTimeout(700);
+  await page.evaluate(() => {
+    const motionWindow = window as WorkMotionWindow;
+    motionWindow.__workMotionAfterSettle = 0;
+    const workCollection = document.querySelector("[data-notebook-collection]");
+    if (!workCollection) throw new Error("Expected the Work collection");
+
+    new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        const target = mutation.target;
+        if (!(target instanceof HTMLElement) || !target.closest("article"))
+          continue;
+
+        const opacity = Number.parseFloat(getComputedStyle(target).opacity);
+        if (opacity > 0 && opacity < 1) {
+          motionWindow.__workMotionAfterSettle =
+            (motionWindow.__workMotionAfterSettle ?? 0) + 1;
+        }
+      }
+    }).observe(workCollection, {
+      attributes: true,
+      attributeFilter: ["style"],
+      subtree: true,
+    });
+  });
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await page.waitForTimeout(100);
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(600);
+  expect(
+    await page.evaluate(
+      () => (window as WorkMotionWindow).__workMotionAfterSettle,
+    ),
+  ).toBe(0);
+
+  const firstProjectLink = firstProject.getByRole("link", {
+    name: "View Levi's project",
+  });
+  await page.evaluate(() => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  });
+  for (let tabIndex = 0; tabIndex < 10; tabIndex++) {
+    if (
+      await firstProjectLink.evaluate((link) => link === document.activeElement)
+    ) {
+      break;
+    }
+    await page.keyboard.press("Tab");
+  }
+  await expect(firstProjectLink).toBeFocused();
+  expect(
+    await firstProjectLink.evaluate(
+      (element) => getComputedStyle(element).outlineStyle,
+    ),
+  ).not.toBe("none");
+
+  if (!testInfo.project.use.isMobile) {
+    await firstProject.hover();
+    await expect
+      .poll(() =>
+        firstProject.evaluate((element) => getComputedStyle(element).transform),
+      )
+      .not.toBe("none");
+  } else {
+    const firstProjectUrl = "https://www.scayle.com/customers/levi-strauss/";
+    await page.context().route(firstProjectUrl, async (route) => {
+      await route.fulfill({
+        body: "Work destination",
+        contentType: "text/html",
+      });
+    });
+    const popupPromise = page.waitForEvent("popup");
+    await firstProjectLink.tap();
+    const popup = await popupPromise;
+    await expect(popup).toHaveURL(firstProjectUrl);
+    await popup.close();
+  }
+});
+
+test("Work Engineering Notebook preserves its marks and content across theme and motion states", async ({
+  page,
+}) => {
+  const imageDescriptions = [
+    "Levi's red Batwing mark",
+    "Harrods green wordmark",
+    "Fielmann black wordmark",
+    "SCAYLE wordmark with green directional accents",
+    "ABOUT YOU black-and-white wordmark",
+    "FIFA blue wordmark",
+    "TenneT blue-and-green wordmark",
+    "fussball.de green field mark",
+  ];
+
+  for (const theme of ["light", "dark"] as const) {
+    for (const reducedMotion of ["no-preference", "reduce"] as const) {
+      await page.emulateMedia({ reducedMotion });
+      await page.goto("/work");
+      await page.evaluate((nextTheme) => {
+        localStorage.setItem("theme", nextTheme);
+      }, theme);
+      await page.reload();
+
+      await expect(page.locator("html")).toHaveClass(new RegExp(theme));
+      await expect(page.locator('[data-entry-part="annotation"]')).toHaveCount(
+        7,
+      );
+      for (const imageDescription of imageDescriptions) {
+        await expect(
+          page.getByRole("img", { name: imageDescription }),
+        ).toBeVisible();
+      }
+
+      const mediaFieldBackgrounds = await page
+        .locator("[data-notebook-media-field]")
+        .evaluateAll((fields) =>
+          fields.map((field) => getComputedStyle(field).backgroundColor),
+        );
+      expect(mediaFieldBackgrounds).toHaveLength(7);
+      expect(
+        mediaFieldBackgrounds.every(
+          (background) => background !== "rgba(0, 0, 0, 0)",
+        ),
+      ).toBe(true);
+
+      if (reducedMotion === "reduce") {
+        const firstRecord = page.getByRole("main").locator("article").first();
+        await firstRecord.scrollIntoViewIfNeeded();
+        const restingBox = await firstRecord.boundingBox();
+        await firstRecord.hover();
+        const hoveredBox = await firstRecord.boundingBox();
+        expect(hoveredBox).toEqual(restingBox);
+
+        const firstLink = firstRecord.getByRole("link", {
+          name: "View Levi's project",
+        });
+        const restingLinkBox = await firstLink.boundingBox();
+        await firstLink.dispatchEvent("pointerdown", {
+          button: 0,
+          isPrimary: true,
+          pointerId: 1,
+          pointerType: "mouse",
+        });
+        const pressedLinkBox = await firstLink.boundingBox();
+        expect(pressedLinkBox).toEqual(restingLinkBox);
+        await firstLink.dispatchEvent("pointerup", {
+          button: 0,
+          isPrimary: true,
+          pointerId: 1,
+          pointerType: "mouse",
+        });
+      }
+    }
+  }
 });
 
 test("Play Portfolio Page presents its ordered responsive track collection", async ({

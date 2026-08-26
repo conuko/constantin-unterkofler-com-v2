@@ -9,6 +9,10 @@
   --motion-initial-y: -8px;
   --motion-initial-clip: inset(-10% 100% -10% 0);
   --motion-initial-filter: blur(3px);
+  --motion-initial-rule-scale: 0;
+  --notebook-hover-y: -2px;
+  --notebook-media-hover-scale: 1.008;
+  --notebook-press-scale: 0.995;
 }
 
 html {
@@ -39,6 +43,10 @@ body {
     --motion-initial-y: 0px;
     --motion-initial-clip: inset(-10% -10% -10% 0);
     --motion-initial-filter: blur(0px);
+    --motion-initial-rule-scale: 1;
+    --notebook-hover-y: 0px;
+    --notebook-media-hover-scale: 1;
+    --notebook-press-scale: 1;
   }
 
   *,

@@ -11,11 +11,9 @@ export default function WorkPage() {
   return (
     <PortfolioPage
       title={work.title}
-      introduction={
-        <p className="max-w-xl text-sm text-ink-muted">
-          {work.content.introduction}
-        </p>
-      }
+      sectionCode="W"
+      width="collection"
+      introduction={<p>{work.content.introduction}</p>}
     >
       <WorkPresentation entries={work.content.entries} />
     </PortfolioPage>

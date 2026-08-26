@@ -188,7 +188,7 @@ Convert to `"use client"`. Replace root `<article>` with `motion.article`:
 
 - `initial="hidden"` / `whileInView="visible"` / `viewport={viewportOnce}` using `fadeInUp` variant
 - `whileHover={{ y: -4 }}` with `springSnappy` for card lift effect
-- **Remove** CSS `transition-transform` / `group-hover:scale-[1.02]` from the image -- replace with Motion-driven scale inside a `motion.div` wrapper using `whileHover={{ scale: 1.02 }}` on the parent (propagated via variants)
+- **Remove** the CSS transform transition and group-hover scale utilities from the image -- replace them with Motion-driven scale inside a `motion.div` wrapper using `whileHover={{ scale: 1.02 }}` on the parent (propagated via variants)
 - Keep the overlay `transition-opacity` as CSS (simple opacity toggle, no conflict)
 
 ### 5. Music Cards -- [components/music-card.tsx](components/music-card.tsx)
@@ -239,8 +239,8 @@ Wrap the paragraph in a fade-in. The CV list handles its own animation internall
 
 Remove conflicting Tailwind transition classes from Motion-animated elements:
 
-- `components/music-card.tsx`: Remove `transition-transform duration-slow ease-default group-hover:scale-[1.02]` from Image
-- `components/work-card.tsx`: Remove `transition-transform duration-slow ease-default group-hover:scale-[1.02]` from Image
+- `components/music-card.tsx`: Remove the transform transition, duration, easing, and group-hover scale utilities from Image
+- `components/work-card.tsx`: Remove the transform transition, duration, easing, and group-hover scale utilities from Image
 - `components/theme-toggle.tsx`: Remove `transition-all` from icon elements (keep motion spring instead)
 
 ---

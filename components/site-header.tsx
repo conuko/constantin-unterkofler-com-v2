@@ -272,7 +272,7 @@ function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
               initial={{ opacity: "var(--motion-initial-opacity)" }}
               animate={{ opacity: 1 }}
               exit={{ opacity: "var(--motion-initial-opacity)" }}
-              className="fixed inset-0 z-[-1]"
+              className="fixed inset-0 -z-1"
               onClick={close}
               aria-hidden
             />
@@ -291,7 +291,7 @@ function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
                 bounce: 0.2,
               }}
               style={{ transformOrigin: "top right" }}
-              className="absolute right-0 top-full mt-2 min-w-[160px] rounded-xl border border-rule bg-paper/85 p-4 shadow-lg backdrop-blur-md"
+              className="absolute right-0 top-full mt-2 min-w-40 rounded-xl border border-rule bg-paper/85 p-4 shadow-lg backdrop-blur-md"
             >
               <m.ul
                 variants={mobileWayfindingIn}
@@ -331,7 +331,7 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
       initial={{ opacity: "var(--motion-initial-opacity)" }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className={`sticky top-4 z-10 flex justify-between gap-6 rounded-xl border border-transparent lg:z-0 lg:rounded-none lg:pb-8 max-lg:transition-[background-color,border-color,box-shadow,padding,backdrop-filter] max-lg:duration-normal max-lg:ease-default ${
+      className={`sticky top-4 z-10 flex justify-between gap-6 rounded-xl border border-transparent lg:z-0 lg:rounded-none lg:pb-8 max-lg:transition-site-header max-lg:duration-normal max-lg:ease-default ${
         isScrolled
           ? "max-lg:border-rule max-lg:bg-card-glass max-lg:px-4 max-lg:py-3 max-lg:backdrop-blur-md max-lg:shadow-sm"
           : "max-lg:pb-8"

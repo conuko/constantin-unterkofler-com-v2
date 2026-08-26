@@ -5,11 +5,6 @@ import coverOhCherie from "@/content/covers/oh-cherie.jpg";
 import coverSongsInTheKeyOfLife from "@/content/covers/songs-in-the-key-of-life.jpg";
 import coverTheFearlessFlyers from "@/content/covers/the-fearless-flyers.jpg";
 import coverUndercurrent from "@/content/covers/undercurrent.jpg";
-import workFielmann from "@/content/work/fielmann.png";
-import workFussballde from "@/content/work/fussballde.png";
-import workHarrods from "@/content/work/harrods.png";
-import workLevi from "@/content/work/levi.png";
-import workTennet from "@/content/work/tennet.png";
 
 export type NavItem = {
   href: string;
@@ -44,10 +39,19 @@ export type TrackEntry = {
 
 export type WorkEntry = {
   client: string;
-  url: string;
+  url?: string;
+  primaryMetadata: string;
   description: string;
+  descriptionReview?: "owner";
   techStack: string[];
-  image: ContentImage;
+  marks: WorkMark[];
+};
+
+export type WorkMark = {
+  src: `/marks/${string}.svg`;
+  alt: string;
+  width: number;
+  height: number;
 };
 
 export type ContactLink = {
@@ -196,7 +200,8 @@ const trackEntries: TrackEntry[] = [
 const workEntries: WorkEntry[] = [
   {
     client: "Levi's",
-    url: "https://www.levi.com/",
+    url: "https://www.scayle.com/customers/levi-strauss/",
+    primaryMetadata: "Commerce migration",
     description:
       "Currently collaborating with the team at SCAYLE to migrate Levi's legacy Vue 2 codebase into a modern Vue 3 / Nuxt 4 e-commerce application powered by the SCAYLE Commerce Engine.",
     techStack: [
@@ -208,14 +213,19 @@ const workEntries: WorkEntry[] = [
       "Tailwind CSS",
       "SCAYLE",
     ],
-    image: {
-      src: workLevi,
-      alt: "Levi's homepage featuring the A New Shape of Blue denim campaign",
-    },
+    marks: [
+      {
+        src: "/marks/levi.svg",
+        alt: "Levi's red Batwing mark",
+        width: 722,
+        height: 300,
+      },
+    ],
   },
   {
     client: "Harrods",
-    url: "https://www.harrods.com/",
+    url: "https://www.scayle.com/customers/harrods/",
+    primaryMetadata: "Commerce delivery",
     description:
       "Worked with the SCAYLE and Harrods teams to deliver new features and prepare a full client handover — including technical workshops, architectural documentation, and knowledge transfer.",
     techStack: [
@@ -227,14 +237,19 @@ const workEntries: WorkEntry[] = [
       "Tailwind CSS",
       "SCAYLE",
     ],
-    image: {
-      src: workHarrods,
-      alt: "Harrods homepage featuring two fashion models in a summer garden",
-    },
+    marks: [
+      {
+        src: "/marks/harrods.svg",
+        alt: "Harrods green wordmark",
+        width: 115,
+        height: 49,
+      },
+    ],
   },
   {
     client: "Fielmann",
-    url: "https://www.fielmann.de/",
+    url: "https://www.scayle.com/case-studies/fielmann/",
+    primaryMetadata: "Commerce platform",
     description:
       "Set up and maintained the e-commerce platform across DACH, embedded in the client team for over 1.5 years. Also supported the launch of the Fielmann Italy shop.",
     techStack: [
@@ -245,14 +260,64 @@ const workEntries: WorkEntry[] = [
       "Tailwind CSS",
       "SCAYLE",
     ],
-    image: {
-      src: workFielmann,
-      alt: "Fielmann homepage featuring two people wearing sunglasses",
-    },
+    marks: [
+      {
+        src: "/marks/fielmann.svg",
+        alt: "Fielmann black wordmark",
+        width: 115,
+        height: 56,
+      },
+    ],
+  },
+  {
+    client: "SCAYLE / ABOUT YOU",
+    url: "https://www.scayle.com/",
+    primaryMetadata: "Commerce platform",
+    description:
+      "Built and maintained commerce storefronts on the SCAYLE Commerce Engine across multiple client projects, contributing reusable component patterns, CMS integrations, and shared tooling used across delivery teams.",
+    techStack: [
+      "Vue 3",
+      "Nuxt 3",
+      "TypeScript",
+      "Storyblok",
+      "Tailwind CSS",
+      "SCAYLE",
+    ],
+    marks: [
+      {
+        src: "/marks/scayle.svg",
+        alt: "SCAYLE wordmark with green directional accents",
+        width: 2036,
+        height: 471,
+      },
+      {
+        src: "/marks/about-you.svg",
+        alt: "ABOUT YOU black-and-white wordmark",
+        width: 242,
+        height: 48,
+      },
+    ],
+  },
+  {
+    client: "FIFA",
+    url: "https://publications.fifa.com/en/talent-development/",
+    primaryMetadata: "Web platform",
+    description:
+      "Contributed to the FIFA Publications platform — a multilingual content hub delivering global reports and studies, with performance-optimized AMP pages and a Contentful-powered content pipeline.",
+    techStack: ["JavaScript", "AMP", "Contentful", "Python"],
+    marks: [
+      {
+        src: "/marks/fifa.svg",
+        alt: "FIFA blue wordmark",
+        width: 677,
+        height: 223,
+      },
+    ],
   },
   {
     client: "TenneT",
     url: "https://www.tennet.eu/",
+    primaryMetadata: "Web platform",
     description:
       "Turborepo-based monorepo powering TenneT's corporate website, careers platform, and Storybook design system — unifying shared components, design tokens, and Contentful tooling.",
     techStack: [
@@ -263,14 +328,19 @@ const workEntries: WorkEntry[] = [
       "Tailwind CSS",
       "Storybook",
     ],
-    image: {
-      src: workTennet,
-      alt: "TenneT Germany homepage with a wind turbine and solar panels in a green landscape",
-    },
+    marks: [
+      {
+        src: "/marks/tennet.svg",
+        alt: "TenneT blue-and-green wordmark",
+        width: 154,
+        height: 29,
+      },
+    ],
   },
   {
     client: "fussball.de",
     url: "https://next.fussball.de/",
+    primaryMetadata: "Platform migration",
     description:
       "Migrating a legacy platform into a modern Next.js application within a monorepo architecture using Turborepo for the shared code and the site code for the Fussball.de and BFV.de sites.",
     techStack: [
@@ -280,10 +350,14 @@ const workEntries: WorkEntry[] = [
       "CSS Modules",
       "Storybook",
     ],
-    image: {
-      src: workFussballde,
-      alt: "FUSSBALL.DE community homepage with an amateur football news feed and league subscriptions",
-    },
+    marks: [
+      {
+        src: "/marks/fussball-de.svg",
+        alt: "fussball.de green field mark",
+        width: 545,
+        height: 360,
+      },
+    ],
   },
 ];
 

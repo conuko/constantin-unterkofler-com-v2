@@ -44,3 +44,18 @@
     background: currentColor;
   }
 }
+
+/* Mobile Site Header state changes without transitioning unrelated properties */
+@utility transition-site-header {
+  transition-property:
+    background-color, border-color, box-shadow, padding, backdrop-filter;
+}
+
+/* Factual list marker used by Engineering Notebook metadata tags */
+@utility notebook-tag-marker {
+  &::before {
+    content: "+";
+    margin-inline-end: 0.375rem;
+    color: var(--color-rule);
+  }
+}

@@ -1,18 +1,22 @@
 "use client";
 
-import type { Variants } from "motion/react";
+import { stagger, type Variants } from "motion/react";
 import * as m from "motion/react-m";
-import type { ReactNode } from "react";
+import { type ReactNode, useCallback, useState } from "react";
+import {
+  NotebookPageHeader,
+  NotebookPageIdentityProvider,
+} from "@/components/notebook-primitives";
+import { notebookEase } from "@/lib/notebook-motion";
 import { cn } from "@/lib/utils/cn";
 
 type PortfolioPageProps = {
   title: string;
+  sectionCode?: string;
   introduction?: ReactNode;
   children?: ReactNode;
-  width?: "standard" | "narrow";
+  width?: "collection" | "standard" | "narrow";
 };
-
-const easeOutExpo = [0.16, 1, 0.3, 1] as const;
 
 const headingIn: Variants = {
   hidden: {
@@ -24,7 +28,7 @@ const headingIn: Variants = {
     clipPath: "inset(-10% -10% -10% 0)",
     transition: {
       duration: 0.9,
-      ease: easeOutExpo,
+      ease: notebookEase,
       opacity: { duration: 0.4, ease: "easeOut" },
     },
   },
@@ -40,6 +44,15 @@ const contentStagger: Variants = {
   },
 };
 
+const pageIdentitySequence: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      delayChildren: stagger(0.04, { startDelay: 0.04 }),
+    },
+  },
+};
+
 const introductionIn: Variants = {
   hidden: {
     opacity: "var(--motion-initial-opacity)",
@@ -50,41 +63,64 @@ const introductionIn: Variants = {
     filter: "blur(0px)",
     transition: {
       duration: 0.7,
-      ease: easeOutExpo,
+      ease: notebookEase,
     },
   },
 };
 
 export function PortfolioPage({
   title,
+  sectionCode,
   introduction,
   children,
   width = "standard",
 }: PortfolioPageProps) {
+  const [pageIdentitySettled, setPageIdentitySettled] = useState(!sectionCode);
+  const settlePageIdentity = useCallback(() => {
+    setPageIdentitySettled(true);
+  }, []);
+
   return (
-    <m.div
-      initial="hidden"
-      animate="visible"
-      className="flex flex-col items-center gap-10"
-    >
-      <m.h1
-        variants={headingIn}
-        className="font-heading text-center text-4xl font-semibold leading-none tracking-tight lg:text-6xl"
-      >
-        {title}
-      </m.h1>
+    <NotebookPageIdentityProvider settled={pageIdentitySettled}>
       <m.div
-        variants={contentStagger}
-        className={cn(
-          "flex w-full flex-col items-center gap-10",
-          width === "narrow" && "mx-auto max-w-xl",
-        )}
+        initial="hidden"
+        animate="visible"
+        data-page-identity-state={
+          pageIdentitySettled ? "settled" : "registering"
+        }
+        className="flex w-full flex-col gap-10"
       >
-        {introduction && (
-          <m.div variants={introductionIn}>{introduction}</m.div>
+        {sectionCode ? (
+          <NotebookPageHeader
+            sectionCode={sectionCode}
+            sequence={pageIdentitySequence}
+            title={title}
+            introduction={introduction}
+            onIdentitySettled={settlePageIdentity}
+          />
+        ) : (
+          <m.h1
+            variants={headingIn}
+            className="font-heading text-center text-4xl leading-none font-semibold tracking-tight lg:text-6xl"
+          >
+            {title}
+          </m.h1>
         )}
-        {children}
+        <m.div
+          variants={contentStagger}
+          className={cn(
+            "flex w-full flex-col gap-10",
+            width === "collection" && "max-w-270",
+            width === "standard" && "mx-auto max-w-3xl items-center",
+            width === "narrow" && "mx-auto max-w-xl",
+          )}
+        >
+          {!sectionCode && introduction && (
+            <m.div variants={introductionIn}>{introduction}</m.div>
+          )}
+          {children}
+        </m.div>
       </m.div>
-    </m.div>
+    </NotebookPageIdentityProvider>
   );
 }

@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 import { portfolioContent } from "@/content/site-content";
 
@@ -101,7 +103,7 @@ describe("Portfolio Content", () => {
   });
 
   test("keeps introductions and page entries in their declared order", () => {
-    const { home, about, contact, work, play } = portfolioContent.pages;
+    const { home, about, contact, play } = portfolioContent.pages;
 
     expect(home.content.introduction).toEqual({
       role: "Senior Software Engineer",
@@ -116,13 +118,6 @@ describe("Portfolio Content", () => {
       "GitHub",
       "LinkedIn",
     ]);
-    expect(work.content.entries.map((entry) => entry.client)).toEqual([
-      "Levi's",
-      "Harrods",
-      "Fielmann",
-      "TenneT",
-      "fussball.de",
-    ]);
     expect(play.content.entries.map((entry) => entry.title)).toEqual([
       "Oh Chérie",
       "Airplane Mode",
@@ -133,17 +128,129 @@ describe("Portfolio Content", () => {
     ]);
   });
 
+  test("keeps Work records in the specified order", () => {
+    expect(
+      portfolioContent.pages.work.content.entries.map((entry) => entry.client),
+    ).toEqual([
+      "Levi's",
+      "Harrods",
+      "Fielmann",
+      "SCAYLE / ABOUT YOU",
+      "FIFA",
+      "TenneT",
+      "fussball.de",
+    ]);
+  });
+
+  test("keeps factual primary metadata with every Work record", () => {
+    expect(
+      portfolioContent.pages.work.content.entries.map(
+        (entry) => entry.primaryMetadata,
+      ),
+    ).toEqual([
+      "Commerce migration",
+      "Commerce delivery",
+      "Commerce platform",
+      "Commerce platform",
+      "Web platform",
+      "Web platform",
+      "Platform migration",
+    ]);
+  });
+
+  test("keeps Work destinations optional and marks draft descriptions for owner review", () => {
+    expect(
+      portfolioContent.pages.work.content.entries.map((entry) => ({
+        client: entry.client,
+        url: "url" in entry ? entry.url : undefined,
+        descriptionReview:
+          "descriptionReview" in entry ? entry.descriptionReview : undefined,
+      })),
+    ).toEqual([
+      {
+        client: "Levi's",
+        url: "https://www.scayle.com/customers/levi-strauss/",
+        descriptionReview: undefined,
+      },
+      {
+        client: "Harrods",
+        url: "https://www.scayle.com/customers/harrods/",
+        descriptionReview: undefined,
+      },
+      {
+        client: "Fielmann",
+        url: "https://www.scayle.com/case-studies/fielmann/",
+        descriptionReview: undefined,
+      },
+      {
+        client: "SCAYLE / ABOUT YOU",
+        url: "https://www.scayle.com/",
+        descriptionReview: undefined,
+      },
+      {
+        client: "FIFA",
+        url: "https://publications.fifa.com/en/talent-development/",
+        descriptionReview: undefined,
+      },
+      {
+        client: "TenneT",
+        url: "https://www.tennet.eu/",
+        descriptionReview: undefined,
+      },
+      {
+        client: "fussball.de",
+        url: "https://next.fussball.de/",
+        descriptionReview: undefined,
+      },
+    ]);
+  });
+
+  test("references official local Work marks with unique meaningful descriptions", () => {
+    const marks = portfolioContent.pages.work.content.entries.flatMap(
+      (entry) => entry.marks,
+    );
+
+    expect(marks.map((mark) => ({ src: mark.src, alt: mark.alt }))).toEqual([
+      { src: "/marks/levi.svg", alt: "Levi's red Batwing mark" },
+      { src: "/marks/harrods.svg", alt: "Harrods green wordmark" },
+      { src: "/marks/fielmann.svg", alt: "Fielmann black wordmark" },
+      {
+        src: "/marks/scayle.svg",
+        alt: "SCAYLE wordmark with green directional accents",
+      },
+      {
+        src: "/marks/about-you.svg",
+        alt: "ABOUT YOU black-and-white wordmark",
+      },
+      { src: "/marks/fifa.svg", alt: "FIFA blue wordmark" },
+      {
+        src: "/marks/tennet.svg",
+        alt: "TenneT blue-and-green wordmark",
+      },
+      {
+        src: "/marks/fussball-de.svg",
+        alt: "fussball.de green field mark",
+      },
+    ]);
+    expect(new Set(marks.map((mark) => mark.alt)).size).toBe(marks.length);
+    expect(
+      marks.every((mark) =>
+        existsSync(join(process.cwd(), "public", mark.src)),
+      ),
+    ).toBe(true);
+  });
+
   test("keeps required image sources and descriptions with Portfolio Content", () => {
     const images = [
-      ...portfolioContent.pages.work.content.entries.map(
-        (entry) => entry.image,
+      ...portfolioContent.pages.work.content.entries.flatMap(
+        (entry) => entry.marks,
       ),
       ...portfolioContent.pages.play.content.entries.map(
         (entry) => entry.cover,
       ),
     ];
 
-    expect(images).toHaveLength(11);
+    expect(images).toHaveLength(14);
     expect(
       images.every(
         (image) => Boolean(image.src) && image.alt.trim().length > 0,
