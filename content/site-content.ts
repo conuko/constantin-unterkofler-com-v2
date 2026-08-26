@@ -460,6 +460,8 @@ const portfolioPages = {
       order: 4,
     },
     content: {
+      introduction:
+        "When I'm not coding, you'll usually find me with a guitar in hand – whether that's tracking in the studio or playing live on stage with Das Maer and other local Berlin artists. Here’s a rotating selection of current tunes I'm playing and studying.",
       entries: trackEntries,
     },
   },

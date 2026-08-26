@@ -9,7 +9,12 @@ export const metadata: Metadata = play.metadata;
 
 export default function PlayPage() {
   return (
-    <PortfolioPage title={play.title}>
+    <PortfolioPage
+      title={play.title}
+      sectionCode="P"
+      width="collection"
+      introduction={<p>{play.content.introduction}</p>}
+    >
       <PlayPresentation entries={play.content.entries} />
     </PortfolioPage>
   );

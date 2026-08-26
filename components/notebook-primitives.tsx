@@ -186,16 +186,24 @@ type NotebookMediaLink = {
 
 type NotebookMediaProps = {
   children: ReactNode;
+  mediaClassName?: string;
   link?: NotebookMediaLink;
 };
 
-export function NotebookMedia({ children, link }: NotebookMediaProps) {
+export function NotebookMedia({
+  children,
+  mediaClassName,
+  link,
+}: NotebookMediaProps) {
   const field = (
     <m.div
       data-notebook-media-field
       whileHover={{ scale: "var(--notebook-media-hover-scale)" }}
       transition={notebookInteractionTransition}
-      className="relative flex aspect-video items-center justify-center overflow-hidden border border-media-field-rule bg-media-field p-7 shadow-media-field sm:p-10"
+      className={cn(
+        "relative flex aspect-video items-center justify-center overflow-hidden border border-media-field-rule bg-media-field p-7 shadow-media-field sm:p-10",
+        mediaClassName,
+      )}
     >
       {children}
     </m.div>
@@ -259,6 +267,57 @@ export function NotebookAnnotation({ children }: { children: ReactNode }) {
     >
       {children}
     </m.div>
+  );
+}
+
+type NotebookActionsProps = {
+  children: ReactNode;
+  label: string;
+};
+
+export function NotebookActions({ children, label }: NotebookActionsProps) {
+  return (
+    <m.ul
+      variants={notebookPartReveal}
+      data-entry-part="actions"
+      aria-label={label}
+      className="mt-5 flex flex-wrap gap-3"
+    >
+      {children}
+    </m.ul>
+  );
+}
+
+type NotebookActionProps = {
+  children: ReactNode;
+  className?: string;
+  href: string;
+  label: string;
+};
+
+export function NotebookAction({
+  children,
+  className,
+  href,
+  label,
+}: NotebookActionProps) {
+  return (
+    <li>
+      <m.a
+        href={href}
+        target="_blank"
+        rel="noreferrer noopener"
+        aria-label={label}
+        whileTap={{ scale: "var(--notebook-press-scale)" }}
+        transition={notebookInteractionTransition}
+        className={cn(
+          "label inline-flex min-h-9 items-center gap-2 border border-rule bg-card-glass px-3 py-2 text-micro text-ink-muted backdrop-blur-sm transition-colors duration-fast hover:border-ink hover:text-ink",
+          className,
+        )}
+      >
+        {children}
+      </m.a>
+    </li>
   );
 }
 
