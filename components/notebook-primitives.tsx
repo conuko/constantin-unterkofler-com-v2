@@ -1,13 +1,26 @@
 "use client";
 
-import { useInView, type Variants } from "motion/react";
+import {
+  animate,
+  useInView,
+  useReducedMotion,
+  type Variants,
+} from "motion/react";
 import * as m from "motion/react-m";
-import { createContext, type ReactNode, useContext, useRef } from "react";
+import {
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useRef,
+} from "react";
 import {
   createNotebookRecordReveal,
   notebookInteractionTransition,
-  notebookPageHeadingReveal,
-  notebookPageIntroductionReveal,
+  notebookPageHeadingClipHidden,
+  notebookPageHeadingClipVisible,
+  notebookPageHeadingRevealTransition,
+  notebookPageIdentityReveal,
   notebookPartReveal,
   notebookRuleReveal,
 } from "@/lib/notebook-motion";
@@ -44,6 +57,69 @@ type NotebookPageHeaderProps = {
 };
 
 const identitySettlementOpacity = 0.95;
+
+function NotebookPageHeading({
+  title,
+  onSettled,
+}: {
+  title: string;
+  onSettled?: () => void;
+}) {
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const onSettledRef = useRef(onSettled);
+  const prefersReducedMotion = useReducedMotion();
+  onSettledRef.current = onSettled;
+
+  useEffect(() => {
+    const heading = headingRef.current;
+    if (!heading) return;
+
+    if (prefersReducedMotion) {
+      heading.style.clipPath = notebookPageHeadingClipVisible;
+      onSettledRef.current?.();
+      return;
+    }
+
+    heading.style.clipPath = notebookPageHeadingClipHidden;
+    let stopped = false;
+    let controls: ReturnType<typeof animate> | undefined;
+
+    const frame = requestAnimationFrame(() => {
+      if (stopped) return;
+
+      controls = animate(
+        heading,
+        { clipPath: notebookPageHeadingClipVisible },
+        notebookPageHeadingRevealTransition,
+      );
+
+      void controls.then(() => {
+        if (!stopped) onSettledRef.current?.();
+      });
+    });
+
+    return () => {
+      stopped = true;
+      cancelAnimationFrame(frame);
+      controls?.stop();
+    };
+  }, [prefersReducedMotion]);
+
+  return (
+    <h1
+      ref={headingRef}
+      data-notebook-title
+      className="w-fit overflow-hidden font-heading text-5xl leading-none font-semibold tracking-tight lg:text-7xl"
+      style={{
+        clipPath: prefersReducedMotion
+          ? notebookPageHeadingClipVisible
+          : notebookPageHeadingClipHidden,
+      }}
+    >
+      {title}
+    </h1>
+  );
+}
 
 export function NotebookPageHeader({
   introduction,
@@ -86,22 +162,19 @@ export function NotebookPageHeader({
       className="flex w-full flex-col items-start"
     >
       <m.p
-        variants={notebookPageIntroductionReveal}
+        variants={notebookPageIdentityReveal}
         className="label mb-4 text-label text-ink-muted"
       >
         {sectionCode}
       </m.p>
-      <m.h1
-        variants={notebookPageHeadingReveal}
-        onUpdate={({ opacity }) => markIdentityPartVisible("title", opacity)}
-        onAnimationComplete={() => markIdentityPartSettled("title")}
-        className="font-heading text-5xl leading-none font-semibold tracking-tight lg:text-7xl"
-      >
-        {title}
-      </m.h1>
+      <NotebookPageHeading
+        key={title}
+        title={title}
+        onSettled={() => markIdentityPartSettled("title")}
+      />
       {introduction && (
         <m.div
-          variants={notebookPageIntroductionReveal}
+          variants={notebookPageIdentityReveal}
           onUpdate={({ opacity }) =>
             markIdentityPartVisible("introduction", opacity)
           }

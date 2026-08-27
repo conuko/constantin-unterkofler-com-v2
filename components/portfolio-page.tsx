@@ -7,7 +7,7 @@ import {
   NotebookPageHeader,
   NotebookPageIdentityProvider,
 } from "@/components/notebook-primitives";
-import { notebookEase } from "@/lib/notebook-motion";
+import { notebookPageIdentityReveal } from "@/lib/notebook-motion";
 import { cn } from "@/lib/utils/cn";
 
 type PortfolioPageProps = {
@@ -16,22 +16,6 @@ type PortfolioPageProps = {
   introduction?: ReactNode;
   children?: ReactNode;
   width?: "collection" | "standard" | "narrow";
-};
-
-const headingIn: Variants = {
-  hidden: {
-    opacity: "var(--motion-initial-opacity)",
-    clipPath: "var(--motion-initial-clip)",
-  },
-  visible: {
-    opacity: 1,
-    clipPath: "inset(-10% -10% -10% 0)",
-    transition: {
-      duration: 0.9,
-      ease: notebookEase,
-      opacity: { duration: 0.4, ease: "easeOut" },
-    },
-  },
 };
 
 const contentStagger: Variants = {
@@ -49,21 +33,6 @@ const pageIdentitySequence: Variants = {
   visible: {
     transition: {
       delayChildren: stagger(0.04, { startDelay: 0.04 }),
-    },
-  },
-};
-
-const introductionIn: Variants = {
-  hidden: {
-    opacity: "var(--motion-initial-opacity)",
-    filter: "var(--motion-initial-filter)",
-  },
-  visible: {
-    opacity: 1,
-    filter: "blur(0px)",
-    transition: {
-      duration: 0.7,
-      ease: notebookEase,
     },
   },
 };
@@ -100,7 +69,7 @@ export function PortfolioPage({
           />
         ) : (
           <m.h1
-            variants={headingIn}
+            variants={notebookPageIdentityReveal}
             className="font-heading text-center text-4xl leading-none font-semibold tracking-tight lg:text-6xl"
           >
             {title}
@@ -116,7 +85,7 @@ export function PortfolioPage({
           )}
         >
           {!sectionCode && introduction && (
-            <m.div variants={introductionIn}>{introduction}</m.div>
+            <m.div variants={notebookPageIdentityReveal}>{introduction}</m.div>
           )}
           {children}
         </m.div>
