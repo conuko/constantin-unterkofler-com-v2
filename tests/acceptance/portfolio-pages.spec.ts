@@ -781,6 +781,71 @@ test("About Portfolio Page presents the complete ordered CV", async ({
   }
 });
 
+const collectionPages = [
+  {
+    name: "Work",
+    path: "/work",
+    firstEntryTitle: "Levi's",
+  },
+  {
+    name: "Read",
+    path: "/read",
+    firstEntryTitle: "Tomorrow, and Tomorrow, and Tomorrow",
+  },
+  {
+    name: "Play",
+    path: "/play",
+    firstEntryTitle: "Oh Chérie",
+  },
+] as const;
+
+test("collection pages reveal their first records without scrolling on a short viewport", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 520 });
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await installNotebookMotionProbe(page);
+
+  for (const collectionPage of collectionPages) {
+    await test.step(collectionPage.name, async () => {
+      await page.goto(collectionPage.path);
+
+      await expect
+        .poll(() =>
+          page.evaluate(() => {
+            const motion = (window as NotebookMotionWindow).__notebookMotion;
+            return {
+              firstEntry: motion?.recordStarts[0],
+              identitySettled: motion?.identitySettledAt,
+              scrollY: window.scrollY,
+            };
+          }),
+        )
+        .toMatchObject({
+          firstEntry: expect.any(Number),
+          identitySettled: expect.any(Number),
+          scrollY: 0,
+        });
+
+      const firstRecordTitle = page
+        .getByRole("main")
+        .locator("article")
+        .first()
+        .locator('[data-entry-part="title"]');
+      await expect(firstRecordTitle).toHaveText(collectionPage.firstEntryTitle);
+      await expect
+        .poll(() =>
+          firstRecordTitle.evaluate(
+            (element) => getComputedStyle(element).opacity,
+          ),
+        )
+        .toBe("1");
+
+      expect(await page.evaluate(() => window.scrollY)).toBe(0);
+    });
+  }
+});
+
 test("Work page identity is perceptible and hands off directly to its entries", async ({
   page,
 }) => {

@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  animate,
-  useInView,
-  useReducedMotion,
-  type Variants,
-} from "motion/react";
+import { animate, useReducedMotion, type Variants } from "motion/react";
 import * as m from "motion/react-m";
 import {
   createContext,
@@ -199,18 +194,12 @@ export function NotebookCollection({
   variants,
   className,
 }: NotebookCollectionProps) {
-  const collectionRef = useRef<HTMLDivElement>(null);
-  const hasEnteredViewport = useInView(collectionRef, {
-    once: true,
-    amount: 0.08,
-  });
   const pageIdentitySettled = useContext(NotebookPageIdentityContext);
 
   return (
     <m.div
-      ref={collectionRef}
       initial="hidden"
-      animate={pageIdentitySettled && hasEnteredViewport ? "visible" : "hidden"}
+      animate={pageIdentitySettled ? "visible" : "hidden"}
       variants={variants}
       data-notebook-collection
       className={cn(
