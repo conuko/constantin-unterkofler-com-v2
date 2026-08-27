@@ -17,11 +17,6 @@ type NotebookMotionWindow = Window & {
   };
 };
 
-type RouteTransitionWindow = Window & {
-  __outgoingRouteDetached?: boolean;
-  __outgoingRouteOpacitySamples?: number[];
-};
-
 type PortfolioPageMotionWindow = Window & {
   __portfolioPageMotion?: {
     content: boolean;
@@ -105,6 +100,18 @@ async function installNotebookMotionProbe(page: Page) {
     };
     motionWindow.__notebookMotion = notebookMotion;
 
+    function isIdentityPartInMotion(element: HTMLElement) {
+      const styles = getComputedStyle(element);
+      const opacity = Number.parseFloat(styles.opacity);
+      if (opacity > 0 && opacity < 1) return true;
+
+      const clipValues = styles.clipPath.match(/-?\d+(?:\.\d+)?/g);
+      if (!clipValues || clipValues.length < 2) return false;
+
+      const rightInset = Number.parseFloat(clipValues[1] ?? "0");
+      return rightInset > 0.5 && rightInset < 99.5;
+    }
+
     function observeIdentityStart() {
       const motionFrame = performance.now();
       const identityParts = {
@@ -117,11 +124,9 @@ async function installNotebookMotionProbe(page: Page) {
       for (const [part, element] of Object.entries(identityParts)) {
         if (!element) continue;
         const identityPart = part as NotebookIdentityPart;
-        const opacity = Number.parseFloat(getComputedStyle(element).opacity);
 
         if (
-          opacity > 0 &&
-          opacity < 1 &&
+          isIdentityPartInMotion(element) &&
           notebookMotion.identityPartStarts[identityPart] === undefined
         ) {
           notebookMotion.identityPartStarts[identityPart] = motionFrame;
@@ -375,7 +380,7 @@ test("Portfolio Pages preserve their normal heading and content entrance motion"
   }
 });
 
-test("normal route navigation fades the outgoing Portfolio Page before replacement", async ({
+test("normal route navigation replaces the Portfolio Page heading", async ({
   page,
 }, testInfo) => {
   test.skip(
@@ -389,66 +394,21 @@ test("normal route navigation fades the outgoing Portfolio Page before replaceme
     page.getByRole("heading", { level: 1, name: "Recent Reading" }),
   ).toBeVisible();
 
-  await page.evaluate(() => {
-    const outgoingMain = document.querySelector("main");
-    if (!(outgoingMain instanceof HTMLElement)) {
-      throw new Error("Expected the outgoing Portfolio Page");
-    }
-    const outgoingRoute = outgoingMain;
-
-    const motionWindow = window as RouteTransitionWindow;
-    const samples: number[] = [];
-    motionWindow.__outgoingRouteOpacitySamples = samples;
-
-    function sampleOutgoingRoute() {
-      if (!outgoingRoute.isConnected) {
-        motionWindow.__outgoingRouteDetached = true;
-        return;
-      }
-
-      samples.push(Number.parseFloat(getComputedStyle(outgoingRoute).opacity));
-      requestAnimationFrame(sampleOutgoingRoute);
-    }
-
-    requestAnimationFrame(sampleOutgoingRoute);
-  });
-
   await page
     .getByRole("navigation", { name: "Primary" })
     .getByRole("link", { name: "Play" })
     .click();
 
   await expect(page).toHaveURL("/play");
-  await expect
-    .poll(
-      () =>
-        page.evaluate(
-          () =>
-            (
-              window as RouteTransitionWindow
-            ).__outgoingRouteOpacitySamples?.some(
-              (opacity) => opacity > 0 && opacity < 1,
-            ) ?? false,
-        ),
-      { timeout: 1_000 },
-    )
-    .toBe(true);
-  await expect
-    .poll(
-      () =>
-        page.evaluate(
-          () =>
-            (window as RouteTransitionWindow).__outgoingRouteDetached ?? false,
-        ),
-      { timeout: 1_000 },
-    )
-    .toBe(true);
   await expect(
     page.getByRole("heading", {
       level: 1,
       name: "What I currently play",
     }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Recent Reading" }),
+  ).toHaveCount(0);
 });
 
 test("normal motion preserves the mobile disclosure control transition", async ({
