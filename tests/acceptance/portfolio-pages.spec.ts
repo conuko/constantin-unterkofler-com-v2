@@ -1615,14 +1615,17 @@ test("Read Engineering Notebook presents its ordered responsive Recent Reading c
       .boundingBox();
     expect(mediaBox).not.toBeNull();
     if (!mediaBox) throw new Error("Expected portrait book artwork");
-    expect(mediaBox.height / mediaBox.width).toBeGreaterThan(1.45);
-    expect(
-      Math.abs(
-        mediaBox.height / mediaBox.width -
-          loadedCover.height / loadedCover.width,
-      ),
-    ).toBeLessThan(0.01);
+    expect(Math.abs(mediaBox.height / mediaBox.width - 3 / 2)).toBeLessThan(
+      0.02,
+    );
   }
+
+  const mediaHeights = await booksInOrder
+    .locator("[data-notebook-media-field]")
+    .evaluateAll((fields) =>
+      fields.map((field) => Math.round(field.getBoundingClientRect().height)),
+    );
+  expect(new Set(mediaHeights).size).toBe(1);
 
   const collection = main.locator("[data-notebook-collection]");
   const collectionStyle = await collection.evaluate((element) => {

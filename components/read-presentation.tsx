@@ -51,16 +51,17 @@ export function ReadPresentation({ entries }: ReadPresentationProps) {
         return (
           <NotebookRecord key={entry.title} sequence={readRecordSequence}>
             <NotebookIndex>{`R–${String(index + 1).padStart(2, "0")}`}</NotebookIndex>
-            <NotebookMedia mediaClassName="aspect-auto p-0 sm:p-0">
+            <NotebookMedia mediaClassName="aspect-2/3 p-0 sm:p-0">
               <Image
                 src={entry.cover.src}
                 alt={entry.cover.alt}
                 placeholder="blur"
                 loading={loadImmediately ? "eager" : "lazy"}
                 fetchPriority={loadImmediately ? "high" : undefined}
+                fill
                 sizes="(min-width: 1024px) 424px, (min-width: 768px) calc((100vw - 80px) / 2), calc(100vw - 48px)"
                 quality={85}
-                className="h-auto w-full"
+                className="object-cover"
               />
             </NotebookMedia>
             <NotebookTitle>{entry.title}</NotebookTitle>
