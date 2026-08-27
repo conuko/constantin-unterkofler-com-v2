@@ -503,7 +503,7 @@ const portfolioPages = {
     },
     primaryWayfinding: {
       label: "Contact",
-      order: 5,
+      order: 2,
     },
     content: {
       entries: contactLinks,
@@ -519,7 +519,7 @@ const portfolioPages = {
     },
     primaryWayfinding: {
       label: "Work",
-      order: 2,
+      order: 3,
     },
     content: {
       introduction:
@@ -529,7 +529,7 @@ const portfolioPages = {
   },
   read: {
     route: "/read",
-    title: "Recent Reading",
+    title: "What I recently read",
     metadata: {
       title: "Read",
       description:
@@ -537,11 +537,11 @@ const portfolioPages = {
     },
     primaryWayfinding: {
       label: "Read",
-      order: 3,
+      order: 4,
     },
     content: {
       introduction:
-        "The six books I completed most recently, ordered from newest to oldest.",
+        "I like to read books. Here are a couple of my recent reads. More to come.",
       entries: bookEntries,
     },
   },
@@ -554,7 +554,7 @@ const portfolioPages = {
     },
     primaryWayfinding: {
       label: "Play",
-      order: 4,
+      order: 5,
     },
     content: {
       introduction:

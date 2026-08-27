@@ -57,7 +57,7 @@ const portfolioPages = [
   {
     name: "Read",
     path: "/read",
-    heading: "Recent Reading",
+    heading: "What I recently read",
     representativeContent: "Tomorrow, and Tomorrow, and Tomorrow",
     representativeImageDescription:
       "Tomorrow, and Tomorrow, and Tomorrow cover with colorful stacked lettering over stylized ocean waves",
@@ -391,7 +391,7 @@ test("normal route navigation replaces the Portfolio Page heading", async ({
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("/read");
   await expect(
-    page.getByRole("heading", { level: 1, name: "Recent Reading" }),
+    page.getByRole("heading", { level: 1, name: "What I recently read" }),
   ).toBeVisible();
 
   await page
@@ -407,7 +407,7 @@ test("normal route navigation replaces the Portfolio Page heading", async ({
     }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { level: 1, name: "Recent Reading" }),
+    page.getByRole("heading", { level: 1, name: "What I recently read" }),
   ).toHaveCount(0);
 });
 

@@ -72,11 +72,18 @@ export const notebookPageIdentityReveal: Variants = {
   },
 };
 
-export const notebookPageHeadingClipHidden = "inset(0 100% 0 0)";
-export const notebookPageHeadingClipVisible = "inset(0 0% 0 0)";
-
-export const notebookPageHeadingRevealTransition = {
-  duration: 0.9,
-  ease: notebookEase,
-  delay: 0.08,
-} as const;
+export const notebookPageHeadingReveal: Variants = {
+  hidden: {
+    opacity: "var(--motion-initial-opacity)",
+    clipPath: "var(--motion-initial-clip)",
+  },
+  visible: {
+    opacity: 1,
+    clipPath: "inset(0 0% 0 0)",
+    transition: {
+      duration: 0.9,
+      ease: notebookEase,
+      opacity: { duration: 0.42, ease: notebookEase },
+    },
+  },
+};

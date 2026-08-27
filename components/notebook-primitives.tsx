@@ -1,20 +1,12 @@
 "use client";
 
-import { animate, useReducedMotion, type Variants } from "motion/react";
+import type { Variants } from "motion/react";
 import * as m from "motion/react-m";
-import {
-  createContext,
-  type ReactNode,
-  useContext,
-  useEffect,
-  useRef,
-} from "react";
+import { createContext, type ReactNode, useContext, useRef } from "react";
 import {
   createNotebookRecordReveal,
   notebookInteractionTransition,
-  notebookPageHeadingClipHidden,
-  notebookPageHeadingClipVisible,
-  notebookPageHeadingRevealTransition,
+  notebookPageHeadingReveal,
   notebookPageIdentityReveal,
   notebookPartReveal,
   notebookRuleReveal,
@@ -60,59 +52,23 @@ function NotebookPageHeading({
   title: string;
   onSettled?: () => void;
 }) {
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  const onSettledRef = useRef(onSettled);
-  const prefersReducedMotion = useReducedMotion();
-  onSettledRef.current = onSettled;
-
-  useEffect(() => {
-    const heading = headingRef.current;
-    if (!heading) return;
-
-    if (prefersReducedMotion) {
-      heading.style.clipPath = notebookPageHeadingClipVisible;
-      onSettledRef.current?.();
-      return;
-    }
-
-    heading.style.clipPath = notebookPageHeadingClipHidden;
-    let stopped = false;
-    let controls: ReturnType<typeof animate> | undefined;
-
-    const frame = requestAnimationFrame(() => {
-      if (stopped) return;
-
-      controls = animate(
-        heading,
-        { clipPath: notebookPageHeadingClipVisible },
-        notebookPageHeadingRevealTransition,
-      );
-
-      void controls.then(() => {
-        if (!stopped) onSettledRef.current?.();
-      });
-    });
-
-    return () => {
-      stopped = true;
-      cancelAnimationFrame(frame);
-      controls?.stop();
-    };
-  }, [prefersReducedMotion]);
-
   return (
-    <h1
-      ref={headingRef}
-      data-notebook-title
-      className="w-fit overflow-hidden font-heading text-5xl leading-none font-semibold tracking-tight lg:text-7xl"
-      style={{
-        clipPath: prefersReducedMotion
-          ? notebookPageHeadingClipVisible
-          : notebookPageHeadingClipHidden,
+    <m.h1
+      variants={notebookPageHeadingReveal}
+      onUpdate={({ opacity }) => {
+        if (
+          typeof opacity === "number" &&
+          opacity >= identitySettlementOpacity
+        ) {
+          onSettled?.();
+        }
       }}
+      onAnimationComplete={onSettled}
+      data-notebook-title
+      className="w-fit pr-2 font-heading text-5xl leading-none font-semibold tracking-tight lg:text-7xl"
     >
       {title}
-    </h1>
+    </m.h1>
   );
 }
 

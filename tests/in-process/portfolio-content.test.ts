@@ -42,7 +42,7 @@ describe("Portfolio Content", () => {
       },
       {
         route: "/read",
-        title: "Recent Reading",
+        title: "What I recently read",
         metadataTitle: "Read",
         hasMetadataDescription: true,
       },
@@ -67,17 +67,17 @@ describe("Portfolio Content", () => {
 
     expect(optedInPages).toEqual([
       { pageName: "about", label: "About me", order: 1 },
-      { pageName: "contact", label: "Contact", order: 5 },
-      { pageName: "work", label: "Work", order: 2 },
-      { pageName: "read", label: "Read", order: 3 },
-      { pageName: "play", label: "Play", order: 4 },
+      { pageName: "contact", label: "Contact", order: 2 },
+      { pageName: "work", label: "Work", order: 3 },
+      { pageName: "read", label: "Read", order: 4 },
+      { pageName: "play", label: "Play", order: 5 },
     ]);
     expect(portfolioContent.primaryWayfinding).toEqual([
       { href: "/about", label: "About me" },
+      { href: "/contact", label: "Contact" },
       { href: "/work", label: "Work" },
       { href: "/read", label: "Read" },
       { href: "/play", label: "Play" },
-      { href: "/contact", label: "Contact" },
     ]);
   });
 
