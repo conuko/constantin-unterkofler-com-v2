@@ -1,20 +1,20 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
+import { expectedRecentReading } from "@/tests/fixtures/recent-reading";
 
-type WorkMotionWindow = Window & {
-  __workFirstMainMotionAt?: number;
-  __workMotionStarts?: Record<number, number>;
+type WorkPostSettleWindow = Window & {
   __workMotionAfterSettle?: number;
-  __workPageIdentityMotionStarts?: Partial<
-    Record<"introduction" | "title", number>
-  >;
-  __workPageIdentitySettledAt?: number;
-  __workPartMotionStarts?: Record<string, number>;
 };
 
-type PlayMotionWindow = Window & {
-  __playMotionStarts?: Record<number, number>;
-  __playPageIdentitySettledAt?: number;
-  __playPartMotionOrder?: string[];
+type NotebookIdentityPart = "introduction" | "title";
+
+type NotebookMotionWindow = Window & {
+  __notebookMotion?: {
+    identitySettledAt?: number;
+    identityPartStarts: Partial<Record<NotebookIdentityPart, number>>;
+    recordStarts: Record<number, number>;
+    firstRecordPartOrder: string[];
+    firstRecordPartStarts: Record<string, number>;
+  };
 };
 
 type PortfolioPageMotionWindow = Window & {
@@ -55,6 +55,14 @@ const portfolioPages = [
     representativeImageDescription: "Levi's red Batwing mark",
   },
   {
+    name: "Read",
+    path: "/read",
+    heading: "What I recently read",
+    representativeContent: "Tomorrow, and Tomorrow, and Tomorrow",
+    representativeImageDescription:
+      "Tomorrow, and Tomorrow, and Tomorrow cover with colorful stacked lettering over stylized ocean waves",
+  },
+  {
     name: "Play",
     path: "/play",
     heading: "What I currently play",
@@ -64,10 +72,9 @@ const portfolioPages = [
   },
 ] as const;
 
-const primaryWayfinding = ["About me", "Contact", "Work", "Play"];
+const primaryWayfinding = ["About me", "Work", "Read", "Play", "Contact"];
 const maximumCollectionHandoffDelay = 100;
-const maximumPageIdentityStartDelay = 600;
-const minimumPageIdentitySequenceDuration = 700;
+const maximumIdentityMotionToCollectionDelay = 650;
 
 async function openMobileNavigation(page: Page): Promise<Locator> {
   const menuButton = page.getByRole("button", { name: "Open menu" });
@@ -79,6 +86,123 @@ async function openMobileNavigation(page: Page): Promise<Locator> {
   });
   await expect(navigation).toBeVisible();
   return navigation;
+}
+
+async function installNotebookMotionProbe(page: Page) {
+  await page.addInitScript(() => {
+    const motionWindow = window as NotebookMotionWindow;
+    const notebookMotion = {
+      recordStarts: {} as Record<number, number>,
+      firstRecordPartOrder: [] as string[],
+      firstRecordPartStarts: {} as Record<string, number>,
+      identitySettledAt: undefined as number | undefined,
+      identityPartStarts: {} as Partial<Record<NotebookIdentityPart, number>>,
+    };
+    motionWindow.__notebookMotion = notebookMotion;
+
+    function isIdentityPartInMotion(element: HTMLElement) {
+      const styles = getComputedStyle(element);
+      const opacity = Number.parseFloat(styles.opacity);
+      if (opacity > 0 && opacity < 1) return true;
+
+      const clipValues = styles.clipPath.match(/-?\d+(?:\.\d+)?/g);
+      if (!clipValues || clipValues.length < 2) return false;
+
+      const rightInset = Number.parseFloat(clipValues[1] ?? "0");
+      return rightInset > 0.5 && rightInset < 99.5;
+    }
+
+    function observeIdentityStart() {
+      const motionFrame = performance.now();
+      const identityParts = {
+        introduction: document.querySelector<HTMLElement>(
+          "[data-notebook-introduction]",
+        ),
+        title: document.querySelector<HTMLElement>("main h1"),
+      };
+
+      for (const [part, element] of Object.entries(identityParts)) {
+        if (!element) continue;
+        const identityPart = part as NotebookIdentityPart;
+
+        if (
+          isIdentityPartInMotion(element) &&
+          notebookMotion.identityPartStarts[identityPart] === undefined
+        ) {
+          notebookMotion.identityPartStarts[identityPart] = motionFrame;
+        }
+      }
+
+      if (Object.keys(notebookMotion.identityPartStarts).length < 2) {
+        requestAnimationFrame(observeIdentityStart);
+      }
+    }
+
+    new MutationObserver((mutations) => {
+      const motionFrame = performance.now();
+
+      for (const mutation of mutations) {
+        const target = mutation.target;
+        if (!(target instanceof HTMLElement)) continue;
+
+        if (target.dataset.pageIdentityState === "settled") {
+          notebookMotion.identitySettledAt ??= motionFrame;
+        }
+
+        const record = target.closest("article");
+        if (!record) continue;
+        const recordIndex = Array.from(
+          document.querySelectorAll("main article"),
+        ).indexOf(record);
+        const opacity = Number.parseFloat(getComputedStyle(target).opacity);
+        const partName = target.hasAttribute("data-notebook-record-rule")
+          ? "rule"
+          : target.getAttribute("data-entry-part");
+
+        if (
+          recordIndex >= 0 &&
+          partName === "index" &&
+          opacity > 0 &&
+          opacity < 1 &&
+          notebookMotion.recordStarts[recordIndex] === undefined
+        ) {
+          notebookMotion.recordStarts[recordIndex] = motionFrame;
+        }
+
+        if (
+          recordIndex === 0 &&
+          partName &&
+          opacity > 0 &&
+          opacity < 1 &&
+          !notebookMotion.firstRecordPartOrder.includes(partName)
+        ) {
+          notebookMotion.firstRecordPartOrder.push(partName);
+          notebookMotion.firstRecordPartStarts[partName] = motionFrame;
+        }
+      }
+    }).observe(document, {
+      attributes: true,
+      attributeFilter: ["data-page-identity-state", "style"],
+      subtree: true,
+    });
+
+    requestAnimationFrame(observeIdentityStart);
+  });
+}
+
+function ratingPositionsForTest(rating: number) {
+  return Array.from({ length: 5 }, (_, index) => index < rating);
+}
+
+function getFirstIdentityPartMotionStart(
+  identityPartStarts: Partial<Record<NotebookIdentityPart, number>>,
+) {
+  const motionStarts = Object.values(identityPartStarts);
+  if (motionStarts.length !== 2) {
+    throw new Error("Expected both Notebook identity parts to start");
+  }
+
+  return Math.min(...motionStarts);
 }
 
 async function sampleMobileDisclosureControlOpacity(
@@ -254,6 +378,37 @@ test("Portfolio Pages preserve their normal heading and content entrance motion"
       )
       .toBe(true);
   }
+});
+
+test("normal route navigation replaces the Portfolio Page heading", async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    Boolean(testInfo.project.use.isMobile),
+    "Desktop primary wayfinding path",
+  );
+
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/read");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "What I recently read" }),
+  ).toBeVisible();
+
+  await page
+    .getByRole("navigation", { name: "Primary" })
+    .getByRole("link", { name: "Play" })
+    .click();
+
+  await expect(page).toHaveURL("/play");
+  await expect(
+    page.getByRole("heading", {
+      level: 1,
+      name: "What I currently play",
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 1, name: "What I recently read" }),
+  ).toHaveCount(0);
 });
 
 test("normal motion preserves the mobile disclosure control transition", async ({
@@ -626,75 +781,86 @@ test("About Portfolio Page presents the complete ordered CV", async ({
   }
 });
 
+const collectionPages = [
+  {
+    name: "Work",
+    path: "/work",
+    firstEntryTitle: "Levi's",
+  },
+  {
+    name: "Read",
+    path: "/read",
+    firstEntryTitle: "Tomorrow, and Tomorrow, and Tomorrow",
+  },
+  {
+    name: "Play",
+    path: "/play",
+    firstEntryTitle: "Oh Chérie",
+  },
+] as const;
+
+test("collection pages reveal their first records without scrolling on a short viewport", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 520 });
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await installNotebookMotionProbe(page);
+
+  for (const collectionPage of collectionPages) {
+    await test.step(collectionPage.name, async () => {
+      await page.goto(collectionPage.path);
+
+      await expect
+        .poll(() =>
+          page.evaluate(() => {
+            const motion = (window as NotebookMotionWindow).__notebookMotion;
+            return {
+              firstEntry: motion?.recordStarts[0],
+              identitySettled: motion?.identitySettledAt,
+              scrollY: window.scrollY,
+            };
+          }),
+        )
+        .toMatchObject({
+          firstEntry: expect.any(Number),
+          identitySettled: expect.any(Number),
+          scrollY: 0,
+        });
+
+      const firstRecordTitle = page
+        .getByRole("main")
+        .locator("article")
+        .first()
+        .locator('[data-entry-part="title"]');
+      await expect(firstRecordTitle).toHaveText(collectionPage.firstEntryTitle);
+      await expect
+        .poll(() =>
+          firstRecordTitle.evaluate(
+            (element) => getComputedStyle(element).opacity,
+          ),
+        )
+        .toBe("1");
+
+      expect(await page.evaluate(() => window.scrollY)).toBe(0);
+    });
+  }
+});
+
 test("Work page identity is perceptible and hands off directly to its entries", async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
-  await page.addInitScript(() => {
-    const motionWindow = window as WorkMotionWindow;
-    const identityStarts: Partial<Record<"introduction" | "title", number>> =
-      {};
-    motionWindow.__workPageIdentityMotionStarts = identityStarts;
-
-    function observeMotion() {
-      const motionFrame = performance.now();
-      const identityParts = {
-        introduction: document.querySelector<HTMLElement>(
-          "[data-notebook-introduction]",
-        ),
-        title: document.querySelector<HTMLElement>("main h1"),
-      };
-
-      for (const [part, element] of Object.entries(identityParts)) {
-        if (!element) continue;
-        const identityPart = part as "introduction" | "title";
-        const opacity = Number.parseFloat(getComputedStyle(element).opacity);
-
-        if (opacity === 0) {
-          motionWindow.__workFirstMainMotionAt ??= motionFrame;
-        } else if (opacity < 1 && identityStarts[identityPart] === undefined) {
-          identityStarts[identityPart] = motionFrame;
-        }
-      }
-
-      const pageIdentity = document.querySelector<HTMLElement>(
-        "[data-page-identity-state]",
-      );
-      if (pageIdentity?.dataset.pageIdentityState === "settled") {
-        motionWindow.__workPageIdentitySettledAt ??= motionFrame;
-      }
-
-      const firstEntry = document.querySelector<HTMLElement>(
-        '[data-entry-part="index"]',
-      );
-      if (firstEntry) {
-        const opacity = Number.parseFloat(getComputedStyle(firstEntry).opacity);
-        if (opacity > 0 && opacity < 1) {
-          motionWindow.__workMotionStarts ??= { 0: motionFrame };
-        }
-      }
-
-      if (
-        Object.keys(identityStarts).length < 2 ||
-        motionWindow.__workPageIdentitySettledAt === undefined ||
-        motionWindow.__workMotionStarts?.[0] === undefined
-      ) {
-        requestAnimationFrame(observeMotion);
-      }
-    }
-
-    requestAnimationFrame(observeMotion);
-  });
+  await installNotebookMotionProbe(page);
 
   await page.goto("/work");
   await expect
     .poll(() =>
       page.evaluate(() => {
-        const motionWindow = window as WorkMotionWindow;
+        const motion = (window as NotebookMotionWindow).__notebookMotion;
         return {
-          firstEntry: motionWindow.__workMotionStarts?.[0],
-          identityStarts: motionWindow.__workPageIdentityMotionStarts,
-          identitySettled: motionWindow.__workPageIdentitySettledAt,
+          firstEntry: motion?.recordStarts[0],
+          identityStarts: motion?.identityPartStarts,
+          identitySettled: motion?.identitySettledAt,
         };
       }),
     )
@@ -708,25 +874,22 @@ test("Work page identity is perceptible and hands off directly to its entries", 
     });
 
   const timing = await page.evaluate(() => {
-    const motionWindow = window as WorkMotionWindow;
+    const motion = (window as NotebookMotionWindow).__notebookMotion;
     return {
-      firstEntry: motionWindow.__workMotionStarts?.[0] ?? 0,
-      firstMainMotion: motionWindow.__workFirstMainMotionAt ?? 0,
-      identitySettled: motionWindow.__workPageIdentitySettledAt ?? 0,
-      identityStarts: motionWindow.__workPageIdentityMotionStarts ?? {},
+      firstEntry: motion?.recordStarts[0] ?? 0,
+      identitySettled: motion?.identitySettledAt ?? 0,
+      identityStarts: motion?.identityPartStarts ?? {},
     };
   });
 
-  for (const identityPart of ["introduction", "title"] as const) {
-    expect(
-      (timing.identityStarts[identityPart] ?? 0) - timing.firstMainMotion,
-    ).toBeLessThan(maximumPageIdentityStartDelay);
-  }
-  const latestIdentityStart = Math.max(...Object.values(timing.identityStarts));
-  expect(timing.identitySettled - latestIdentityStart).toBeGreaterThanOrEqual(
-    minimumPageIdentitySequenceDuration,
+  const firstIdentityMotion = getFirstIdentityPartMotionStart(
+    timing.identityStarts,
   );
+  expect(timing.identitySettled).toBeGreaterThan(firstIdentityMotion);
   expect(timing.firstEntry).toBeGreaterThanOrEqual(timing.identitySettled);
+  expect(timing.firstEntry - firstIdentityMotion).toBeLessThan(
+    maximumIdentityMotionToCollectionDelay,
+  );
   expect(timing.firstEntry - timing.identitySettled).toBeLessThan(
     maximumCollectionHandoffDelay,
   );
@@ -736,6 +899,7 @@ test("Work Portfolio Page presents its ordered responsive project collection", a
   page,
 }, testInfo) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
+  await installNotebookMotionProbe(page);
 
   const projects = [
     {
@@ -784,98 +948,6 @@ test("Work Portfolio Page presents its ordered responsive project collection", a
       imageDescriptions: ["fussball.de green field mark"],
     },
   ];
-
-  await page.addInitScript(() => {
-    const motionWindow = window as WorkMotionWindow;
-    const workMotionStarts: Record<number, number> = {};
-    const workPageIdentityMotionStarts: Partial<
-      Record<"introduction" | "title", number>
-    > = {};
-    const workPartMotionStarts: Record<string, number> = {};
-    motionWindow.__workMotionStarts = workMotionStarts;
-    motionWindow.__workPageIdentityMotionStarts = workPageIdentityMotionStarts;
-    motionWindow.__workPartMotionStarts = workPartMotionStarts;
-
-    new MutationObserver((mutations) => {
-      const motionFrame = performance.now();
-
-      for (const mutation of mutations) {
-        const target = mutation.target;
-        if (!(target instanceof HTMLElement)) continue;
-
-        if (target.dataset.pageIdentityState === "settled") {
-          motionWindow.__workPageIdentitySettledAt ??= motionFrame;
-        }
-
-        const project = target.closest("article");
-        if (!project) continue;
-
-        const projectIndex = Array.from(
-          document.querySelectorAll("article"),
-        ).indexOf(project);
-        const opacity = Number.parseFloat(getComputedStyle(target).opacity);
-        const partName = target.hasAttribute("data-notebook-record-rule")
-          ? "rule"
-          : target.getAttribute("data-entry-part");
-
-        if (
-          projectIndex >= 0 &&
-          partName === "index" &&
-          opacity > 0 &&
-          opacity < 1 &&
-          workMotionStarts[projectIndex] === undefined
-        ) {
-          workMotionStarts[projectIndex] = motionFrame;
-        }
-
-        if (
-          projectIndex === 0 &&
-          partName &&
-          opacity > 0 &&
-          opacity < 1 &&
-          workPartMotionStarts[partName] === undefined
-        ) {
-          workPartMotionStarts[partName] = motionFrame;
-        }
-      }
-    }).observe(document, {
-      attributes: true,
-      attributeFilter: ["data-page-identity-state", "style"],
-      subtree: true,
-    });
-
-    function observePageIdentityMotion() {
-      const motionFrame = performance.now();
-      const identityParts = {
-        introduction: document.querySelector<HTMLElement>(
-          "[data-notebook-introduction]",
-        ),
-        title: document.querySelector<HTMLElement>("main h1"),
-      };
-
-      for (const [part, element] of Object.entries(identityParts)) {
-        if (!element) continue;
-        const opacity = Number.parseFloat(getComputedStyle(element).opacity);
-
-        if (opacity === 0) {
-          motionWindow.__workFirstMainMotionAt ??= motionFrame;
-        } else if (
-          opacity < 1 &&
-          workPageIdentityMotionStarts[part as "introduction" | "title"] ===
-            undefined
-        ) {
-          workPageIdentityMotionStarts[part as "introduction" | "title"] =
-            motionFrame;
-        }
-      }
-
-      if (Object.keys(workPageIdentityMotionStarts).length < 2) {
-        requestAnimationFrame(observePageIdentityMotion);
-      }
-    }
-
-    requestAnimationFrame(observePageIdentityMotion);
-  });
 
   await page.goto("/work");
 
@@ -1014,40 +1086,25 @@ test("Work Portfolio Page presents its ordered responsive project collection", a
     .poll(() =>
       page.evaluate(
         () =>
-          Object.keys((window as WorkMotionWindow).__workMotionStarts ?? {})
-            .length,
+          Object.keys(
+            (window as NotebookMotionWindow).__notebookMotion?.recordStarts ??
+              {},
+          ).length,
       ),
     )
     .toBe(projects.length);
-  const motionStarts = await page.evaluate(
-    () => (window as WorkMotionWindow).__workMotionStarts ?? {},
+  const motion = await page.evaluate(
+    () => (window as NotebookMotionWindow).__notebookMotion,
   );
-  const pageIdentitySettledAt = await page.evaluate(
-    () => (window as WorkMotionWindow).__workPageIdentitySettledAt,
+  expect(motion?.identitySettledAt).toBeDefined();
+  expect(motion?.recordStarts[0]).toBeGreaterThanOrEqual(
+    motion?.identitySettledAt ?? 0,
   );
-  const firstMainMotionAt = await page.evaluate(
-    () => (window as WorkMotionWindow).__workFirstMainMotionAt,
-  );
-  const pageIdentityMotionStarts = await page.evaluate(
-    () => (window as WorkMotionWindow).__workPageIdentityMotionStarts ?? {},
-  );
-  expect(firstMainMotionAt).toBeDefined();
-  expect(Object.keys(pageIdentityMotionStarts)).toHaveLength(2);
-  for (const identityMotionStart of Object.values(pageIdentityMotionStarts)) {
-    expect(identityMotionStart - (firstMainMotionAt ?? 0)).toBeLessThan(
-      maximumPageIdentityStartDelay,
-    );
-  }
-  expect(pageIdentitySettledAt).toBeDefined();
-  expect(motionStarts[0]).toBeGreaterThanOrEqual(pageIdentitySettledAt ?? 0);
   for (let projectIndex = 1; projectIndex < projects.length; projectIndex++) {
-    expect(motionStarts[projectIndex]).toBeGreaterThan(
-      motionStarts[projectIndex - 1],
+    expect(motion?.recordStarts[projectIndex]).toBeGreaterThan(
+      motion?.recordStarts[projectIndex - 1] ?? 0,
     );
   }
-  const workPartMotionStarts = await page.evaluate(
-    () => (window as WorkMotionWindow).__workPartMotionStarts ?? {},
-  );
   const partOrder = [
     "rule",
     "index",
@@ -1057,16 +1114,18 @@ test("Work Portfolio Page presents its ordered responsive project collection", a
     "annotation",
     "tags",
   ];
-  expect(Object.keys(workPartMotionStarts)).toHaveLength(partOrder.length);
+  expect(Object.keys(motion?.firstRecordPartStarts ?? {})).toHaveLength(
+    partOrder.length,
+  );
   for (let partIndex = 1; partIndex < partOrder.length; partIndex++) {
-    expect(workPartMotionStarts[partOrder[partIndex]]).toBeGreaterThan(
-      workPartMotionStarts[partOrder[partIndex - 1]],
+    expect(motion?.firstRecordPartStarts[partOrder[partIndex]]).toBeGreaterThan(
+      motion?.firstRecordPartStarts[partOrder[partIndex - 1]] ?? 0,
     );
   }
 
   await page.waitForTimeout(700);
   await page.evaluate(() => {
-    const motionWindow = window as WorkMotionWindow;
+    const motionWindow = window as WorkPostSettleWindow;
     motionWindow.__workMotionAfterSettle = 0;
     const workCollection = document.querySelector("[data-notebook-collection]");
     if (!workCollection) throw new Error("Expected the Work collection");
@@ -1095,7 +1154,7 @@ test("Work Portfolio Page presents its ordered responsive project collection", a
   await page.waitForTimeout(600);
   expect(
     await page.evaluate(
-      () => (window as WorkMotionWindow).__workMotionAfterSettle,
+      () => (window as WorkPostSettleWindow).__workMotionAfterSettle,
     ),
   ).toBe(0);
 
@@ -1225,6 +1284,7 @@ test("Play Engineering Notebook presents its ordered responsive track collection
   page,
 }, testInfo) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
+  await installNotebookMotionProbe(page);
 
   const tracks = [
     {
@@ -1299,61 +1359,6 @@ test("Play Engineering Notebook presents its ordered responsive track collection
         "Jeff Beck playing guitar on the Live at Ronnie Scott's cover",
     },
   ];
-
-  await page.addInitScript(() => {
-    const motionWindow = window as PlayMotionWindow;
-    const playMotionStarts: Record<number, number> = {};
-    const playPartMotionOrder: string[] = [];
-    motionWindow.__playMotionStarts = playMotionStarts;
-    motionWindow.__playPartMotionOrder = playPartMotionOrder;
-
-    new MutationObserver((mutations) => {
-      const motionFrame = performance.now();
-
-      for (const mutation of mutations) {
-        const target = mutation.target;
-        if (!(target instanceof HTMLElement)) continue;
-
-        if (target.dataset.pageIdentityState === "settled") {
-          motionWindow.__playPageIdentitySettledAt ??= motionFrame;
-        }
-
-        const track = target.closest("article");
-        if (!track) continue;
-        const trackIndex = Array.from(
-          document.querySelectorAll("main article"),
-        ).indexOf(track);
-        const opacity = Number.parseFloat(getComputedStyle(target).opacity);
-        const partName = target.hasAttribute("data-notebook-record-rule")
-          ? "rule"
-          : target.getAttribute("data-entry-part");
-
-        if (
-          trackIndex >= 0 &&
-          partName === "index" &&
-          opacity > 0 &&
-          opacity < 1 &&
-          playMotionStarts[trackIndex] === undefined
-        ) {
-          playMotionStarts[trackIndex] = motionFrame;
-        }
-
-        if (
-          trackIndex === 0 &&
-          partName &&
-          opacity > 0 &&
-          opacity < 1 &&
-          !playPartMotionOrder.includes(partName)
-        ) {
-          playPartMotionOrder.push(partName);
-        }
-      }
-    }).observe(document, {
-      attributes: true,
-      attributeFilter: ["data-page-identity-state", "style"],
-      subtree: true,
-    });
-  });
 
   await page.goto("/play");
 
@@ -1502,22 +1507,31 @@ test("Play Engineering Notebook presents its ordered responsive track collection
     .poll(() =>
       page.evaluate(
         () =>
-          Object.keys((window as PlayMotionWindow).__playMotionStarts ?? {})
-            .length,
+          Object.keys(
+            (window as NotebookMotionWindow).__notebookMotion?.recordStarts ??
+              {},
+          ).length,
       ),
     )
     .toBe(tracks.length);
-  const motionStarts = await page.evaluate(
-    () => (window as PlayMotionWindow).__playMotionStarts ?? {},
+  const motion = await page.evaluate(
+    () => (window as NotebookMotionWindow).__notebookMotion,
   );
-  const pageIdentitySettledAt = await page.evaluate(
-    () => (window as PlayMotionWindow).__playPageIdentitySettledAt,
+  expect(motion?.identitySettledAt).toBeDefined();
+  expect(Object.keys(motion?.identityPartStarts ?? {})).toHaveLength(2);
+  expect(motion?.recordStarts[0]).toBeGreaterThanOrEqual(
+    motion?.identitySettledAt ?? 0,
   );
-  expect(pageIdentitySettledAt).toBeDefined();
-  expect(motionStarts[0]).toBeGreaterThanOrEqual(pageIdentitySettledAt ?? 0);
+  expect(
+    (motion?.recordStarts[0] ?? 0) - (motion?.identitySettledAt ?? 0),
+  ).toBeLessThan(maximumCollectionHandoffDelay);
+  expect(
+    (motion?.recordStarts[0] ?? 0) -
+      getFirstIdentityPartMotionStart(motion?.identityPartStarts ?? {}),
+  ).toBeLessThan(maximumIdentityMotionToCollectionDelay);
   for (let trackIndex = 1; trackIndex < tracks.length; trackIndex++) {
-    expect(motionStarts[trackIndex]).toBeGreaterThan(
-      motionStarts[trackIndex - 1],
+    expect(motion?.recordStarts[trackIndex]).toBeGreaterThan(
+      motion?.recordStarts[trackIndex - 1] ?? 0,
     );
   }
 
@@ -1530,11 +1544,7 @@ test("Play Engineering Notebook presents its ordered responsive track collection
     "annotation",
     "actions",
   ];
-  expect(
-    await page.evaluate(
-      () => (window as PlayMotionWindow).__playPartMotionOrder ?? [],
-    ),
-  ).toEqual(partOrder);
+  expect(motion?.firstRecordPartOrder).toEqual(partOrder);
 
   const firstTrack = tracksInOrder.first();
   const firstSpotifyLink = firstTrack.getByRole("link", {
@@ -1567,6 +1577,266 @@ test("Play Engineering Notebook presents its ordered responsive track collection
         firstTrack.evaluate((element) => getComputedStyle(element).transform),
       )
       .not.toBe("none");
+  }
+});
+
+test("Read Engineering Notebook presents its ordered responsive Recent Reading collection", async ({
+  page,
+}, testInfo) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await installNotebookMotionProbe(page);
+
+  const books = expectedRecentReading.map((book) => {
+    const [year, month] = book.completedAt.split("-");
+
+    return {
+      ...book,
+      completed: `${month}/${year}`,
+      rating: book.personalRating,
+    };
+  });
+
+  await page.goto("/read");
+
+  const main = page.getByRole("main");
+  await expect(main.getByText("R", { exact: true })).toBeVisible();
+  await expect(main.locator("[data-notebook-header-rule]")).toBeVisible();
+
+  const booksInOrder = main.locator("article");
+  await expect(booksInOrder).toHaveCount(books.length);
+  await expect(booksInOrder.getByRole("heading", { level: 2 })).toHaveText(
+    books.map(({ title }) => title),
+  );
+
+  for (const [index, book] of books.entries()) {
+    const renderedBook = booksInOrder.nth(index);
+
+    await expect(
+      renderedBook.getByText(`R–${String(index + 1).padStart(2, "0")}`, {
+        exact: true,
+      }),
+    ).toBeVisible();
+    expect(
+      await renderedBook
+        .locator(":scope > [data-entry-part]")
+        .evaluateAll((parts) =>
+          parts.map((part) => part.getAttribute("data-entry-part")),
+        ),
+    ).toEqual(["index", "media", "title", "metadata", "annotation"]);
+    await expect(
+      renderedBook
+        .locator('[data-entry-part="metadata"]')
+        .getByText(book.author, { exact: true }),
+    ).toBeVisible();
+    await expect(
+      renderedBook.getByText(book.completed, { exact: true }),
+    ).toBeVisible();
+    await expect(
+      renderedBook.getByText(`${book.rating} out of 5`, { exact: true }),
+    ).toBeAttached();
+
+    const ratingStars = renderedBook.locator("[data-rating-star]");
+    await expect(ratingStars).toHaveCount(5);
+    expect(
+      await ratingStars.evaluateAll((stars) =>
+        stars.map((star) => ({
+          fill: star.getAttribute("fill"),
+          tagName: star.tagName.toLowerCase(),
+        })),
+      ),
+    ).toEqual(
+      ratingPositionsForTest(book.rating).map((filled) => ({
+        fill: filled ? "currentColor" : "none",
+        tagName: "svg",
+      })),
+    );
+    await expect(
+      renderedBook.locator('[data-rating-star][data-filled="true"]'),
+    ).toHaveCount(book.rating);
+    await expect(
+      renderedBook.locator('[data-rating-star][data-filled="false"]'),
+    ).toHaveCount(5 - book.rating);
+
+    const cover = renderedBook.getByRole("img", {
+      name: book.imageDescription,
+    });
+    await expect(cover).toBeVisible();
+    await cover.scrollIntoViewIfNeeded();
+    await expect
+      .poll(() =>
+        cover.evaluate((image) => (image as HTMLImageElement).naturalWidth),
+      )
+      .toBeGreaterThan(0);
+    const loadedCover = await cover.evaluate((image) => ({
+      currentSrc: (image as HTMLImageElement).currentSrc,
+      height: (image as HTMLImageElement).naturalHeight,
+      width: (image as HTMLImageElement).naturalWidth,
+    }));
+    expect(loadedCover.currentSrc).toContain("/_next/image?");
+    expect(loadedCover.height).toBeGreaterThan(0);
+
+    const mediaBox = await renderedBook
+      .locator("[data-notebook-media-field]")
+      .boundingBox();
+    expect(mediaBox).not.toBeNull();
+    if (!mediaBox) throw new Error("Expected portrait book artwork");
+    expect(Math.abs(mediaBox.height / mediaBox.width - 3 / 2)).toBeLessThan(
+      0.02,
+    );
+  }
+
+  const mediaHeights = await booksInOrder
+    .locator("[data-notebook-media-field]")
+    .evaluateAll((fields) =>
+      fields.map((field) => Math.round(field.getBoundingClientRect().height)),
+    );
+  expect(new Set(mediaHeights).size).toBe(1);
+
+  const collection = main.locator("[data-notebook-collection]");
+  const collectionStyle = await collection.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      columnCount: style.gridTemplateColumns.split(" ").length,
+      columnGap: style.columnGap,
+      rowGap: style.rowGap,
+    };
+  });
+  expect(collectionStyle).toEqual({
+    columnCount: testInfo.project.use.isMobile ? 1 : 2,
+    columnGap: testInfo.project.use.isMobile ? "32px" : "48px",
+    rowGap: testInfo.project.use.isMobile ? "56px" : "72px",
+  });
+
+  const collectionBox = await collection.boundingBox();
+  expect(collectionBox).not.toBeNull();
+  if (!collectionBox) throw new Error("Expected the Read collection");
+  if (!testInfo.project.use.isMobile) {
+    expect(collectionBox.width).toBeLessThanOrEqual(896);
+  }
+
+  const imageLoading = await booksInOrder.locator("img").evaluateAll((images) =>
+    images.map((image) => ({
+      fetchPriority: (image as HTMLImageElement).fetchPriority,
+      loading: (image as HTMLImageElement).loading,
+    })),
+  );
+  expect(imageLoading).toEqual([
+    { fetchPriority: "high", loading: "eager" },
+    { fetchPriority: "high", loading: "eager" },
+    { fetchPriority: "auto", loading: "lazy" },
+    { fetchPriority: "auto", loading: "lazy" },
+    { fetchPriority: "auto", loading: "lazy" },
+    { fetchPriority: "auto", loading: "lazy" },
+  ]);
+
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          Object.keys(
+            (window as NotebookMotionWindow).__notebookMotion?.recordStarts ??
+              {},
+          ).length,
+      ),
+    )
+    .toBe(books.length);
+  const motion = await page.evaluate(
+    () => (window as NotebookMotionWindow).__notebookMotion,
+  );
+  expect(motion?.identitySettledAt).toBeDefined();
+  expect(Object.keys(motion?.identityPartStarts ?? {})).toHaveLength(2);
+  expect(motion?.recordStarts[0]).toBeGreaterThanOrEqual(
+    motion?.identitySettledAt ?? 0,
+  );
+  expect(
+    (motion?.recordStarts[0] ?? 0) - (motion?.identitySettledAt ?? 0),
+  ).toBeLessThan(maximumCollectionHandoffDelay);
+  expect(
+    (motion?.recordStarts[0] ?? 0) -
+      getFirstIdentityPartMotionStart(motion?.identityPartStarts ?? {}),
+  ).toBeLessThan(maximumIdentityMotionToCollectionDelay);
+  for (let bookIndex = 1; bookIndex < books.length; bookIndex++) {
+    expect(motion?.recordStarts[bookIndex]).toBeGreaterThan(
+      motion?.recordStarts[bookIndex - 1] ?? 0,
+    );
+  }
+  expect(motion?.firstRecordPartOrder).toEqual([
+    "rule",
+    "index",
+    "media",
+    "title",
+    "metadata",
+    "annotation",
+  ]);
+});
+
+test("Read remains keyboard reachable and legible in light and dark themes", async ({
+  page,
+}, testInfo) => {
+  await page.goto("/");
+
+  if (testInfo.project.use.isMobile) {
+    const menuButton = page.getByRole("button", { name: "Open menu" });
+    for (let tabIndex = 0; tabIndex < 6; tabIndex++) {
+      if (
+        await menuButton.evaluate((button) => button === document.activeElement)
+      )
+        break;
+      await page.keyboard.press("Tab");
+    }
+    await expect(menuButton).toBeFocused();
+    await page.keyboard.press("Enter");
+  }
+
+  const navigation = testInfo.project.use.isMobile
+    ? page.getByRole("navigation", { name: "Mobile navigation" })
+    : page.getByRole("navigation", { name: "Primary" });
+  const readLink = navigation.getByRole("link", { name: "Read" });
+  for (let tabIndex = 0; tabIndex < 12; tabIndex++) {
+    if (await readLink.evaluate((link) => link === document.activeElement))
+      break;
+    await page.keyboard.press("Tab");
+  }
+  await expect(readLink).toBeFocused();
+  expect(
+    await readLink.evaluate(
+      (element) => getComputedStyle(element).outlineStyle,
+    ),
+  ).not.toBe("none");
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL("/read");
+
+  for (const theme of ["light", "dark"] as const) {
+    await page.evaluate((nextTheme) => {
+      localStorage.setItem("theme", nextTheme);
+    }, theme);
+    await page.reload();
+
+    await expect(page.locator("html")).toHaveClass(new RegExp(theme));
+    await expect(page.getByRole("main").locator("article")).toHaveCount(6);
+    await expect(
+      page.getByRole("img", {
+        name: "Tomorrow, and Tomorrow, and Tomorrow cover with colorful stacked lettering over stylized ocean waves",
+      }),
+    ).toBeVisible();
+
+    const partiallyFilledRating = page
+      .getByRole("main")
+      .locator("article")
+      .nth(1);
+    const [filledColor, emptyColor] = await Promise.all([
+      partiallyFilledRating
+        .locator('[data-rating-star][data-filled="true"]')
+        .first()
+        .evaluate((star) => getComputedStyle(star).color),
+      partiallyFilledRating
+        .locator('[data-rating-star][data-filled="false"]')
+        .evaluate((star) => getComputedStyle(star).color),
+    ]);
+    expect(filledColor).not.toBe(emptyColor);
+    await expect(
+      partiallyFilledRating.getByText("4 out of 5", { exact: true }),
+    ).toBeAttached();
   }
 });
 

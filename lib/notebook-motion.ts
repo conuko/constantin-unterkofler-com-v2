@@ -57,6 +57,21 @@ export const notebookRuleReveal: Variants = {
   },
 };
 
+export const notebookPageIdentityReveal: Variants = {
+  hidden: {
+    opacity: "var(--motion-initial-opacity)",
+    y: "var(--motion-initial-y)",
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.42,
+      ease: notebookEase,
+    },
+  },
+};
+
 export const notebookPageHeadingReveal: Variants = {
   hidden: {
     opacity: "var(--motion-initial-opacity)",
@@ -64,26 +79,11 @@ export const notebookPageHeadingReveal: Variants = {
   },
   visible: {
     opacity: 1,
-    clipPath: "inset(-10% -10% -10% 0)",
+    clipPath: "inset(0 0% 0 0)",
     transition: {
       duration: 0.9,
       ease: notebookEase,
-      opacity: { duration: 0.65, ease: notebookEase },
-    },
-  },
-};
-
-export const notebookPageIntroductionReveal: Variants = {
-  hidden: {
-    opacity: "var(--motion-initial-opacity)",
-    filter: "var(--motion-initial-filter)",
-  },
-  visible: {
-    opacity: 1,
-    filter: "blur(0px)",
-    transition: {
-      duration: 0.75,
-      ease: notebookEase,
+      opacity: { duration: 0.42, ease: notebookEase },
     },
   },
 };

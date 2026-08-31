@@ -7,8 +7,7 @@
   --motion-initial-scale: 0.95;
   --motion-initial-x: 8px;
   --motion-initial-y: -8px;
-  --motion-initial-clip: inset(-10% 100% -10% 0);
-  --motion-initial-filter: blur(3px);
+  --motion-initial-clip: inset(0 100% 0 0);
   --motion-initial-rule-scale: 0;
   --notebook-hover-y: -2px;
   --notebook-media-hover-scale: 1.008;
@@ -41,8 +40,7 @@ body {
     --motion-initial-scale: 1;
     --motion-initial-x: 0px;
     --motion-initial-y: 0px;
-    --motion-initial-clip: inset(-10% -10% -10% 0);
-    --motion-initial-filter: blur(0px);
+    --motion-initial-clip: inset(0 0% 0 0);
     --motion-initial-rule-scale: 1;
     --notebook-hover-y: 0px;
     --notebook-media-hover-scale: 1;

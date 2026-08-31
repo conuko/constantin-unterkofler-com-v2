@@ -16,9 +16,10 @@ const defaultTransition = {
 
 type MotionLayoutProps = {
   children: ReactNode;
+  header: ReactNode;
 };
 
-export function MotionLayout({ children }: MotionLayoutProps) {
+export function MotionLayout({ children, header }: MotionLayoutProps) {
   return (
     <ThemeProvider
       attribute="class"
@@ -33,7 +34,14 @@ export function MotionLayout({ children }: MotionLayoutProps) {
           </a>
 
           <div className="w-full p-6 flex flex-1 flex-col">
-            {children}
+            {header}
+
+            <main
+              id="main-content"
+              className="mx-auto w-full max-w-270 flex-1 pb-16"
+            >
+              {children}
+            </main>
 
             <m.footer
               initial={{ opacity: "var(--motion-initial-opacity)" }}

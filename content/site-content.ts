@@ -1,4 +1,10 @@
 import type { StaticImageData } from "next/image";
+import coverALittleLife from "@/content/books/a-little-life.jpg";
+import coverDieDunkleSeiteDesMondes from "@/content/books/die-dunkle-seite-des-mondes.jpg";
+import coverPresumedInnocent from "@/content/books/presumed-innocent.jpg";
+import coverTheBlackEcho from "@/content/books/the-black-echo.webp";
+import coverTheThreeBodyProblem from "@/content/books/the-three-body-problem.jpg";
+import coverTomorrowAndTomorrowAndTomorrow from "@/content/books/tomorrow-and-tomorrow-and-tomorrow.jpg";
 import coverElevatorMusic from "@/content/covers/elevator-music.jpg";
 import coverLiveAtRonnieScotts from "@/content/covers/live-at-ronnie-scotts.jpg";
 import coverOhCherie from "@/content/covers/oh-cherie.jpg";
@@ -35,6 +41,16 @@ export type TrackEntry = {
   cover: ContentImage;
   spotifyUrl: string;
   appleMusicUrl: string;
+};
+
+export type PersonalRating = 0 | 1 | 2 | 3 | 4 | 5;
+
+export type BookEntry = {
+  title: string;
+  author: string;
+  completedAt: `${number}-${number}`;
+  personalRating: PersonalRating;
+  cover: ContentImage;
 };
 
 export type WorkEntry = {
@@ -194,6 +210,69 @@ const trackEntries: TrackEntry[] = [
     spotifyUrl: "https://open.spotify.com/search/Stratus%20Jeff%20Beck",
     appleMusicUrl:
       "https://music.apple.com/us/search?term=Stratus%20Jeff%20Beck",
+  },
+];
+
+const bookEntries: BookEntry[] = [
+  {
+    title: "Tomorrow, and Tomorrow, and Tomorrow",
+    author: "Gabrielle Zevin",
+    completedAt: "2026-08",
+    personalRating: 5,
+    cover: {
+      src: coverTomorrowAndTomorrowAndTomorrow,
+      alt: "Tomorrow, and Tomorrow, and Tomorrow cover with colorful stacked lettering over stylized ocean waves",
+    },
+  },
+  {
+    title: "The Black Echo",
+    author: "Michael Connelly",
+    completedAt: "2026-06",
+    personalRating: 4,
+    cover: {
+      src: coverTheBlackEcho,
+      alt: "The Black Echo cover with Michael Connelly's name above a silhouetted figure in a tunnel",
+    },
+  },
+  {
+    title: "The Three-Body Problem",
+    author: "Liu Cixin",
+    completedAt: "2026-05",
+    personalRating: 4,
+    cover: {
+      src: coverTheThreeBodyProblem,
+      alt: "The Three-Body Problem cover with a translucent pyramid beneath three celestial bodies",
+    },
+  },
+  {
+    title: "A Little Life",
+    author: "Hanya Yanagihara",
+    completedAt: "2026-04",
+    personalRating: 4,
+    cover: {
+      src: coverALittleLife,
+      alt: "A Little Life cover with a blue-toned close-up portrait",
+    },
+  },
+  {
+    title: "Presumed Innocent",
+    author: "Scott Turow",
+    completedAt: "2026-02",
+    personalRating: 3,
+    cover: {
+      src: coverPresumedInnocent,
+      alt: "Presumed Innocent cover with Scott Turow's name above a shadowed profile",
+    },
+  },
+  {
+    title: "Die dunkle Seite des Mondes",
+    author: "Martin Suter",
+    completedAt: "2026-02",
+    personalRating: 5,
+    cover: {
+      src: coverDieDunkleSeiteDesMondes,
+      alt: "Die dunkle Seite des Mondes cover with a colorful forest illustration on a cream field",
+    },
   },
 ];
 
@@ -448,6 +527,24 @@ const portfolioPages = {
       entries: workEntries,
     },
   },
+  read: {
+    route: "/read",
+    title: "What I recently read",
+    metadata: {
+      title: "Read",
+      description:
+        "The six books most recently completed by Constantin Unterkofler, with personal ratings.",
+    },
+    primaryWayfinding: {
+      label: "Read",
+      order: 4,
+    },
+    content: {
+      introduction:
+        "I like to read books. Here are a couple of my recent reads. More to come.",
+      entries: bookEntries,
+    },
+  },
   play: {
     route: "/play",
     title: "What I currently play",
@@ -457,7 +554,7 @@ const portfolioPages = {
     },
     primaryWayfinding: {
       label: "Play",
-      order: 4,
+      order: 5,
     },
     content: {
       introduction:

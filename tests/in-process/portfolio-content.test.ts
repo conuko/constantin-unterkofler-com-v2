@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 import { portfolioContent } from "@/content/site-content";
+import { expectedRecentReading } from "@/tests/fixtures/recent-reading";
 
 describe("Portfolio Content", () => {
   test("defines every Portfolio Page with a unique route, title, and metadata", () => {
@@ -40,6 +41,12 @@ describe("Portfolio Content", () => {
         hasMetadataDescription: true,
       },
       {
+        route: "/read",
+        title: "What I recently read",
+        metadataTitle: "Read",
+        hasMetadataDescription: true,
+      },
+      {
         route: "/play",
         title: "What I currently play",
         metadataTitle: "Play",
@@ -62,12 +69,14 @@ describe("Portfolio Content", () => {
       { pageName: "about", label: "About me", order: 1 },
       { pageName: "contact", label: "Contact", order: 2 },
       { pageName: "work", label: "Work", order: 3 },
-      { pageName: "play", label: "Play", order: 4 },
+      { pageName: "read", label: "Read", order: 4 },
+      { pageName: "play", label: "Play", order: 5 },
     ]);
     expect(portfolioContent.primaryWayfinding).toEqual([
       { href: "/about", label: "About me" },
       { href: "/contact", label: "Contact" },
       { href: "/work", label: "Work" },
+      { href: "/read", label: "Read" },
       { href: "/play", label: "Play" },
     ]);
   });
@@ -126,6 +135,43 @@ describe("Portfolio Content", () => {
       "Ace of Aces",
       "Stratus",
     ]);
+  });
+
+  test("keeps exactly six Recent Reading records newest first with valid Personal Ratings and local covers", () => {
+    const entries = portfolioContent.pages.read.content.entries;
+
+    expect(
+      entries.map((entry) => ({
+        title: entry.title,
+        author: entry.author,
+        completedAt: entry.completedAt,
+        personalRating: entry.personalRating,
+        imageDescription: entry.cover.alt,
+      })),
+    ).toEqual(expectedRecentReading);
+    expect(entries).toHaveLength(6);
+    expect(
+      entries.every(
+        (entry) =>
+          Number.isInteger(entry.personalRating) &&
+          entry.personalRating >= 0 &&
+          entry.personalRating <= 5,
+      ),
+    ).toBe(true);
+    expect(entries.map((entry) => entry.completedAt)).toEqual(
+      entries
+        .map((entry) => entry.completedAt)
+        .toSorted((left, right) => right.localeCompare(left)),
+    );
+    expect(new Set(entries.map((entry) => entry.cover.alt)).size).toBe(
+      entries.length,
+    );
+    expect(
+      entries.every(
+        (entry) =>
+          Boolean(entry.cover.src) && entry.cover.alt.trim().length > 20,
+      ),
+    ).toBe(true);
   });
 
   test("keeps exact musical metadata and listening actions with every Play record", () => {

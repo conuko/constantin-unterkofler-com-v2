@@ -1,13 +1,13 @@
 "use client";
 
-import { useInView, type Variants } from "motion/react";
+import type { Variants } from "motion/react";
 import * as m from "motion/react-m";
 import { createContext, type ReactNode, useContext, useRef } from "react";
 import {
   createNotebookRecordReveal,
   notebookInteractionTransition,
   notebookPageHeadingReveal,
-  notebookPageIntroductionReveal,
+  notebookPageIdentityReveal,
   notebookPartReveal,
   notebookRuleReveal,
 } from "@/lib/notebook-motion";
@@ -43,6 +43,35 @@ type NotebookPageHeaderProps = {
   onIdentitySettled?: () => void;
 };
 
+const identitySettlementOpacity = 0.95;
+
+function NotebookPageHeading({
+  title,
+  onSettled,
+}: {
+  title: string;
+  onSettled?: () => void;
+}) {
+  return (
+    <m.h1
+      variants={notebookPageHeadingReveal}
+      onUpdate={({ opacity }) => {
+        if (
+          typeof opacity === "number" &&
+          opacity >= identitySettlementOpacity
+        ) {
+          onSettled?.();
+        }
+      }}
+      onAnimationComplete={onSettled}
+      data-notebook-title
+      className="w-fit pr-2 font-heading text-5xl leading-none font-semibold tracking-tight lg:text-7xl"
+    >
+      {title}
+    </m.h1>
+  );
+}
+
 export function NotebookPageHeader({
   introduction,
   sectionCode,
@@ -51,20 +80,29 @@ export function NotebookPageHeader({
   onIdentitySettled,
 }: NotebookPageHeaderProps) {
   const identityProgress = useRef({
-    completedParts: new Set<"introduction" | "title">(),
+    settledParts: new Set<"introduction" | "title">(),
     notified: false,
   });
 
-  function markIdentityPartComplete(part: "introduction" | "title") {
-    identityProgress.current.completedParts.add(part);
+  function markIdentityPartSettled(part: "introduction" | "title") {
+    identityProgress.current.settledParts.add(part);
     const requiredPartCount = introduction ? 2 : 1;
 
     if (
       !identityProgress.current.notified &&
-      identityProgress.current.completedParts.size === requiredPartCount
+      identityProgress.current.settledParts.size === requiredPartCount
     ) {
       identityProgress.current.notified = true;
       onIdentitySettled?.();
+    }
+  }
+
+  function markIdentityPartVisible(
+    part: "introduction" | "title",
+    opacity: unknown,
+  ) {
+    if (typeof opacity === "number" && opacity >= identitySettlementOpacity) {
+      markIdentityPartSettled(part);
     }
   }
 
@@ -75,22 +113,23 @@ export function NotebookPageHeader({
       className="flex w-full flex-col items-start"
     >
       <m.p
-        variants={notebookPageIntroductionReveal}
+        variants={notebookPageIdentityReveal}
         className="label mb-4 text-label text-ink-muted"
       >
         {sectionCode}
       </m.p>
-      <m.h1
-        variants={notebookPageHeadingReveal}
-        onAnimationComplete={() => markIdentityPartComplete("title")}
-        className="font-heading text-5xl leading-none font-semibold tracking-tight lg:text-7xl"
-      >
-        {title}
-      </m.h1>
+      <NotebookPageHeading
+        key={title}
+        title={title}
+        onSettled={() => markIdentityPartSettled("title")}
+      />
       {introduction && (
         <m.div
-          variants={notebookPageIntroductionReveal}
-          onAnimationComplete={() => markIdentityPartComplete("introduction")}
+          variants={notebookPageIdentityReveal}
+          onUpdate={({ opacity }) =>
+            markIdentityPartVisible("introduction", opacity)
+          }
+          onAnimationComplete={() => markIdentityPartSettled("introduction")}
           data-notebook-introduction
           className="mt-6 w-full max-w-180 text-sm text-ink-muted"
         >
@@ -111,18 +150,12 @@ export function NotebookCollection({
   variants,
   className,
 }: NotebookCollectionProps) {
-  const collectionRef = useRef<HTMLDivElement>(null);
-  const hasEnteredViewport = useInView(collectionRef, {
-    once: true,
-    amount: 0.08,
-  });
   const pageIdentitySettled = useContext(NotebookPageIdentityContext);
 
   return (
     <m.div
-      ref={collectionRef}
       initial="hidden"
-      animate={pageIdentitySettled && hasEnteredViewport ? "visible" : "hidden"}
+      animate={pageIdentitySettled ? "visible" : "hidden"}
       variants={variants}
       data-notebook-collection
       className={cn(
