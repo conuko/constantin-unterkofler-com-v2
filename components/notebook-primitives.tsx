@@ -39,6 +39,7 @@ type NotebookPageHeaderProps = {
   introduction?: ReactNode;
   sectionCode: string;
   sequence: Variants;
+  showRule?: boolean;
   title: string;
   onIdentitySettled?: () => void;
 };
@@ -76,6 +77,7 @@ export function NotebookPageHeader({
   introduction,
   sectionCode,
   sequence,
+  showRule = true,
   title,
   onIdentitySettled,
 }: NotebookPageHeaderProps) {
@@ -112,12 +114,14 @@ export function NotebookPageHeader({
       data-notebook-header
       className="flex w-full flex-col items-start"
     >
-      <m.p
-        variants={notebookPageIdentityReveal}
-        className="label mb-4 text-ink-muted text-label"
-      >
-        {sectionCode}
-      </m.p>
+      {sectionCode && (
+        <m.p
+          variants={notebookPageIdentityReveal}
+          className="label mb-4 text-ink-muted text-label"
+        >
+          {sectionCode}
+        </m.p>
+      )}
       <NotebookPageHeading
         key={title}
         title={title}
@@ -136,11 +140,13 @@ export function NotebookPageHeader({
           {introduction}
         </m.div>
       )}
-      <m.div
-        variants={notebookRuleReveal}
-        data-notebook-header-rule
-        className="mt-7 h-px w-full origin-left bg-rule"
-      />
+      {showRule && (
+        <m.div
+          variants={notebookRuleReveal}
+          data-notebook-header-rule
+          className="mt-7 h-px w-full origin-left bg-rule"
+        />
+      )}
     </m.header>
   );
 }

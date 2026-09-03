@@ -80,11 +80,11 @@ const identity = {
   name: "Constantin Unterkofler",
   shortName: "CU",
   description:
-    "Personal portfolio of Constantin Unterkofler, a Senior Software Engineer building thoughtful digital products and scalable web experiences.",
+    "Personal portfolio of Constantin Unterkofler, a Software Engineer building thoughtful digital products and scalable web experiences.",
 };
 
 const aboutIntroduction =
-  "I’m a Senior Software Engineer passionate about building thoughtful digital products and scalable web experiences. Italian-German, grew up in Bolzano, Italy, now based in Berlin. I studied Philosophy and Cultural Studies before earning a degree in Software Engineering. Currently I work at Jung von Matt. Outside of work, I play guitar with a love for funk, neo-soul, pop, and jazz.";
+  "I’m a Software Engineer passionate about building thoughtful digital products and scalable web experiences. Italian-German, grew up in Bolzano, Italy, now based in Berlin. I studied Philosophy and Cultural Studies before earning a degree in Software Engineering. Currently I work at Jung von Matt. Outside of work, I play guitar with a love for funk, neo-soul, pop, and jazz.";
 
 const cvSections: CvSection[] = [
   {
@@ -461,7 +461,7 @@ const contactLinks: ContactLink[] = [
 const portfolioPages = {
   home: {
     route: "/",
-    sectionCode: "H",
+    sectionCode: "",
     title: identity.name,
     width: "reading",
     metadata: {
@@ -470,15 +470,12 @@ const portfolioPages = {
     },
     content: {
       introduction: {
-        role: "Senior Software Engineer",
+        role: "Software Engineer",
         organization: {
           name: "Jung von Matt",
           url: "https://www.jvm.com/",
         },
       },
-      positioningStatement:
-        "Building thoughtful digital products and scalable web experiences.",
-      contents: ["work", "read", "play"],
     },
   },
   about: {
@@ -489,7 +486,7 @@ const portfolioPages = {
     metadata: {
       title: "About me",
       description:
-        "Biography and CV for Constantin Unterkofler, Senior Software Engineer based in Berlin.",
+        "Biography and CV for Constantin Unterkofler, Software Engineer based in Berlin.",
     },
     primaryWayfinding: {
       label: "About me",
@@ -512,7 +509,7 @@ const portfolioPages = {
     },
     primaryWayfinding: {
       label: "Contact",
-      order: 5,
+      order: 2,
     },
     content: {
       introduction: "Reach me via email, GitHub, or LinkedIn.",
@@ -531,7 +528,7 @@ const portfolioPages = {
     },
     primaryWayfinding: {
       label: "Work",
-      order: 2,
+      order: 3,
     },
     content: {
       introduction:
@@ -551,7 +548,7 @@ const portfolioPages = {
     },
     primaryWayfinding: {
       label: "Read",
-      order: 3,
+      order: 4,
     },
     content: {
       introduction:
@@ -570,7 +567,7 @@ const portfolioPages = {
     },
     primaryWayfinding: {
       label: "Play",
-      order: 4,
+      order: 5,
     },
     content: {
       introduction:

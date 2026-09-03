@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { PortfolioPage } from "@/components/portfolio-page";
 import { portfolioContent } from "@/content/site-content";
 
@@ -12,11 +11,12 @@ export default function Home() {
     <PortfolioPage
       title={home.title}
       sectionCode={home.sectionCode}
+      showHeaderRule={false}
       width={home.width}
       introduction={
         <div className="space-y-2">
           <p>
-            {home.content.introduction.role} at{" "}
+            Hi, I'm a {home.content.introduction.role} at{" "}
             <a
               href={home.content.introduction.organization.url}
               target="_blank"
@@ -27,33 +27,8 @@ export default function Home() {
             </a>
             .
           </p>
-          <p>{home.content.positioningStatement}</p>
         </div>
       }
-    >
-      <nav aria-label="Home contents">
-        <ol className="border-rule border-t">
-          {home.content.contents.map((pageName, index) => {
-            const page = portfolioContent.pages[pageName];
-
-            return (
-              <li key={page.route} className="border-rule border-b">
-                <Link
-                  href={page.route}
-                  className="group flex items-center justify-between gap-4 py-4 text-sm"
-                >
-                  <span className="label text-ink-muted text-label">
-                    {`H–${String(index + 1).padStart(2, "0")}`}
-                  </span>
-                  <span className="font-heading text-2xl leading-none group-hover:underline">
-                    {page.primaryWayfinding.label}
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
-        </ol>
-      </nav>
-    </PortfolioPage>
+    />
   );
 }

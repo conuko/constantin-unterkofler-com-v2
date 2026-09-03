@@ -14,6 +14,7 @@ type PortfolioPageProps = {
   sectionCode: string;
   introduction?: ReactNode;
   children?: ReactNode;
+  showHeaderRule?: boolean;
   width: "collection" | "reading";
 };
 
@@ -41,6 +42,7 @@ export function PortfolioPage({
   sectionCode,
   introduction,
   children,
+  showHeaderRule,
   width,
 }: PortfolioPageProps) {
   const [pageIdentitySettled, setPageIdentitySettled] = useState(false);
@@ -71,6 +73,7 @@ export function PortfolioPage({
             title={title}
             introduction={introduction}
             onIdentitySettled={settlePageIdentity}
+            showRule={showHeaderRule}
           />
           <m.div
             variants={contentStagger}

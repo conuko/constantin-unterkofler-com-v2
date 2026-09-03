@@ -1,6 +1,6 @@
 # constantin-unterkofler.com
 
-Personal portfolio of Constantin Unterkofler — Senior Software Engineer based in Berlin, building thoughtful digital products and scalable web experiences.
+Personal portfolio of Constantin Unterkofler — Software Engineer based in Berlin, building thoughtful digital products and scalable web experiences.
 
 ## Stack
 
@@ -20,17 +20,17 @@ Open [localhost:3000](http://localhost:3000) to view the site.
 
 ## Scripts
 
-| Command | Description |
-| ---------------- | -------------------------------- |
-| `pnpm dev` | Start the development server |
-| `pnpm build` | Production build |
-| `pnpm start` | Serve the production build |
-| `pnpm test` | Run the fast in-process test suite |
-| `pnpm test:unit` | Run fast in-process tests once |
+| Command                | Description                             |
+| ---------------------- | --------------------------------------- |
+| `pnpm dev`             | Start the development server            |
+| `pnpm build`           | Production build                        |
+| `pnpm start`           | Serve the production build              |
+| `pnpm test`            | Run the fast in-process test suite      |
+| `pnpm test:unit`       | Run fast in-process tests once          |
 | `pnpm test:unit:watch` | Run fast in-process tests in watch mode |
-| `pnpm lint` | Run Biome checks |
-| `pnpm format` | Auto-format with Biome |
-| `pnpm typecheck` | Type-check without emitting |
+| `pnpm lint`            | Run Biome checks                        |
+| `pnpm format`          | Auto-format with Biome                  |
+| `pnpm typecheck`       | Type-check without emitting             |
 
 ## Testing approach
 

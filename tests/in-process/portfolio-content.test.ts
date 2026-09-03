@@ -68,21 +68,21 @@ describe("Portfolio Content", () => {
 
     expect(optedInPages).toEqual([
       { pageName: "about", label: "About me", order: 1 },
-      { pageName: "work", label: "Work", order: 2 },
-      { pageName: "read", label: "Read", order: 3 },
-      { pageName: "play", label: "Play", order: 4 },
-      { pageName: "contact", label: "Contact", order: 5 },
+      { pageName: "contact", label: "Contact", order: 2 },
+      { pageName: "work", label: "Work", order: 3 },
+      { pageName: "read", label: "Read", order: 4 },
+      { pageName: "play", label: "Play", order: 5 },
     ]);
     expect(portfolioContent.primaryWayfinding).toEqual([
       { href: "/about", label: "About me" },
+      { href: "/contact", label: "Contact" },
       { href: "/work", label: "Work" },
       { href: "/read", label: "Read" },
       { href: "/play", label: "Play" },
-      { href: "/contact", label: "Contact" },
     ]);
   });
 
-  test("owns the Engineering Notebook header and Home contents records", () => {
+  test("owns the Engineering Notebook page header records", () => {
     expect(
       Object.entries(portfolioContent.pages).map(([pageName, page]) => ({
         pageName,
@@ -90,19 +90,13 @@ describe("Portfolio Content", () => {
         width: page.width,
       })),
     ).toEqual([
-      { pageName: "home", sectionCode: "H", width: "reading" },
+      { pageName: "home", sectionCode: "", width: "reading" },
       { pageName: "about", sectionCode: "A", width: "reading" },
       { pageName: "contact", sectionCode: "C", width: "reading" },
       { pageName: "work", sectionCode: "W", width: "collection" },
       { pageName: "read", sectionCode: "R", width: "collection" },
       { pageName: "play", sectionCode: "P", width: "collection" },
     ]);
-
-    expect(portfolioContent.pages.home.content).toMatchObject({
-      positioningStatement:
-        "Building thoughtful digital products and scalable web experiences.",
-      contents: ["work", "read", "play"],
-    });
   });
 
   test("groups the CV into stable, ordered sections", () => {
@@ -139,7 +133,7 @@ describe("Portfolio Content", () => {
     const { home, about, contact, play } = portfolioContent.pages;
 
     expect(home.content.introduction).toEqual({
-      role: "Senior Software Engineer",
+      role: "Software Engineer",
       organization: {
         name: "Jung von Matt",
         url: "https://www.jvm.com/",
