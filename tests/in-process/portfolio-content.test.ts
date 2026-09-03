@@ -77,9 +77,12 @@ describe("Portfolio Content", () => {
       { href: "/about", label: "About me" },
       { href: "/contact", label: "Contact" },
       { href: "/work", label: "Work" },
-      { href: "/read", label: "Read" },
-      { href: "/play", label: "Play" },
     ]);
+  });
+
+  test("keeps unpublished Portfolio Content out of public wayfinding", () => {
+    expect(portfolioContent.pages.read.publicationStatus).toBe("unpublished");
+    expect(portfolioContent.pages.play.publicationStatus).toBe("unpublished");
   });
 
   test("owns the Engineering Notebook page header records", () => {

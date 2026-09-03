@@ -17,6 +17,8 @@ export type NavItem = {
   label: string;
 };
 
+type PublicationStatus = "published" | "unpublished";
+
 type CvEntry = {
   organization: string;
   role: string;
@@ -460,6 +462,7 @@ const contactLinks: ContactLink[] = [
 
 const portfolioPages = {
   home: {
+    publicationStatus: "published" satisfies PublicationStatus,
     route: "/",
     sectionCode: "",
     title: identity.name,
@@ -479,6 +482,7 @@ const portfolioPages = {
     },
   },
   about: {
+    publicationStatus: "published" satisfies PublicationStatus,
     route: "/about",
     sectionCode: "A",
     title: "About me",
@@ -498,6 +502,7 @@ const portfolioPages = {
     },
   },
   contact: {
+    publicationStatus: "published" satisfies PublicationStatus,
     route: "/contact",
     sectionCode: "C",
     title: "Contact",
@@ -517,6 +522,7 @@ const portfolioPages = {
     },
   },
   work: {
+    publicationStatus: "published" satisfies PublicationStatus,
     route: "/work",
     sectionCode: "W",
     title: "Work",
@@ -537,6 +543,7 @@ const portfolioPages = {
     },
   },
   read: {
+    publicationStatus: "unpublished" satisfies PublicationStatus,
     route: "/read",
     sectionCode: "R",
     title: "What I recently read",
@@ -557,6 +564,7 @@ const portfolioPages = {
     },
   },
   play: {
+    publicationStatus: "unpublished" satisfies PublicationStatus,
     route: "/play",
     sectionCode: "P",
     title: "What I currently play",
@@ -578,6 +586,7 @@ const portfolioPages = {
 } as const;
 
 const primaryWayfinding: NavItem[] = Object.values(portfolioPages)
+  .filter((page) => page.publicationStatus === "published")
   .flatMap((page) =>
     "primaryWayfinding" in page
       ? [
