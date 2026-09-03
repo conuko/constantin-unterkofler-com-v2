@@ -33,7 +33,7 @@ export function MotionLayout({ children, header }: MotionLayoutProps) {
             Skip to main content
           </a>
 
-          <div className="w-full p-6 flex flex-1 flex-col">
+          <div className="flex w-full flex-1 flex-col p-6">
             {header}
 
             <main
@@ -47,9 +47,9 @@ export function MotionLayout({ children, header }: MotionLayoutProps) {
               initial={{ opacity: "var(--motion-initial-opacity)" }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6, duration: 0.4, ease: "easeOut" }}
-              className="mt-auto pt-8 pb-2 flex items-end justify-between lg:fixed lg:inset-x-0 lg:bottom-8 lg:px-6 lg:pointer-events-none"
+              className="mt-auto flex items-end justify-between pt-8 pb-2 lg:pointer-events-none lg:fixed lg:inset-x-0 lg:bottom-8 lg:px-6"
             >
-              <p className="text-xs text-ink-muted lg:pointer-events-auto">
+              <p className="text-ink-muted text-xs lg:pointer-events-auto">
                 © 2026
               </p>
             </m.footer>

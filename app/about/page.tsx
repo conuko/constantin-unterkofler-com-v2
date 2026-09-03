@@ -14,7 +14,7 @@ export default function AboutPage() {
       sectionCode={about.sectionCode}
       width={about.width}
       introduction={
-        <p className="text-sm text-ink-muted">{about.content.introduction}</p>
+        <p className="text-ink-muted text-sm">{about.content.introduction}</p>
       }
     >
       <Cv sections={about.content.cvSections} />

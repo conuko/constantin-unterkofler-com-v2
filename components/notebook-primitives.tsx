@@ -65,7 +65,7 @@ function NotebookPageHeading({
       }}
       onAnimationComplete={onSettled}
       data-notebook-title
-      className="w-fit pr-2 font-heading text-5xl leading-none font-semibold tracking-tight lg:text-7xl"
+      className="w-fit pr-2 font-heading font-semibold text-5xl leading-none tracking-tight lg:text-7xl"
     >
       {title}
     </m.h1>
@@ -114,7 +114,7 @@ export function NotebookPageHeader({
     >
       <m.p
         variants={notebookPageIdentityReveal}
-        className="label mb-4 text-label text-ink-muted"
+        className="label mb-4 text-ink-muted text-label"
       >
         {sectionCode}
       </m.p>
@@ -131,7 +131,7 @@ export function NotebookPageHeader({
           }
           onAnimationComplete={() => markIdentityPartSettled("introduction")}
           data-notebook-introduction
-          className="mt-6 w-full max-w-180 text-sm text-ink-muted"
+          className="mt-6 w-full max-w-180 text-ink-muted text-sm"
         >
           {introduction}
         </m.div>
@@ -205,7 +205,7 @@ export function NotebookIndex({ children }: { children: ReactNode }) {
     <m.p
       variants={notebookPartReveal}
       data-entry-part="index"
-      className="label mb-3 text-label text-ink-muted"
+      className="label mb-3 text-ink-muted text-label"
     >
       {children}
     </m.p>
@@ -272,7 +272,7 @@ export function NotebookTitle({ children }: { children: ReactNode }) {
     <m.h2
       variants={notebookPartReveal}
       data-entry-part="title"
-      className="font-heading text-2xl leading-none font-semibold tracking-tight"
+      className="font-heading font-semibold text-2xl leading-none tracking-tight"
     >
       {children}
     </m.h2>
@@ -284,7 +284,7 @@ export function NotebookMetadata({ children }: { children: ReactNode }) {
     <m.p
       variants={notebookPartReveal}
       data-entry-part="metadata"
-      className="label mt-2 text-label text-ink-muted"
+      className="label mt-2 text-ink-muted text-label"
     >
       {children}
     </m.p>
@@ -296,7 +296,7 @@ export function NotebookAnnotation({ children }: { children: ReactNode }) {
     <m.div
       variants={notebookPartReveal}
       data-entry-part="annotation"
-      className="mt-4 border-l border-rule pl-3 text-sm leading-relaxed text-ink-muted"
+      className="mt-4 border-rule border-l pl-3 text-ink-muted text-sm leading-relaxed"
     >
       {children}
     </m.div>
@@ -344,7 +344,7 @@ export function NotebookAction({
         whileTap={{ scale: "var(--notebook-press-scale)" }}
         transition={notebookInteractionTransition}
         className={cn(
-          "label inline-flex min-h-9 items-center gap-2 border border-rule bg-card-glass px-3 py-2 text-micro text-ink-muted backdrop-blur-sm transition-colors duration-fast hover:border-ink hover:text-ink",
+          "label inline-flex min-h-9 items-center gap-2 border border-rule bg-card-glass px-3 py-2 text-ink-muted text-micro backdrop-blur-sm transition-colors duration-fast hover:border-ink hover:text-ink",
           className,
         )}
       >
@@ -374,7 +374,7 @@ export function NotebookTags({ children, label }: NotebookTagsProps) {
 
 export function NotebookTag({ children }: { children: ReactNode }) {
   return (
-    <li className="label notebook-tag-marker text-micro text-ink-muted">
+    <li className="label notebook-tag-marker text-ink-muted text-micro">
       {children}
     </li>
   );

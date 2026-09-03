@@ -32,17 +32,17 @@ export default function Home() {
       }
     >
       <nav aria-label="Home contents">
-        <ol className="border-t border-rule">
+        <ol className="border-rule border-t">
           {home.content.contents.map((pageName, index) => {
             const page = portfolioContent.pages[pageName];
 
             return (
-              <li key={page.route} className="border-b border-rule">
+              <li key={page.route} className="border-rule border-b">
                 <Link
                   href={page.route}
                   className="group flex items-center justify-between gap-4 py-4 text-sm"
                 >
-                  <span className="label text-label text-ink-muted">
+                  <span className="label text-ink-muted text-label">
                     {`H–${String(index + 1).padStart(2, "0")}`}
                   </span>
                   <span className="font-heading text-2xl leading-none group-hover:underline">

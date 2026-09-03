@@ -57,7 +57,7 @@ export function Cv({ sections }: CvProps) {
         <section key={section.title} className="w-full">
           <m.h2
             variants={sectionHeadingIn}
-            className="text-xs font-medium uppercase tracking-widest text-ink-muted"
+            className="font-medium text-ink-muted text-xs uppercase tracking-widest"
           >
             {section.title}
           </m.h2>
@@ -66,16 +66,16 @@ export function Cv({ sections }: CvProps) {
               <m.li
                 key={`${entry.organization}-${entry.years}`}
                 variants={entryIn}
-                className="flex flex-col gap-1 border-b border-rule py-4 lg:flex-row lg:items-start lg:justify-between lg:gap-4"
+                className="flex flex-col gap-1 border-rule border-b py-4 lg:flex-row lg:items-start lg:justify-between lg:gap-4"
               >
                 <div className="flex flex-col gap-0.5">
-                  <h3 className="text-sm font-semibold">
+                  <h3 className="font-semibold text-sm">
                     {entry.organization}
                   </h3>
-                  <p className="text-sm text-ink-muted">{entry.role}</p>
+                  <p className="text-ink-muted text-sm">{entry.role}</p>
                 </div>
                 <div className="lg:text-right">
-                  <p className="text-sm text-ink-muted">{entry.years}</p>
+                  <p className="text-ink-muted text-sm">{entry.years}</p>
                 </div>
               </m.li>
             ))}

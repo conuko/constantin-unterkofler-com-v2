@@ -126,8 +126,8 @@ function AppearanceControl() {
       transition={interactionTransition}
       className="group relative flex size-10 cursor-pointer items-center justify-center text-ink transition-transform duration-normal ease-spring active:scale-95"
     >
-      <Sun className="size-4 scale-100 rotate-0 transition-transform duration-normal ease-spring group-hover:text-amber-500 dark:scale-0 dark:-rotate-90" />
-      <Moon className="absolute size-4 scale-0 rotate-90 transition-transform duration-normal ease-spring group-hover:text-indigo-400 dark:scale-100 dark:rotate-0" />
+      <Sun className="size-4 rotate-0 scale-100 transition-transform duration-normal ease-spring group-hover:text-amber-500 dark:-rotate-90 dark:scale-0" />
+      <Moon className="absolute size-4 rotate-90 scale-0 transition-transform duration-normal ease-spring group-hover:text-indigo-400 dark:rotate-0 dark:scale-100" />
       <span className="sr-only">Toggle theme</span>
     </m.button>
   );
@@ -291,7 +291,7 @@ function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
                 bounce: 0.2,
               }}
               style={{ transformOrigin: "top right" }}
-              className="absolute right-0 top-full mt-2 min-w-40 rounded-xl border border-rule bg-paper/85 p-4 shadow-lg backdrop-blur-md"
+              className="absolute top-full right-0 mt-2 min-w-40 rounded-xl border border-rule bg-paper/85 p-4 shadow-lg backdrop-blur-md"
             >
               <m.ul
                 variants={mobileWayfindingIn}
@@ -311,7 +311,7 @@ function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
                 ))}
               </m.ul>
 
-              <div className="mt-2 border-t border-rule pt-2">
+              <div className="mt-2 border-rule border-t pt-2">
                 <AppearanceControl />
               </div>
             </m.nav>
@@ -331,9 +331,9 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
       initial={{ opacity: "var(--motion-initial-opacity)" }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className={`sticky top-4 z-10 flex justify-between gap-6 rounded-xl border border-transparent lg:z-0 lg:rounded-none lg:pb-8 max-lg:transition-site-header max-lg:duration-normal max-lg:ease-default ${
+      className={`sticky top-4 z-10 flex justify-between gap-6 rounded-xl border border-transparent max-lg:transition-site-header max-lg:duration-normal max-lg:ease-default lg:z-0 lg:rounded-none lg:pb-8 ${
         isScrolled
-          ? "max-lg:border-rule max-lg:bg-card-glass max-lg:px-4 max-lg:py-3 max-lg:backdrop-blur-md max-lg:shadow-sm"
+          ? "max-lg:border-rule max-lg:bg-card-glass max-lg:px-4 max-lg:py-3 max-lg:shadow-sm max-lg:backdrop-blur-md"
           : "max-lg:pb-8"
       }`}
     >

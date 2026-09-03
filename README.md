@@ -25,30 +25,21 @@ Open [localhost:3000](http://localhost:3000) to view the site.
 | `pnpm dev` | Start the development server |
 | `pnpm build` | Production build |
 | `pnpm start` | Serve the production build |
-| `pnpm test` | Run the in-process and browser acceptance suites |
+| `pnpm test` | Run the fast in-process test suite |
 | `pnpm test:unit` | Run fast in-process tests once |
 | `pnpm test:unit:watch` | Run fast in-process tests in watch mode |
-| `pnpm test:acceptance` | Start the portfolio and run browser acceptance tests |
 | `pnpm lint` | Run Biome checks |
 | `pnpm format` | Auto-format with Biome |
 | `pnpm typecheck` | Type-check without emitting |
 
-## Browser acceptance tests
+## Testing approach
 
-Install Chromium once after installing dependencies:
+This personal portfolio deliberately has no browser-automation suite. Playwright,
+its browser download, configuration, and acceptance tests were removed because
+their runtime and maintenance cost outweighed their value for this project.
 
-```bash
-pnpm exec playwright install chromium
-```
-
-Then run the complete Portfolio Page acceptance workflow with one command:
-
-```bash
-pnpm test:acceptance
-```
-
-The workflow starts the portfolio automatically and exercises every Portfolio
-Page at desktop and mobile sizes.
+`pnpm test` runs the remaining fast in-process checks. Use the development
+server for focused visual and interaction checks when changing the UI.
 
 ## Structure
 
