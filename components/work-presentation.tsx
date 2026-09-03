@@ -110,7 +110,7 @@ export function WorkPresentation({ entries }: WorkPresentationProps) {
             <NotebookAnnotation>
               <p>{entry.description}</p>
               {entry.descriptionReview === "owner" && (
-                <p className="label mt-3 inline-flex border border-rule bg-card-glass px-2 py-1 text-micro text-ink backdrop-blur-sm">
+                <p className="label mt-3 inline-flex border border-rule bg-card-glass px-2 py-1 text-ink text-micro backdrop-blur-sm">
                   Draft description · Owner editorial review
                 </p>
               )}

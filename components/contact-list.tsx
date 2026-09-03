@@ -46,10 +46,10 @@ export function ContactList({ links }: ContactListProps) {
                 ? undefined
                 : "noreferrer noopener"
             }
-            className="flex flex-col gap-1 border-b border-rule py-4 lg:flex-row lg:items-center lg:gap-4"
+            className="flex flex-col gap-1 border-rule border-b py-4 lg:flex-row lg:items-center lg:gap-4"
           >
-            <span className="text-sm font-semibold lg:w-40">{link.label}</span>
-            <span className="text-sm text-ink-muted">{link.value}</span>
+            <span className="font-semibold text-sm lg:w-40">{link.label}</span>
+            <span className="text-ink-muted text-sm">{link.value}</span>
           </a>
         </m.li>
       ))}

@@ -10,19 +10,24 @@ export default function Home() {
   return (
     <PortfolioPage
       title={home.title}
+      sectionCode={home.sectionCode}
+      showHeaderRule={false}
+      width={home.width}
       introduction={
-        <p className="text-sm text-ink-muted text-center">
-          {home.content.introduction.role} at{" "}
-          <a
-            href={home.content.introduction.organization.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline hover:text-ink"
-          >
-            {home.content.introduction.organization.name}
-          </a>
-          .
-        </p>
+        <div className="space-y-2">
+          <p>
+            Hi, I'm a {home.content.introduction.role} at{" "}
+            <a
+              href={home.content.introduction.organization.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-ink"
+            >
+              {home.content.introduction.organization.name}
+            </a>
+            .
+          </p>
+        </div>
       }
     />
   );

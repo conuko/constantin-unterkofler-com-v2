@@ -17,6 +17,8 @@ export type NavItem = {
   label: string;
 };
 
+type PublicationStatus = "published" | "unpublished";
+
 type CvEntry = {
   organization: string;
   role: string;
@@ -80,11 +82,11 @@ const identity = {
   name: "Constantin Unterkofler",
   shortName: "CU",
   description:
-    "Personal portfolio of Constantin Unterkofler, a Senior Software Engineer building thoughtful digital products and scalable web experiences.",
+    "Personal portfolio of Constantin Unterkofler, a Software Engineer building thoughtful digital products and scalable web experiences.",
 };
 
 const aboutIntroduction =
-  "I’m a Senior Software Engineer passionate about building thoughtful digital products and scalable web experiences. Italian-German, grew up in Bolzano, Italy, now based in Berlin. I studied Philosophy and Cultural Studies before earning a degree in Software Engineering. Currently I work at Jung von Matt. Outside of work, I play guitar with a love for funk, neo-soul, pop, and jazz.";
+  "I’m a Software Engineer passionate about building thoughtful digital products and scalable web experiences. Italian-German, grew up in Bolzano, Italy, now based in Berlin. I studied Philosophy and Cultural Studies before earning a degree in Software Engineering. Currently I work at Jung von Matt. Outside of work, I play guitar with a love for funk, neo-soul, pop, and jazz.";
 
 const cvSections: CvSection[] = [
   {
@@ -460,15 +462,18 @@ const contactLinks: ContactLink[] = [
 
 const portfolioPages = {
   home: {
+    publicationStatus: "published" satisfies PublicationStatus,
     route: "/",
+    sectionCode: "",
     title: identity.name,
+    width: "reading",
     metadata: {
       title: "Home",
       description: identity.description,
     },
     content: {
       introduction: {
-        role: "Senior Software Engineer",
+        role: "Software Engineer",
         organization: {
           name: "Jung von Matt",
           url: "https://www.jvm.com/",
@@ -477,12 +482,15 @@ const portfolioPages = {
     },
   },
   about: {
+    publicationStatus: "published" satisfies PublicationStatus,
     route: "/about",
+    sectionCode: "A",
     title: "About me",
+    width: "reading",
     metadata: {
       title: "About me",
       description:
-        "Biography and CV for Constantin Unterkofler, Senior Software Engineer based in Berlin.",
+        "Biography and CV for Constantin Unterkofler, Software Engineer based in Berlin.",
     },
     primaryWayfinding: {
       label: "About me",
@@ -494,8 +502,11 @@ const portfolioPages = {
     },
   },
   contact: {
+    publicationStatus: "published" satisfies PublicationStatus,
     route: "/contact",
+    sectionCode: "C",
     title: "Contact",
+    width: "reading",
     metadata: {
       title: "Contact",
       description:
@@ -506,12 +517,16 @@ const portfolioPages = {
       order: 2,
     },
     content: {
+      introduction: "Reach me via email, GitHub, or LinkedIn.",
       entries: contactLinks,
     },
   },
   work: {
+    publicationStatus: "published" satisfies PublicationStatus,
     route: "/work",
+    sectionCode: "W",
     title: "Work",
+    width: "collection",
     metadata: {
       title: "Work",
       description:
@@ -528,8 +543,11 @@ const portfolioPages = {
     },
   },
   read: {
+    publicationStatus: "unpublished" satisfies PublicationStatus,
     route: "/read",
+    sectionCode: "R",
     title: "What I recently read",
+    width: "collection",
     metadata: {
       title: "Read",
       description:
@@ -546,8 +564,11 @@ const portfolioPages = {
     },
   },
   play: {
+    publicationStatus: "unpublished" satisfies PublicationStatus,
     route: "/play",
+    sectionCode: "P",
     title: "What I currently play",
+    width: "collection",
     metadata: {
       title: "Play",
       description: "A rotating set of guitar tunes and studies.",
@@ -565,6 +586,7 @@ const portfolioPages = {
 } as const;
 
 const primaryWayfinding: NavItem[] = Object.values(portfolioPages)
+  .filter((page) => page.publicationStatus === "published")
   .flatMap((page) =>
     "primaryWayfinding" in page
       ? [

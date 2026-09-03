@@ -6,11 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "pnpm test:unit && pnpm test:acceptance",
+    "test": "pnpm test:unit",
     "test:unit": "vitest run --passWithNoTests",
     "test:unit:watch": "vitest",
-    "test:acceptance": "playwright test",
     "lint": "biome check",
+    "lint:fix": "biome check --write",
+    "lint:unsafe": "biome check --unsafe",
+    "lint:unsafe:fix": "biome check --write --unsafe",
     "format": "biome format --write",
     "typecheck": "tsc --noEmit"
   },
@@ -24,7 +26,6 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.5",
-    "@playwright/test": "^1.61.1",
     "@svgr/webpack": "^8.1.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@total-typescript/ts-reset": "^0.6.1",

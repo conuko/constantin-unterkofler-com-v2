@@ -58,12 +58,13 @@ describe("Portfolio Content", () => {
   });
 
   test("projects primary wayfinding from explicitly ordered Portfolio Pages", () => {
-    const optedInPages = Object.entries(portfolioContent.pages).flatMap(
-      ([pageName, page]) =>
+    const optedInPages = Object.entries(portfolioContent.pages)
+      .flatMap(([pageName, page]) =>
         "primaryWayfinding" in page
           ? [{ pageName, ...page.primaryWayfinding }]
           : [],
-    );
+      )
+      .toSorted((left, right) => left.order - right.order);
 
     expect(optedInPages).toEqual([
       { pageName: "about", label: "About me", order: 1 },
@@ -76,8 +77,28 @@ describe("Portfolio Content", () => {
       { href: "/about", label: "About me" },
       { href: "/contact", label: "Contact" },
       { href: "/work", label: "Work" },
-      { href: "/read", label: "Read" },
-      { href: "/play", label: "Play" },
+    ]);
+  });
+
+  test("keeps unpublished Portfolio Content out of public wayfinding", () => {
+    expect(portfolioContent.pages.read.publicationStatus).toBe("unpublished");
+    expect(portfolioContent.pages.play.publicationStatus).toBe("unpublished");
+  });
+
+  test("owns the Engineering Notebook page header records", () => {
+    expect(
+      Object.entries(portfolioContent.pages).map(([pageName, page]) => ({
+        pageName,
+        sectionCode: page.sectionCode,
+        width: page.width,
+      })),
+    ).toEqual([
+      { pageName: "home", sectionCode: "", width: "reading" },
+      { pageName: "about", sectionCode: "A", width: "reading" },
+      { pageName: "contact", sectionCode: "C", width: "reading" },
+      { pageName: "work", sectionCode: "W", width: "collection" },
+      { pageName: "read", sectionCode: "R", width: "collection" },
+      { pageName: "play", sectionCode: "P", width: "collection" },
     ]);
   });
 
@@ -115,7 +136,7 @@ describe("Portfolio Content", () => {
     const { home, about, contact, play } = portfolioContent.pages;
 
     expect(home.content.introduction).toEqual({
-      role: "Senior Software Engineer",
+      role: "Software Engineer",
       organization: {
         name: "Jung von Matt",
         url: "https://www.jvm.com/",
