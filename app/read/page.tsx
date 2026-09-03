@@ -11,8 +11,8 @@ export default function ReadPage() {
   return (
     <PortfolioPage
       title={read.title}
-      sectionCode="R"
-      width="collection"
+      sectionCode={read.sectionCode}
+      width={read.width}
       introduction={<p>{read.content.introduction}</p>}
     >
       <ReadPresentation entries={read.content.entries} />

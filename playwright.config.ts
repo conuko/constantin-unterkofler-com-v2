@@ -11,7 +11,7 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   webServer: {
-    command: "corepack pnpm dev --port 3100",
+    command: "corepack pnpm exec next dev --port 3100",
     url: "http://localhost:3100",
     reuseExistingServer: !process.env.CI,
   },

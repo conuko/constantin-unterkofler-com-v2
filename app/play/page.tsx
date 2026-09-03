@@ -11,8 +11,8 @@ export default function PlayPage() {
   return (
     <PortfolioPage
       title={play.title}
-      sectionCode="P"
-      width="collection"
+      sectionCode={play.sectionCode}
+      width={play.width}
       introduction={<p>{play.content.introduction}</p>}
     >
       <PlayPresentation entries={play.content.entries} />

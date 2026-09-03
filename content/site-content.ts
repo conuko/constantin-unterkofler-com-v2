@@ -461,7 +461,9 @@ const contactLinks: ContactLink[] = [
 const portfolioPages = {
   home: {
     route: "/",
+    sectionCode: "H",
     title: identity.name,
+    width: "reading",
     metadata: {
       title: "Home",
       description: identity.description,
@@ -474,11 +476,16 @@ const portfolioPages = {
           url: "https://www.jvm.com/",
         },
       },
+      positioningStatement:
+        "Building thoughtful digital products and scalable web experiences.",
+      contents: ["work", "read", "play"],
     },
   },
   about: {
     route: "/about",
+    sectionCode: "A",
     title: "About me",
+    width: "reading",
     metadata: {
       title: "About me",
       description:
@@ -495,7 +502,9 @@ const portfolioPages = {
   },
   contact: {
     route: "/contact",
+    sectionCode: "C",
     title: "Contact",
+    width: "reading",
     metadata: {
       title: "Contact",
       description:
@@ -503,15 +512,18 @@ const portfolioPages = {
     },
     primaryWayfinding: {
       label: "Contact",
-      order: 2,
+      order: 5,
     },
     content: {
+      introduction: "Reach me via email, GitHub, or LinkedIn.",
       entries: contactLinks,
     },
   },
   work: {
     route: "/work",
+    sectionCode: "W",
     title: "Work",
+    width: "collection",
     metadata: {
       title: "Work",
       description:
@@ -519,7 +531,7 @@ const portfolioPages = {
     },
     primaryWayfinding: {
       label: "Work",
-      order: 3,
+      order: 2,
     },
     content: {
       introduction:
@@ -529,7 +541,9 @@ const portfolioPages = {
   },
   read: {
     route: "/read",
+    sectionCode: "R",
     title: "What I recently read",
+    width: "collection",
     metadata: {
       title: "Read",
       description:
@@ -537,7 +551,7 @@ const portfolioPages = {
     },
     primaryWayfinding: {
       label: "Read",
-      order: 4,
+      order: 3,
     },
     content: {
       introduction:
@@ -547,14 +561,16 @@ const portfolioPages = {
   },
   play: {
     route: "/play",
+    sectionCode: "P",
     title: "What I currently play",
+    width: "collection",
     metadata: {
       title: "Play",
       description: "A rotating set of guitar tunes and studies.",
     },
     primaryWayfinding: {
       label: "Play",
-      order: 5,
+      order: 4,
     },
     content: {
       introduction:

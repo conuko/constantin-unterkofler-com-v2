@@ -9,7 +9,12 @@ export const metadata: Metadata = contact.metadata;
 
 export default function ContactPage() {
   return (
-    <PortfolioPage title={contact.title} width="narrow">
+    <PortfolioPage
+      title={contact.title}
+      sectionCode={contact.sectionCode}
+      width={contact.width}
+      introduction={<p>{contact.content.introduction}</p>}
+    >
       <ContactList links={contact.content.entries} />
     </PortfolioPage>
   );

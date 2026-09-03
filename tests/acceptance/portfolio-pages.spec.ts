@@ -73,6 +73,14 @@ const portfolioPages = [
 ] as const;
 
 const primaryWayfinding = ["About me", "Work", "Read", "Play", "Contact"];
+const portfolioPageHeaders = [
+  { path: "/", sectionCode: "H" },
+  { path: "/about", sectionCode: "A" },
+  { path: "/contact", sectionCode: "C" },
+  { path: "/work", sectionCode: "W" },
+  { path: "/read", sectionCode: "R" },
+  { path: "/play", sectionCode: "P" },
+] as const;
 const maximumCollectionHandoffDelay = 100;
 const maximumIdentityMotionToCollectionDelay = 650;
 
@@ -255,6 +263,28 @@ async function expectPrimaryWayfinding(page: Page, isMobile: boolean) {
   }
 }
 
+async function expectHomeContents(page: Page) {
+  await expect(
+    page.getByText(
+      "Building thoughtful digital products and scalable web experiences.",
+      { exact: true },
+    ),
+  ).toBeVisible();
+
+  const contents = page.getByRole("navigation", { name: "Home contents" });
+  await expect(contents).toBeVisible();
+  for (const label of ["Work", "Read", "Play"]) {
+    await expect(contents.getByRole("link", { name: label })).toBeVisible();
+  }
+}
+
+async function expectNotebookPageHeader(page: Page, sectionCode: string) {
+  const main = page.locator("main");
+  await expect(main.locator("[data-notebook-header]")).toBeVisible();
+  await expect(main.getByText(sectionCode, { exact: true })).toBeVisible();
+  await expect(main.locator("[data-notebook-header-rule]")).toBeVisible();
+}
+
 async function visitPortfolioPage(
   page: Page,
   name: string,
@@ -313,6 +343,60 @@ for (const portfolioPage of portfolioPages) {
     expect(runtimeErrors, "browser runtime errors").toEqual([]);
   });
 }
+
+test("Home and every Portfolio Page compose aligned Engineering Notebook headers", async ({
+  page,
+}, testInfo) => {
+  await page.goto("/");
+  await expectHomeContents(page);
+
+  for (const portfolioPage of portfolioPageHeaders) {
+    await page.goto(portfolioPage.path);
+    await expectNotebookPageHeader(page, portfolioPage.sectionCode);
+  }
+
+  if (!testInfo.project.use.isMobile) {
+    for (const portfolioPage of [
+      { path: "/about", expectedWidth: 722 },
+      { path: "/contact", expectedWidth: 722 },
+      { path: "/work", expectedWidth: 1082 },
+      { path: "/read", expectedWidth: 1082 },
+      { path: "/play", expectedWidth: 1082 },
+    ]) {
+      await page.goto(portfolioPage.path);
+      const headerBox = await page
+        .locator("main [data-notebook-header]")
+        .boundingBox();
+      expect(headerBox).not.toBeNull();
+      if (!headerBox) throw new Error("Expected the Portfolio Page header");
+      expect(headerBox.width).toBeLessThanOrEqual(portfolioPage.expectedWidth);
+      expect(headerBox.width).toBeGreaterThan(portfolioPage.expectedWidth - 30);
+    }
+  }
+});
+
+test("Home contents and Portfolio Page headers remain complete across theme and motion states", async ({
+  page,
+}) => {
+  for (const theme of ["light", "dark"] as const) {
+    for (const reducedMotion of ["no-preference", "reduce"] as const) {
+      await page.emulateMedia({ reducedMotion });
+      await page.goto("/");
+      await page.evaluate((nextTheme) => {
+        localStorage.setItem("theme", nextTheme);
+      }, theme);
+      await page.reload();
+
+      await expect(page.locator("html")).toHaveClass(new RegExp(theme));
+      await expectHomeContents(page);
+
+      for (const portfolioPage of portfolioPageHeaders) {
+        await page.goto(portfolioPage.path);
+        await expectNotebookPageHeader(page, portfolioPage.sectionCode);
+      }
+    }
+  }
+});
 
 test("Portfolio Pages preserve their normal heading and content entrance motion", async ({
   page,

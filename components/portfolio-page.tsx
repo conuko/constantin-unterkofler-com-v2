@@ -7,15 +7,14 @@ import {
   NotebookPageHeader,
   NotebookPageIdentityProvider,
 } from "@/components/notebook-primitives";
-import { notebookPageIdentityReveal } from "@/lib/notebook-motion";
 import { cn } from "@/lib/utils/cn";
 
 type PortfolioPageProps = {
   title: string;
-  sectionCode?: string;
+  sectionCode: string;
   introduction?: ReactNode;
   children?: ReactNode;
-  width?: "collection" | "standard" | "narrow";
+  width: "collection" | "reading";
 };
 
 const contentStagger: Variants = {
@@ -42,9 +41,9 @@ export function PortfolioPage({
   sectionCode,
   introduction,
   children,
-  width = "standard",
+  width,
 }: PortfolioPageProps) {
-  const [pageIdentitySettled, setPageIdentitySettled] = useState(!sectionCode);
+  const [pageIdentitySettled, setPageIdentitySettled] = useState(false);
   const settlePageIdentity = useCallback(() => {
     setPageIdentitySettled(true);
   }, []);
@@ -59,7 +58,13 @@ export function PortfolioPage({
         }
         className="flex w-full flex-col gap-10"
       >
-        {sectionCode ? (
+        <div
+          className={cn(
+            "mx-auto flex w-full flex-col gap-10",
+            width === "collection" && "max-w-270",
+            width === "reading" && "max-w-180",
+          )}
+        >
           <NotebookPageHeader
             sectionCode={sectionCode}
             sequence={pageIdentitySequence}
@@ -67,28 +72,13 @@ export function PortfolioPage({
             introduction={introduction}
             onIdentitySettled={settlePageIdentity}
           />
-        ) : (
-          <m.h1
-            variants={notebookPageIdentityReveal}
-            className="font-heading text-center text-4xl leading-none font-semibold tracking-tight lg:text-6xl"
+          <m.div
+            variants={contentStagger}
+            className="flex w-full flex-col gap-10"
           >
-            {title}
-          </m.h1>
-        )}
-        <m.div
-          variants={contentStagger}
-          className={cn(
-            "flex w-full flex-col gap-10",
-            width === "collection" && "max-w-270",
-            width === "standard" && "mx-auto max-w-3xl items-center",
-            width === "narrow" && "mx-auto max-w-xl",
-          )}
-        >
-          {!sectionCode && introduction && (
-            <m.div variants={notebookPageIdentityReveal}>{introduction}</m.div>
-          )}
-          {children}
-        </m.div>
+            {children}
+          </m.div>
+        </div>
       </m.div>
     </NotebookPageIdentityProvider>
   );
