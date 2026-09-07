@@ -13,11 +13,9 @@ export default function AboutPage() {
       title={about.title}
       sectionCode={about.sectionCode}
       width={about.width}
-      introduction={
-        <p className="text-ink-muted text-sm">{about.content.introduction}</p>
-      }
+      introduction={<p>{about.content.introduction}</p>}
     >
-      <Cv sections={about.content.cvSections} />
+      <Cv sectionCode={about.sectionCode} sections={about.content.cvSections} />
     </PortfolioPage>
   );
 }

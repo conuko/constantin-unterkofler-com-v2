@@ -71,7 +71,7 @@ function WorkMarks({
             height={mark.height}
             loading={loadImmediately ? "eager" : "lazy"}
             fetchPriority={loadImmediately ? "high" : undefined}
-            sizes="(min-width: 1152px) 456px, (min-width: 768px) calc((100vw - 96px) / 2), calc(100vw - 48px)"
+            sizes="(min-width: 1152px) 516px, (min-width: 1024px) calc((100vw - 96px) / 2), (min-width: 768px) calc((100vw - 80px) / 2), calc(100vw - 48px)"
             unoptimized
             className={`h-auto object-contain ${markSizeClasses[mark.src]}`}
           />

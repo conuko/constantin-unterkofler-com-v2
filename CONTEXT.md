@@ -31,3 +31,11 @@ _Avoid_: Reading list, bookshelf, book collection
 **Personal Rating**:
 Constantin's deliberate whole-number assessment of a completed book on an inclusive zero-to-five scale; zero is a rating, not an unrated state.
 _Avoid_: Star score, review score
+
+**Closing Record**:
+The in-flow footer record that ends every Portfolio Page with a hairline rule, the copyright, and one concise identity/status line.
+_Avoid_: Footer bar, fixed copyright
+
+**Record Row**:
+The shared single-line record anatomy (rule, index, title, metadata, trailing value or action) that CV entries and Contact routes compose while keeping their own semantics.
+_Avoid_: List item, table row

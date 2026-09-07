@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Bebas_Neue, Space_Grotesk } from "next/font/google";
 import type { ReactNode } from "react";
 import { MotionLayout } from "@/components/motion-layout";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { portfolioContent } from "@/content/site-content";
 import "./globals.css";
@@ -46,6 +47,7 @@ export default function RootLayout({
               primaryWayfinding={portfolioContent.primaryWayfinding}
             />
           }
+          footer={<SiteFooter closingRecord={portfolioContent.closingRecord} />}
         >
           {children}
         </MotionLayout>

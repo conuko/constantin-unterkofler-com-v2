@@ -15,7 +15,10 @@ export default function ContactPage() {
       width={contact.width}
       introduction={<p>{contact.content.introduction}</p>}
     >
-      <ContactList links={contact.content.entries} />
+      <ContactList
+        links={contact.content.entries}
+        sectionCode={contact.sectionCode}
+      />
     </PortfolioPage>
   );
 }

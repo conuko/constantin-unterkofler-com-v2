@@ -11,6 +11,7 @@
   --motion-initial-rule-scale: 0;
   --notebook-hover-y: -2px;
   --notebook-media-hover-scale: 1.008;
+  --notebook-control-hover-scale: 1.05;
   --notebook-press-scale: 0.995;
 }
 
@@ -44,6 +45,7 @@ body {
     --motion-initial-rule-scale: 1;
     --notebook-hover-y: 0px;
     --notebook-media-hover-scale: 1;
+    --notebook-control-hover-scale: 1;
     --notebook-press-scale: 1;
   }
 

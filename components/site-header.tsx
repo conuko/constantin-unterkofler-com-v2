@@ -1,29 +1,32 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
-import { AnimatePresence, type Variants } from "motion/react";
+import { AnimatePresence, stagger, type Variants } from "motion/react";
 import * as m from "motion/react-m";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { NavItem } from "@/content/site-content";
+import {
+  notebookEase,
+  notebookInteractionTransition,
+  notebookPartReveal,
+} from "@/lib/notebook-motion";
 import { useScrolled } from "@/lib/use-scrolled";
+import { isCurrentRoute } from "@/lib/wayfinding";
 
-const hoverScale = { scale: 1.05 };
-const tapScale = { scale: 0.95 };
+const hoverScale = { scale: "var(--notebook-control-hover-scale)" };
+const tapScale = { scale: "var(--notebook-press-scale)" };
 
-const interactionTransition = {
-  type: "spring",
-  visualDuration: 0.3,
-  bounce: 0.25,
-} as const;
+const interactionTransition = notebookInteractionTransition;
 
-const wayfindingItemIn: Variants = {
-  hidden: { opacity: "var(--motion-initial-opacity)" },
+const siteHeaderReveal: Variants = {
+  hidden: {},
   visible: {
-    opacity: 1,
-    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+    transition: {
+      delayChildren: stagger(0.06),
+    },
   },
 };
 
@@ -31,8 +34,7 @@ const desktopWayfindingIn: Variants = {
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.1,
+      delayChildren: stagger(0.08, { startDelay: 0.1 }),
     },
   },
 };
@@ -51,15 +53,18 @@ const mobileWayfindingItemIn: Variants = {
     opacity: "var(--motion-initial-opacity)",
     x: "var(--motion-initial-x)",
   },
-  visible: { opacity: 1, x: 0 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.24, ease: notebookEase },
+  },
 };
 
 const mobileWayfindingIn: Variants = {
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.05,
-      delayChildren: 0.05,
+      delayChildren: stagger(0.05, { startDelay: 0.05 }),
     },
   },
 };
@@ -86,9 +91,7 @@ function WayfindingLink({
   className,
   onSelect,
 }: WayfindingLinkProps) {
-  const isCurrent =
-    pathname === item.href ||
-    (item.href !== "/" && pathname.startsWith(`${item.href}/`));
+  const isCurrent = isCurrentRoute(pathname, item.href);
 
   return (
     <Link
@@ -141,19 +144,14 @@ type DesktopWayfindingProps = {
 function DesktopWayfinding({ items, pathname }: DesktopWayfindingProps) {
   return (
     <nav aria-label="Primary">
-      <m.ul
-        initial="hidden"
-        variants={desktopWayfindingIn}
-        animate="visible"
-        className="flex flex-col items-end"
-      >
+      <m.ul variants={desktopWayfindingIn} className="flex flex-col items-end">
         {items.map((item) => (
-          <m.li key={item.href} variants={wayfindingItemIn}>
+          <m.li key={item.href} variants={notebookPartReveal}>
             <WayfindingLink
               item={item}
               pathname={pathname}
               underlineLayoutId="site-header-desktop-underline"
-              className="relative pb-1 text-xs tracking-wide"
+              className="relative pb-1 text-xs"
             />
           </m.li>
         ))}
@@ -304,7 +302,7 @@ function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
                       item={item}
                       pathname={pathname}
                       underlineLayoutId="site-header-mobile-underline"
-                      className="relative inline-block py-2 text-xs tracking-wide"
+                      className={`relative inline-block py-2 text-xs`}
                       onSelect={close}
                     />
                   </m.li>
@@ -328,9 +326,10 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
 
   return (
     <m.header
-      initial={{ opacity: "var(--motion-initial-opacity)" }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
+      initial="hidden"
+      animate="visible"
+      variants={siteHeaderReveal}
+      data-site-header
       className={`sticky top-4 z-10 flex justify-between gap-6 rounded-xl border border-transparent max-lg:transition-site-header max-lg:duration-normal max-lg:ease-default lg:z-0 lg:rounded-none lg:pb-8 ${
         isScrolled
           ? "max-lg:border-rule max-lg:bg-card-glass max-lg:px-4 max-lg:py-3 max-lg:shadow-sm max-lg:backdrop-blur-md"
@@ -338,6 +337,7 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
       }`}
     >
       <m.div
+        variants={notebookPartReveal}
         whileHover={hoverScale}
         whileTap={tapScale}
         transition={interactionTransition}
@@ -346,16 +346,19 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
         <Link
           href="/"
           aria-label="Home"
-          className="flex size-10 items-center justify-center text-xs tracking-wide"
+          className="flex size-10 items-center justify-center text-ink text-xs"
         >
           {identity.shortName}
         </Link>
       </m.div>
 
-      <div className="hidden flex-col items-end lg:flex">
+      <m.div
+        variants={notebookPartReveal}
+        className="hidden flex-col items-end lg:flex"
+      >
         <AppearanceControl />
         <DesktopWayfinding items={primaryWayfinding} pathname={pathname} />
-      </div>
+      </m.div>
 
       <MobileDisclosure items={primaryWayfinding} pathname={pathname} />
     </m.header>
