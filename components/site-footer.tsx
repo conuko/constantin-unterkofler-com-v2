@@ -14,9 +14,6 @@ const closingRecordReveal: Variants = {
 };
 
 type SiteFooterProps = {
-  identity: {
-    name: string;
-  };
   closingRecord: {
     copyrightYear: number;
   };
@@ -26,25 +23,25 @@ type SiteFooterProps = {
  * The in-flow closing record: one hairline rule and a copyright line that sits
  * at the end of short and long pages alike.
  */
-export function SiteFooter({ identity, closingRecord }: SiteFooterProps) {
+export function SiteFooter({ closingRecord }: SiteFooterProps) {
   return (
     <m.footer
       initial="hidden"
       animate="visible"
       variants={closingRecordReveal}
       data-closing-record
-      className="relative mx-auto mt-auto flex w-full max-w-180 pt-4 pb-2"
+      className="relative mx-auto mt-auto flex w-full pt-4 pb-2 lg:pointer-events-none lg:fixed lg:inset-x-0 lg:bottom-8 lg:px-6"
     >
       <m.span
         aria-hidden="true"
         variants={notebookRuleReveal}
-        className="absolute inset-x-0 top-0 h-px origin-left bg-rule"
+        className="absolute inset-x-0 top-0 h-px origin-left"
       />
       <m.p
         variants={notebookPartReveal}
         className="label text-ink-muted text-label"
       >
-        © {closingRecord.copyrightYear} {identity.name}
+        © {closingRecord.copyrightYear}
       </m.p>
     </m.footer>
   );

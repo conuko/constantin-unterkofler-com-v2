@@ -90,7 +90,7 @@ const closingRecord = {
 };
 
 const aboutIntroduction =
-  "I’m a Software Engineer passionate about building thoughtful digital products and scalable web experiences. Italian-German, grew up in Bolzano, Italy, now based in Berlin. I studied Philosophy and Cultural Studies before earning a degree in Software Engineering. Currently I work at Jung von Matt. Outside of work, I play guitar with a love for funk, neo-soul, pop, and jazz.";
+  "I’m a Software Engineer passionate about building thoughtful digital products and scalable web experiences. Italian-German, grew up in Bolzano, Italy, now based in Berlin. I studied Philosophy and Cultural Studies before earning a degree in Software Engineering. Currently I work at Jung von Matt, specializing in e-commerce projects and modern web and AI applications for international corporate clients.";
 
 const cvSections: CvSection[] = [
   {
@@ -468,7 +468,7 @@ const portfolioPages = {
   home: {
     publicationStatus: "published" satisfies PublicationStatus,
     route: "/",
-    sectionCode: "",
+    sectionCode: "Hi!",
     title: identity.name,
     width: "reading",
     metadata: {

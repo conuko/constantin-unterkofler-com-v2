@@ -38,7 +38,7 @@ export function MotionLayout({ children, footer, header }: MotionLayoutProps) {
 
             <main
               id="main-content"
-              className="mx-auto w-full max-w-180 flex-1 pb-16"
+              className="mx-auto w-full max-w-270 flex-1 pb-16"
             >
               {children}
             </main>

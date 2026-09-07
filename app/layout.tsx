@@ -47,12 +47,7 @@ export default function RootLayout({
               primaryWayfinding={portfolioContent.primaryWayfinding}
             />
           }
-          footer={
-            <SiteFooter
-              identity={portfolioContent.identity}
-              closingRecord={portfolioContent.closingRecord}
-            />
-          }
+          footer={<SiteFooter closingRecord={portfolioContent.closingRecord} />}
         >
           {children}
         </MotionLayout>

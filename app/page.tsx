@@ -16,7 +16,7 @@ export default function Home() {
       introduction={
         <div className="space-y-2">
           <p>
-            Hi, I'm a {home.content.introduction.role} at{" "}
+            I build things for the www at{" "}
             <a
               href={home.content.introduction.organization.url}
               target="_blank"
