@@ -80,6 +80,13 @@ describe("Portfolio Content", () => {
     ]);
   });
 
+  test("owns the footer closing record copyright", () => {
+    expect(portfolioContent.closingRecord).toEqual({
+      copyrightYear: 2026,
+    });
+    expect(portfolioContent.identity.name).toBe("Constantin Unterkofler");
+  });
+
   test("keeps unpublished Portfolio Content out of public wayfinding", () => {
     expect(portfolioContent.pages.read.publicationStatus).toBe("unpublished");
     expect(portfolioContent.pages.play.publicationStatus).toBe("unpublished");

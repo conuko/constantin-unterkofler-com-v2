@@ -151,26 +151,67 @@ export function NotebookPageHeader({
   );
 }
 
+export function useNotebookPageIdentitySettled() {
+  return useContext(NotebookPageIdentityContext);
+}
+
+const recordGroupElements = {
+  div: m.div,
+  ol: m.ol,
+  ul: m.ul,
+} as const;
+
+type NotebookRecordGroupProps = {
+  as?: keyof typeof recordGroupElements;
+  children: ReactNode;
+  className?: string;
+  label?: string;
+  variants: Variants;
+};
+
+/**
+ * A group of records that registers once the Portfolio Page identity has
+ * settled. Semantic modules own the sequence expressed by `variants`.
+ */
+export function NotebookRecordGroup({
+  as = "div",
+  children,
+  className,
+  label,
+  variants,
+}: NotebookRecordGroupProps) {
+  const pageIdentitySettled = useNotebookPageIdentitySettled();
+  const Group = recordGroupElements[as];
+
+  return (
+    <Group
+      initial="hidden"
+      animate={pageIdentitySettled ? "visible" : "hidden"}
+      variants={variants}
+      aria-label={label}
+      data-notebook-record-group
+      className={className}
+    >
+      {children}
+    </Group>
+  );
+}
+
 export function NotebookCollection({
   children,
   variants,
   className,
 }: NotebookCollectionProps) {
-  const pageIdentitySettled = useContext(NotebookPageIdentityContext);
-
   return (
-    <m.div
-      initial="hidden"
-      animate={pageIdentitySettled ? "visible" : "hidden"}
+    <NotebookRecordGroup
       variants={variants}
-      data-notebook-collection
       className={cn(
         "grid w-full grid-cols-1 gap-x-8 gap-y-14 md:grid-cols-2 lg:gap-x-12 lg:gap-y-18",
         className,
       )}
     >
       {children}
-    </m.div>
+    </NotebookRecordGroup>
   );
 }
 
@@ -383,5 +424,132 @@ export function NotebookTag({ children }: { children: ReactNode }) {
     <li className="label notebook-tag-marker text-ink-muted text-micro">
       {children}
     </li>
+  );
+}
+
+const labelElements = ["h2", "h3", "p", "span"] as const;
+
+type NotebookLabelProps = {
+  as?: (typeof labelElements)[number];
+  children: ReactNode;
+  className?: string;
+};
+
+/** The shared uppercase label language used for codes, indices, and metadata. */
+export function NotebookLabel({
+  as: Label = "p",
+  children,
+  className,
+}: NotebookLabelProps) {
+  return (
+    <Label className={cn("label text-ink-muted text-label", className)}>
+      {children}
+    </Label>
+  );
+}
+
+/** Heading for a named section of record rows, e.g. the CV's Work and Education. */
+export function NotebookSectionHeading({ children }: { children: ReactNode }) {
+  return (
+    <m.h2
+      variants={notebookPartReveal}
+      data-notebook-section-heading
+      className="label text-ink-muted text-label"
+    >
+      {children}
+    </m.h2>
+  );
+}
+
+type NotebookRecordRowProps = {
+  children: ReactNode;
+  className?: string;
+  interactive?: boolean;
+};
+
+/**
+ * One record row: a drawn hairline rule above row content that settles as a
+ * unit. Interactive rows lift their rule to ink on hover and focus.
+ */
+export function NotebookRecordRow({
+  children,
+  className,
+  interactive = false,
+}: NotebookRecordRowProps) {
+  return (
+    <m.li
+      variants={notebookPartReveal}
+      data-notebook-record-row
+      className={cn("group relative flex min-w-0 flex-col", className)}
+    >
+      <m.span
+        aria-hidden="true"
+        data-notebook-record-rule
+        variants={notebookRuleReveal}
+        className={cn(
+          "absolute inset-x-0 top-0 h-px origin-left bg-rule transition-colors duration-fast",
+          interactive && "group-focus-within:bg-ink group-hover:bg-ink",
+        )}
+      />
+      {children}
+    </m.li>
+  );
+}
+
+const recordRowGeometry =
+  "flex w-full flex-wrap items-baseline gap-x-6 gap-y-1 py-4 sm:flex-nowrap";
+
+export function NotebookRecordRowBody({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return <div className={cn(recordRowGeometry, className)}>{children}</div>;
+}
+
+type NotebookRecordRowLinkProps = {
+  children: ReactNode;
+  className?: string;
+  external?: boolean;
+  href: string;
+};
+
+/**
+ * A record row whose whole body is one action. Hover, focus, and press share
+ * the notebook interaction tokens; external destinations open in a new tab.
+ */
+export function NotebookRecordRowLink({
+  children,
+  className,
+  external = false,
+  href,
+}: NotebookRecordRowLinkProps) {
+  return (
+    <m.a
+      href={href}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noreferrer noopener" : undefined}
+      whileHover={{ y: "var(--notebook-hover-y)" }}
+      whileTap={{ scale: "var(--notebook-press-scale)" }}
+      transition={notebookInteractionTransition}
+      className={cn(
+        recordRowGeometry,
+        "origin-left transition-colors duration-fast hover:text-ink focus-visible:text-ink",
+        className,
+      )}
+    >
+      {children}
+    </m.a>
+  );
+}
+
+/** Real position of a row within its Portfolio Page records, e.g. A–01. */
+export function NotebookRowIndex({ children }: { children: ReactNode }) {
+  return (
+    <NotebookLabel as="span" className="w-14 shrink-0 tabular-nums">
+      {children}
+    </NotebookLabel>
   );
 }

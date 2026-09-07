@@ -85,6 +85,10 @@ const identity = {
     "Personal portfolio of Constantin Unterkofler, a Software Engineer building thoughtful digital products and scalable web experiences.",
 };
 
+const closingRecord = {
+  copyrightYear: 2026,
+};
+
 const aboutIntroduction =
   "I’m a Software Engineer passionate about building thoughtful digital products and scalable web experiences. Italian-German, grew up in Bolzano, Italy, now based in Berlin. I studied Philosophy and Cultural Studies before earning a degree in Software Engineering. Currently I work at Jung von Matt. Outside of work, I play guitar with a love for funk, neo-soul, pop, and jazz.";
 
@@ -603,6 +607,7 @@ const primaryWayfinding: NavItem[] = Object.values(portfolioPages)
 
 export const portfolioContent = {
   identity,
+  closingRecord,
   pages: portfolioPages,
   primaryWayfinding,
 } as const;

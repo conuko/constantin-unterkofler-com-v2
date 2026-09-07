@@ -1,4 +1,4 @@
-import type { Transition, Variants } from "motion/react";
+import { stagger, type Transition, type Variants } from "motion/react";
 
 export const notebookEase = [0.16, 1, 0.3, 1] as const;
 
@@ -84,6 +84,61 @@ export const notebookPageHeadingReveal: Variants = {
       duration: 0.9,
       ease: notebookEase,
       opacity: { duration: 0.42, ease: notebookEase },
+    },
+  },
+};
+
+/**
+ * Timing contract for sectioned record groups such as the CV: each section
+ * registers its heading first, then its record rows in reading order, and the
+ * next section only begins after the previous section's rows have started.
+ */
+export const notebookSectionSequence = {
+  sectionStagger: 0.36,
+  headingLead: 0.12,
+  entryStagger: 0.06,
+} as const;
+
+export function notebookSectionSequenceStarts(entryCounts: number[]) {
+  return entryCounts.map((entryCount, sectionIndex) => {
+    const heading = sectionIndex * notebookSectionSequence.sectionStagger;
+
+    return {
+      heading,
+      entries: Array.from(
+        { length: entryCount },
+        (_, entryIndex) =>
+          heading +
+          notebookSectionSequence.headingLead +
+          entryIndex * notebookSectionSequence.entryStagger,
+      ),
+    };
+  });
+}
+
+export const notebookSectionGroupReveal: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      delayChildren: stagger(notebookSectionSequence.sectionStagger),
+    },
+  },
+};
+
+export const notebookSectionReveal: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      delayChildren: stagger(notebookSectionSequence.headingLead),
+    },
+  },
+};
+
+export const notebookRecordRowsReveal: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      delayChildren: stagger(notebookSectionSequence.entryStagger),
     },
   },
 };
