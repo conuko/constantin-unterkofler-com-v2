@@ -9,36 +9,19 @@ import { useTheme } from "next-themes";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { NavItem } from "@/content/site-content";
 import {
-  notebookEase,
+  notebookDelay,
   notebookInteractionTransition,
-  notebookPartReveal,
+  notebookTiming,
 } from "@/lib/notebook-motion";
 import { useScrolled } from "@/lib/use-scrolled";
 import { isCurrentRoute } from "@/lib/wayfinding";
 
-const hoverScale = { scale: "var(--notebook-control-hover-scale)" };
-const tapScale = { scale: "var(--notebook-press-scale)" };
-
 const interactionTransition = notebookInteractionTransition;
+const notebookEase = [0.16, 1, 0.3, 1] as const;
 
-const siteHeaderReveal: Variants = {
-  hidden: {},
-  visible: {
-    transition: {
-      delayChildren: stagger(0.06),
-    },
-  },
-};
-
-const desktopWayfindingIn: Variants = {
-  hidden: {},
-  visible: {
-    transition: {
-      delayChildren: stagger(0.08, { startDelay: 0.1 }),
-    },
-  },
-};
-
+/* The disclosure panel opens on a tap, long after load, so its choreography
+ * stays with Motion — there is no first paint to protect here. The header's
+ * own entrance is CSS, like the rest of the notebook. */
 const mobileDisclosureIn: Variants = {
   hidden: {
     opacity: "var(--motion-initial-opacity)",
@@ -121,18 +104,15 @@ function AppearanceControl() {
   const { resolvedTheme, setTheme } = useTheme();
 
   return (
-    <m.button
+    <button
       type="button"
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-      whileHover={hoverScale}
-      whileTap={tapScale}
-      transition={interactionTransition}
-      className="group relative flex size-10 cursor-pointer items-center justify-center text-ink transition-transform duration-normal ease-spring active:scale-95"
+      className="notebook-control group relative flex size-10 cursor-pointer items-center justify-center text-ink"
     >
       <Sun className="size-4 rotate-0 scale-100 transition-transform duration-normal ease-spring group-hover:text-amber-500 dark:-rotate-90 dark:scale-0" />
       <Moon className="absolute size-4 rotate-90 scale-0 transition-transform duration-normal ease-spring group-hover:text-indigo-400 dark:rotate-0 dark:scale-100" />
       <span className="sr-only">Toggle theme</span>
-    </m.button>
+    </button>
   );
 }
 
@@ -144,18 +124,25 @@ type DesktopWayfindingProps = {
 function DesktopWayfinding({ items, pathname }: DesktopWayfindingProps) {
   return (
     <nav aria-label="Primary">
-      <m.ul variants={desktopWayfindingIn} className="flex flex-col items-end">
-        {items.map((item) => (
-          <m.li key={item.href} variants={notebookPartReveal}>
+      <ul className="flex flex-col items-end">
+        {items.map((item, index) => (
+          <li
+            key={item.href}
+            style={notebookDelay(
+              notebookTiming.siteHeaderWayfindingLead +
+                index * notebookTiming.siteHeaderWayfindingStagger,
+            )}
+            className="notebook-in-part"
+          >
             <WayfindingLink
               item={item}
               pathname={pathname}
               underlineLayoutId="site-header-desktop-underline"
               className="relative pb-1 text-xs"
             />
-          </m.li>
+          </li>
         ))}
-      </m.ul>
+      </ul>
     </nav>
   );
 }
@@ -172,17 +159,14 @@ function DisclosureControl({
   onToggle,
 }: DisclosureControlProps) {
   return (
-    <m.button
+    <button
       ref={controlRef}
       type="button"
       onClick={onToggle}
-      whileHover={hoverScale}
-      whileTap={tapScale}
-      transition={interactionTransition}
       aria-expanded={isOpen}
       aria-controls="site-header-mobile-wayfinding"
       aria-label={isOpen ? "Close menu" : "Open menu"}
-      className="relative flex size-10 cursor-pointer items-center justify-center transition-transform duration-normal ease-spring active:scale-95"
+      className="notebook-control relative flex size-10 cursor-pointer items-center justify-center"
     >
       <div className="flex size-5 flex-col items-center justify-center">
         <span className="contents motion-reduce:hidden">
@@ -218,7 +202,7 @@ function DisclosureControl({
           />
         </span>
       </div>
-    </m.button>
+    </button>
   );
 }
 
@@ -255,7 +239,10 @@ function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
   }, [isOpen, close]);
 
   return (
-    <div className="relative lg:hidden">
+    <div
+      style={notebookDelay(notebookTiming.siteHeaderControls)}
+      className="notebook-in-part relative lg:hidden"
+    >
       <DisclosureControl
         controlRef={disclosureControlRef}
         isOpen={isOpen}
@@ -325,13 +312,7 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
   const isScrolled = useScrolled();
 
   return (
-    <m.header
-      initial="hidden"
-      animate="visible"
-      variants={siteHeaderReveal}
-      data-site-header
-      className="sticky top-7 z-10 pb-8 lg:top-4 lg:z-0"
-    >
+    <header data-site-header className="sticky top-7 z-10 pb-8 lg:top-4 lg:z-0">
       <div className="relative flex justify-between gap-6">
         {/* The glass surface is its own layer rather than the header's own
          * background, for two reasons. iOS Safari silently drops
@@ -350,32 +331,29 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
           }`}
         />
 
-        <m.div
-          variants={notebookPartReveal}
-          whileHover={hoverScale}
-          whileTap={tapScale}
-          transition={interactionTransition}
-          className="self-start"
+        <div
+          style={notebookDelay(notebookTiming.siteHeaderIdentity)}
+          className="notebook-in-part self-start"
         >
           <Link
             href="/"
-            aria-label="Home"
-            className="flex size-10 items-center justify-center text-ink text-xs"
+            className="notebook-control flex size-10 items-center justify-center text-ink text-xs"
           >
             {identity.shortName}
+            <span className="sr-only">— home</span>
           </Link>
-        </m.div>
+        </div>
 
-        <m.div
-          variants={notebookPartReveal}
-          className="hidden flex-col items-end lg:flex"
+        <div
+          style={notebookDelay(notebookTiming.siteHeaderControls)}
+          className="notebook-in-part hidden flex-col items-end lg:flex"
         >
           <AppearanceControl />
           <DesktopWayfinding items={primaryWayfinding} pathname={pathname} />
-        </m.div>
+        </div>
 
         <MobileDisclosure items={primaryWayfinding} pathname={pathname} />
       </div>
-    </m.header>
+    </header>
   );
 }

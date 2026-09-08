@@ -1,7 +1,4 @@
-"use client";
-
 import { Star } from "lucide-react";
-import { stagger, type Variants } from "motion/react";
 import Image from "next/image";
 import {
   NotebookAnnotation,
@@ -18,19 +15,8 @@ type ReadPresentationProps = {
   entries: BookEntry[];
 };
 
-const readGroupSequence: Variants = {
-  hidden: {},
-  visible: {
-    transition: {
-      delayChildren: stagger(0.075),
-    },
-  },
-};
-
-const readRecordSequence = {
-  delayChildren: 0,
-  staggerChildren: 0.042,
-};
+const readGroupStep = 0.075;
+const readRecordPartStep = 0.042;
 
 const ratingPositions = [1, 2, 3, 4, 5] as const;
 
@@ -41,15 +27,12 @@ function formatCompletionMonth(completedAt: BookEntry["completedAt"]) {
 
 export function ReadPresentation({ entries }: ReadPresentationProps) {
   return (
-    <NotebookCollection
-      variants={readGroupSequence}
-      className="mx-auto max-w-4xl"
-    >
+    <NotebookCollection step={readGroupStep} className="mx-auto max-w-4xl">
       {entries.map((entry, index) => {
         const loadImmediately = index < 2;
 
         return (
-          <NotebookRecord key={entry.title} sequence={readRecordSequence}>
+          <NotebookRecord key={entry.title} partStep={readRecordPartStep}>
             <NotebookIndex>{`R–${String(index + 1).padStart(2, "0")}`}</NotebookIndex>
             <NotebookMedia mediaClassName="aspect-2/3 p-0 sm:p-0">
               <Image

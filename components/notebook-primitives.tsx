@@ -1,201 +1,109 @@
-"use client";
-
-import type { Variants } from "motion/react";
-import * as m from "motion/react-m";
-import { createContext, type ReactNode, useContext, useRef } from "react";
-import {
-  createNotebookRecordReveal,
-  notebookInteractionTransition,
-  notebookPageHeadingReveal,
-  notebookPageIdentityReveal,
-  notebookPartReveal,
-  notebookRuleReveal,
-} from "@/lib/notebook-motion";
+import type { CSSProperties, ReactNode } from "react";
+import { notebookDelay, notebookTiming } from "@/lib/notebook-motion";
 import { cn } from "@/lib/utils/cn";
 
-type NotebookCollectionProps = {
-  children: ReactNode;
-  variants: Variants;
-  className?: string;
-};
-
-const NotebookPageIdentityContext = createContext(true);
-
-export function NotebookPageIdentityProvider({
-  children,
-  settled,
-}: {
-  children: ReactNode;
-  settled: boolean;
-}) {
-  return (
-    <NotebookPageIdentityContext.Provider value={settled}>
-      {children}
-    </NotebookPageIdentityContext.Provider>
-  );
-}
+/**
+ * The Engineering Notebook's record anatomy.
+ *
+ * These are server components on purpose. Their entrance is CSS (see
+ * `app/motion.css`), their hover and press states are CSS, and none of them
+ * hold state — so none of them need to ship, hydrate, or run. What used to be
+ * sixty Motion components on the Work page is now zero.
+ */
 
 type NotebookPageHeaderProps = {
   /** Takes the section code's slot on a Portfolio Page that greets instead. */
   greeting?: ReactNode;
   introduction?: ReactNode;
   sectionCode: string;
-  sequence: Variants;
   showRule?: boolean;
   title: string;
-  onIdentitySettled?: () => void;
 };
-
-const identitySettlementOpacity = 0.95;
-
-function NotebookPageHeading({
-  title,
-  onSettled,
-}: {
-  title: string;
-  onSettled?: () => void;
-}) {
-  return (
-    <m.h1
-      variants={notebookPageHeadingReveal}
-      onUpdate={({ opacity }) => {
-        if (
-          typeof opacity === "number" &&
-          opacity >= identitySettlementOpacity
-        ) {
-          onSettled?.();
-        }
-      }}
-      onAnimationComplete={onSettled}
-      data-notebook-title
-      className="w-fit pr-2 font-heading font-semibold text-5xl leading-none tracking-tight lg:text-7xl"
-    >
-      {title}
-    </m.h1>
-  );
-}
 
 export function NotebookPageHeader({
   greeting,
   introduction,
   sectionCode,
-  sequence,
   showRule = true,
   title,
-  onIdentitySettled,
 }: NotebookPageHeaderProps) {
-  const identityProgress = useRef({
-    settledParts: new Set<"introduction" | "title">(),
-    notified: false,
-  });
-
-  function markIdentityPartSettled(part: "introduction" | "title") {
-    identityProgress.current.settledParts.add(part);
-    const requiredPartCount = introduction ? 2 : 1;
-
-    if (
-      !identityProgress.current.notified &&
-      identityProgress.current.settledParts.size === requiredPartCount
-    ) {
-      identityProgress.current.notified = true;
-      onIdentitySettled?.();
-    }
-  }
-
-  function markIdentityPartVisible(
-    part: "introduction" | "title",
-    opacity: unknown,
-  ) {
-    if (typeof opacity === "number" && opacity >= identitySettlementOpacity) {
-      markIdentityPartSettled(part);
-    }
-  }
-
   return (
-    <m.header
-      variants={sequence}
-      data-notebook-header
-      className="flex w-full flex-col items-start"
-    >
+    <header data-notebook-header className="flex w-full flex-col items-start">
       {(greeting || sectionCode) && (
-        <m.p
-          variants={notebookPageIdentityReveal}
+        <p
+          style={notebookDelay(notebookTiming.pageIdentity)}
           className={cn(
-            "mb-4 text-ink-muted",
+            "notebook-in-identity mb-4 text-ink-muted",
             greeting ? "text-sm" : "label text-label",
           )}
         >
           {greeting ?? sectionCode}
-        </m.p>
+        </p>
       )}
-      <NotebookPageHeading
-        key={title}
-        title={title}
-        onSettled={() => markIdentityPartSettled("title")}
-      />
+      <h1
+        style={notebookDelay(notebookTiming.pageHeading)}
+        data-notebook-title
+        className="notebook-in-heading w-fit pr-2 font-heading font-semibold text-5xl leading-none tracking-tight lg:text-7xl"
+      >
+        {title}
+      </h1>
       {introduction && (
-        <m.div
-          variants={notebookPageIdentityReveal}
-          onUpdate={({ opacity }) =>
-            markIdentityPartVisible("introduction", opacity)
-          }
-          onAnimationComplete={() => markIdentityPartSettled("introduction")}
+        <div
+          style={notebookDelay(notebookTiming.pageIntroduction)}
           data-notebook-introduction
-          className="mt-6 w-full max-w-180 text-ink-muted text-sm"
+          className="notebook-in-introduction mt-6 w-full max-w-180 text-ink-muted text-sm"
         >
           {introduction}
-        </m.div>
+        </div>
       )}
       {showRule && (
-        <m.div
-          variants={notebookRuleReveal}
+        <div
+          style={notebookDelay(notebookTiming.pageHeaderRule)}
           data-notebook-header-rule
-          className="mt-7 h-px w-full origin-left bg-rule"
+          className="notebook-in-rule mt-7 h-px w-full origin-left bg-rule"
         />
       )}
-    </m.header>
+    </header>
   );
 }
 
-export function useNotebookPageIdentitySettled() {
-  return useContext(NotebookPageIdentityContext);
-}
-
-const recordGroupElements = {
-  div: m.div,
-  ol: m.ol,
-  ul: m.ul,
-} as const;
+const recordGroupElements = ["div", "ol", "ul"] as const;
 
 type NotebookRecordGroupProps = {
-  as?: keyof typeof recordGroupElements;
+  as?: (typeof recordGroupElements)[number];
   children: ReactNode;
   className?: string;
   label?: string;
-  variants: Variants;
+  /** Seconds from first paint before the first record registers. */
+  base?: number;
+  /** Seconds between one record and the next. */
+  step?: number;
 };
 
 /**
- * A group of records that registers once the Portfolio Page identity has
- * settled. Semantic modules own the sequence expressed by `variants`.
+ * A group of records that registers in reading order. The group names its own
+ * base offset and step once; each child derives its delay from its DOM
+ * position (see the stagger block in `app/motion.css`).
  */
 export function NotebookRecordGroup({
-  as = "div",
+  as: Group = "div",
   children,
   className,
   label,
-  variants,
+  base = notebookTiming.content,
+  step = 0.06,
 }: NotebookRecordGroupProps) {
-  const pageIdentitySettled = useNotebookPageIdentitySettled();
-  const Group = recordGroupElements[as];
-
   return (
     <Group
-      initial="hidden"
-      animate={pageIdentitySettled ? "visible" : "hidden"}
-      variants={variants}
       aria-label={label}
       data-notebook-record-group
+      data-notebook-stagger
+      style={
+        {
+          "--notebook-stagger-base": `${base}s`,
+          "--notebook-stagger-step": `${step}s`,
+        } as CSSProperties
+      }
       className={className}
     >
       {children}
@@ -203,14 +111,23 @@ export function NotebookRecordGroup({
   );
 }
 
+type NotebookCollectionProps = {
+  children: ReactNode;
+  className?: string;
+  base?: number;
+  step?: number;
+};
+
 export function NotebookCollection({
   children,
-  variants,
   className,
+  base,
+  step,
 }: NotebookCollectionProps) {
   return (
     <NotebookRecordGroup
-      variants={variants}
+      base={base}
+      step={step}
       className={cn(
         "grid w-full grid-cols-1 gap-x-8 gap-y-14 md:grid-cols-2 lg:gap-x-12 lg:gap-y-18",
         className,
@@ -224,44 +141,42 @@ export function NotebookCollection({
 type NotebookRecordProps = {
   children: ReactNode;
   className?: string;
-  sequence: {
-    delayChildren: number;
-    staggerChildren: number;
-  };
+  /** Seconds between one part of this record and the next. */
+  partStep?: number;
 };
 
 export function NotebookRecord({
   children,
   className,
-  sequence,
+  partStep = 0.045,
 }: NotebookRecordProps) {
   return (
-    <m.article
-      variants={createNotebookRecordReveal(sequence)}
-      whileHover={{ y: "var(--notebook-hover-y)" }}
-      transition={notebookInteractionTransition}
-      className={cn("group relative flex min-w-0 flex-col pt-3", className)}
+    <article
+      data-notebook-record
+      style={{ "--notebook-part-step": `${partStep}s` } as CSSProperties}
+      className={cn(
+        "notebook-in-record notebook-lift group relative flex min-w-0 flex-col pt-3",
+        className,
+      )}
     >
-      <m.span
+      <span
         aria-hidden="true"
         data-notebook-record-rule
-        variants={notebookRuleReveal}
-        className="absolute inset-x-0 top-0 h-px origin-left bg-rule transition-colors duration-fast group-focus-within:bg-ink"
+        className="notebook-in-rule absolute inset-x-0 top-0 h-px origin-left bg-rule transition-colors duration-fast group-focus-within:bg-ink"
       />
       {children}
-    </m.article>
+    </article>
   );
 }
 
 export function NotebookIndex({ children }: { children: ReactNode }) {
   return (
-    <m.p
-      variants={notebookPartReveal}
+    <p
       data-entry-part="index"
-      className="label mb-3 text-ink-muted text-label"
+      className="notebook-in-part label mb-3 text-ink-muted text-label"
     >
       {children}
-    </m.p>
+    </p>
   );
 }
 
@@ -282,77 +197,66 @@ export function NotebookMedia({
   link,
 }: NotebookMediaProps) {
   const field = (
-    <m.div
+    <div
       data-notebook-media-field
-      whileHover={{ scale: "var(--notebook-media-hover-scale)" }}
-      transition={notebookInteractionTransition}
       className={cn(
-        "relative flex aspect-video items-center justify-center overflow-hidden border border-media-field-rule bg-media-field p-7 shadow-media-field sm:p-10",
+        "notebook-media-field relative flex aspect-video items-center justify-center overflow-hidden border border-media-field-rule bg-media-field p-7 shadow-media-field sm:p-10",
         mediaClassName,
       )}
     >
       {children}
-    </m.div>
+    </div>
   );
 
   return (
-    <m.div
-      variants={notebookPartReveal}
-      data-entry-part="media"
-      className="mb-5"
-    >
+    <div data-entry-part="media" className="notebook-in-part mb-5">
       {link ? (
-        <m.a
+        <a
           href={link.href}
           target="_blank"
           rel="noreferrer noopener"
           aria-label={link.label}
-          whileTap={{ scale: "var(--notebook-press-scale)" }}
-          transition={notebookInteractionTransition}
-          className="block"
+          className="notebook-press block"
         >
           {field}
-        </m.a>
+        </a>
       ) : (
         field
       )}
-    </m.div>
+    </div>
   );
 }
 
 export function NotebookTitle({ children }: { children: ReactNode }) {
   return (
-    <m.h2
-      variants={notebookPartReveal}
+    <h2
       data-entry-part="title"
-      className="font-heading font-semibold text-2xl leading-none tracking-tight"
+      className="notebook-in-part font-heading font-semibold text-2xl leading-none tracking-tight"
     >
       {children}
-    </m.h2>
+    </h2>
   );
 }
 
 export function NotebookMetadata({ children }: { children: ReactNode }) {
   return (
-    <m.p
-      variants={notebookPartReveal}
+    <p
       data-entry-part="metadata"
-      className="label mt-2 text-ink-muted text-label"
+      className="notebook-in-part label mt-2 text-ink-muted text-label"
     >
       {children}
-    </m.p>
+    </p>
   );
 }
 
 export function NotebookAnnotation({ children }: { children: ReactNode }) {
   return (
-    <m.div
-      variants={notebookPartReveal}
+    <div
       data-entry-part="annotation"
-      className="mt-4 border-rule border-l pl-3 text-ink-muted text-sm leading-relaxed"
+      className="notebook-in-part mt-4 border-rule border-l pl-3 text-ink-muted text-sm leading-relaxed"
     >
       {children}
-    </m.div>
+    </div>
   );
 }
 
@@ -363,14 +267,13 @@ type NotebookActionsProps = {
 
 export function NotebookActions({ children, label }: NotebookActionsProps) {
   return (
-    <m.ul
-      variants={notebookPartReveal}
+    <ul
       data-entry-part="actions"
       aria-label={label}
-      className="mt-5 flex flex-wrap gap-3"
+      className="notebook-in-part mt-5 flex flex-wrap gap-3"
     >
       {children}
-    </m.ul>
+    </ul>
   );
 }
 
@@ -389,20 +292,18 @@ export function NotebookAction({
 }: NotebookActionProps) {
   return (
     <li>
-      <m.a
+      <a
         href={href}
         target="_blank"
         rel="noreferrer noopener"
         aria-label={label}
-        whileTap={{ scale: "var(--notebook-press-scale)" }}
-        transition={notebookInteractionTransition}
         className={cn(
-          "label inline-flex min-h-9 items-center gap-2 border border-rule bg-card-glass px-3 py-2 text-ink-muted text-micro backdrop-blur-sm transition-colors duration-fast hover:border-ink hover:text-ink",
+          "notebook-press label inline-flex min-h-9 items-center gap-2 border border-rule bg-card-glass px-3 py-2 text-ink-muted text-micro backdrop-blur-sm transition-colors duration-fast hover:border-ink hover:text-ink",
           className,
         )}
       >
         {children}
-      </m.a>
+      </a>
     </li>
   );
 }
@@ -414,14 +315,13 @@ type NotebookTagsProps = {
 
 export function NotebookTags({ children, label }: NotebookTagsProps) {
   return (
-    <m.ul
-      variants={notebookPartReveal}
+    <ul
       data-entry-part="tags"
       aria-label={label}
-      className="mt-5 flex min-h-5 flex-wrap gap-x-3 gap-y-1.5"
+      className="notebook-in-part mt-5 flex min-h-5 flex-wrap gap-x-3 gap-y-1.5"
     >
       {children}
-    </m.ul>
+    </ul>
   );
 }
 
@@ -455,21 +355,28 @@ export function NotebookLabel({
 }
 
 /** Heading for a named section of record rows, e.g. the CV's Work and Education. */
-export function NotebookSectionHeading({ children }: { children: ReactNode }) {
+export function NotebookSectionHeading({
+  children,
+  delay,
+}: {
+  children: ReactNode;
+  delay?: number;
+}) {
   return (
-    <m.h2
-      variants={notebookPartReveal}
+    <h2
+      style={delay === undefined ? undefined : notebookDelay(delay)}
       data-notebook-section-heading
-      className="label text-ink-muted text-label"
+      className="notebook-in-part label text-ink-muted text-label"
     >
       {children}
-    </m.h2>
+    </h2>
   );
 }
 
 type NotebookRecordRowProps = {
   children: ReactNode;
   className?: string;
+  delay?: number;
   interactive?: boolean;
 };
 
@@ -480,25 +387,28 @@ type NotebookRecordRowProps = {
 export function NotebookRecordRow({
   children,
   className,
+  delay,
   interactive = false,
 }: NotebookRecordRowProps) {
   return (
-    <m.li
-      variants={notebookPartReveal}
+    <li
+      style={delay === undefined ? undefined : notebookDelay(delay)}
       data-notebook-record-row
-      className={cn("group relative flex min-w-0 flex-col", className)}
+      className={cn(
+        "notebook-in-part group relative flex min-w-0 flex-col",
+        className,
+      )}
     >
-      <m.span
+      <span
         aria-hidden="true"
         data-notebook-record-rule
-        variants={notebookRuleReveal}
         className={cn(
-          "absolute inset-x-0 top-0 h-px origin-left bg-rule transition-colors duration-fast",
+          "notebook-in-rule absolute inset-x-0 top-0 h-px origin-left bg-rule transition-colors duration-fast",
           interactive && "group-focus-within:bg-ink group-hover:bg-ink",
         )}
       />
       {children}
-    </m.li>
+    </li>
   );
 }
 
@@ -533,21 +443,18 @@ export function NotebookRecordRowLink({
   href,
 }: NotebookRecordRowLinkProps) {
   return (
-    <m.a
+    <a
       href={href}
       target={external ? "_blank" : undefined}
       rel={external ? "noreferrer noopener" : undefined}
-      whileHover={{ y: "var(--notebook-hover-y)" }}
-      whileTap={{ scale: "var(--notebook-press-scale)" }}
-      transition={notebookInteractionTransition}
       className={cn(
         recordRowGeometry,
-        "origin-left transition-colors duration-fast hover:text-ink focus-visible:text-ink",
+        "notebook-lift notebook-press origin-left transition-colors duration-fast hover:text-ink focus-visible:text-ink",
         className,
       )}
     >
       {children}
-    </m.a>
+    </a>
   );
 }
 

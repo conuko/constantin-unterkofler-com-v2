@@ -1,0 +1,329 @@
+/* ═══════════════════════════════════════════════════
+ * ENTRANCE CHOREOGRAPHY
+ *
+ * The Engineering Notebook registers itself on load: rules draw, parts settle.
+ * Two rules govern how, and both come from measurement. See ADR-0004.
+ *
+ * 1. It is CSS, not JavaScript. When the entrance ran through Motion variants,
+ *    every part shipped from the server at `opacity: 0` and stayed there until
+ *    the bundle downloaded, React hydrated, and Motion drove the first frame.
+ *    The page painted at ~680ms and did not become contentful until ~1500ms.
+ *    As CSS, the animation starts at first paint instead.
+ *
+ * 2. At least one above-the-fold element must be opaque in the server-rendered
+ *    HTML. Chrome excludes an element that is transparent or fully clipped
+ *    when painted from both First and Largest Contentful Paint, and does not
+ *    reconsider it when an animation later reveals it. Fading the whole page
+ *    header in from `opacity: 0` did not delay those metrics — it forfeited
+ *    them outright: no FCP and no LCP reported on any page, however visible
+ *    the text looked a moment later. The Portfolio Page introduction
+ *    (`.notebook-in-introduction`) is the element that stays opaque and
+ *    carries this for every page that has one; see its own comment below.
+ *    Everything else above the fold may still fade — once FCP and LCP have
+ *    been recorded from the introduction, an element that starts transparent
+ *    is simply never a candidate, which costs nothing.
+ *
+ * Stagger is an absolute `--notebook-delay` per element, rendered into the
+ * server HTML. No runtime sequencing, no callback chain.
+ * ═══════════════════════════════════════════════════ */
+
+:root {
+  --notebook-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes notebook-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* The page title wipes open left to right — the notebook's signature move. */
+@keyframes notebook-heading-clip-in {
+  from {
+    clip-path: var(--motion-initial-clip);
+  }
+  to {
+    clip-path: inset(0 0% 0 0);
+  }
+}
+
+@keyframes notebook-settle-in {
+  from {
+    transform: translateY(var(--motion-initial-y));
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes notebook-part-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--motion-initial-y));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Rules draw themselves open. A hairline is a background box, never a paint
+ * timing candidate, so scaling one costs no metric. */
+@keyframes notebook-rule-in {
+  from {
+    opacity: 0;
+    transform: scaleX(var(--motion-initial-rule-scale));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes notebook-record-in {
+  from {
+    transform: translateY(var(--motion-initial-y));
+  }
+  to {
+    transform: none;
+  }
+}
+
+.notebook-in-part,
+.notebook-in-identity,
+.notebook-in-introduction,
+.notebook-in-rule,
+.notebook-in-heading,
+.notebook-in-record {
+  animation-delay: var(--notebook-delay, 0s);
+  animation-fill-mode: both;
+  animation-timing-function: var(--notebook-ease);
+}
+
+.notebook-in-part {
+  animation-name: notebook-part-in;
+  animation-duration: 0.32s;
+}
+
+.notebook-in-identity {
+  animation-name: notebook-part-in;
+  animation-duration: 0.42s;
+}
+
+/* The introduction is the one thing above the fold that never fades, and it
+ * carries the whole page's paint timing.
+ *
+ * Chrome drops an element that is transparent or fully clipped when painted
+ * from First and Largest Contentful Paint, and never reconsiders it: the
+ * reveal runs on the compositor, so no second paint is ever recorded. With the
+ * title wiping and the section code fading, this paragraph is the only
+ * contentful element eligible at first paint — and measurably so. Fade it and
+ * every page reports no FCP and no LCP at all, not merely a late one.
+ *
+ * It still settles into place. It just does so legibly. */
+.notebook-in-introduction {
+  animation-name: notebook-settle-in;
+  animation-duration: 0.42s;
+}
+
+.notebook-in-heading {
+  animation-name: notebook-heading-clip-in, notebook-fade-in;
+  animation-duration: 0.9s, 0.42s;
+}
+
+.notebook-in-rule {
+  animation-name: notebook-rule-in;
+  animation-duration: 0.36s;
+}
+
+.notebook-in-record {
+  animation-name: notebook-record-in;
+  animation-duration: 0.42s;
+}
+
+/* The global reduced-motion reset zeroes durations through a `*` selector,
+ * which loses to these classes on specificity. Say it again where it lands:
+ * no entrance at all, content already in place. */
+@media (prefers-reduced-motion: reduce) {
+  .notebook-in-part,
+  .notebook-in-identity,
+  .notebook-in-rule,
+  .notebook-in-heading,
+  .notebook-in-record {
+    animation: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+ * STAGGER
+ *
+ * Reading order is DOM order, so the index comes from the DOM. A group names
+ * its own base offset and step once, inline; every child derives its delay
+ * from its position. Nothing is threaded through props, and nothing needs
+ * JavaScript to sequence it.
+ * ═══════════════════════════════════════════════════ */
+
+[data-notebook-stagger] > * {
+  --notebook-delay: calc(
+    var(--notebook-stagger-base, 0s) +
+    var(--notebook-stagger-index, 0) *
+    var(--notebook-stagger-step, 0.06s)
+  );
+  /* Handed down so a record's own parts continue from where it started. */
+  --notebook-part-base: var(--notebook-delay);
+}
+
+[data-notebook-stagger] > *:nth-child(1) {
+  --notebook-stagger-index: 0;
+}
+[data-notebook-stagger] > *:nth-child(2) {
+  --notebook-stagger-index: 1;
+}
+[data-notebook-stagger] > *:nth-child(3) {
+  --notebook-stagger-index: 2;
+}
+[data-notebook-stagger] > *:nth-child(4) {
+  --notebook-stagger-index: 3;
+}
+[data-notebook-stagger] > *:nth-child(5) {
+  --notebook-stagger-index: 4;
+}
+[data-notebook-stagger] > *:nth-child(6) {
+  --notebook-stagger-index: 5;
+}
+[data-notebook-stagger] > *:nth-child(7) {
+  --notebook-stagger-index: 6;
+}
+[data-notebook-stagger] > *:nth-child(8) {
+  --notebook-stagger-index: 7;
+}
+[data-notebook-stagger] > *:nth-child(9) {
+  --notebook-stagger-index: 8;
+}
+[data-notebook-stagger] > *:nth-child(10) {
+  --notebook-stagger-index: 9;
+}
+[data-notebook-stagger] > *:nth-child(11) {
+  --notebook-stagger-index: 10;
+}
+[data-notebook-stagger] > *:nth-child(12) {
+  --notebook-stagger-index: 11;
+}
+[data-notebook-stagger] > *:nth-child(13) {
+  --notebook-stagger-index: 12;
+}
+[data-notebook-stagger] > *:nth-child(14) {
+  --notebook-stagger-index: 13;
+}
+[data-notebook-stagger] > *:nth-child(15) {
+  --notebook-stagger-index: 14;
+}
+[data-notebook-stagger] > *:nth-child(16) {
+  --notebook-stagger-index: 15;
+}
+[data-notebook-stagger] > *:nth-child(17) {
+  --notebook-stagger-index: 16;
+}
+[data-notebook-stagger] > *:nth-child(18) {
+  --notebook-stagger-index: 17;
+}
+[data-notebook-stagger] > *:nth-child(19) {
+  --notebook-stagger-index: 18;
+}
+[data-notebook-stagger] > *:nth-child(20) {
+  --notebook-stagger-index: 19;
+}
+
+[data-entry-part] {
+  --notebook-delay: calc(
+    var(--notebook-part-base, 0s) +
+    var(--notebook-part-index, 0) *
+    var(--notebook-part-step, 0.045s)
+  );
+}
+
+[data-notebook-record] > [data-entry-part]:nth-child(2) {
+  --notebook-part-index: 0;
+}
+[data-notebook-record] > [data-entry-part]:nth-child(3) {
+  --notebook-part-index: 1;
+}
+[data-notebook-record] > [data-entry-part]:nth-child(4) {
+  --notebook-part-index: 2;
+}
+[data-notebook-record] > [data-entry-part]:nth-child(5) {
+  --notebook-part-index: 3;
+}
+[data-notebook-record] > [data-entry-part]:nth-child(6) {
+  --notebook-part-index: 4;
+}
+[data-notebook-record] > [data-entry-part]:nth-child(7) {
+  --notebook-part-index: 5;
+}
+[data-notebook-record] > [data-entry-part]:nth-child(8) {
+  --notebook-part-index: 6;
+}
+[data-notebook-record] > [data-entry-part]:nth-child(9) {
+  --notebook-part-index: 7;
+}
+[data-notebook-record] > [data-entry-part]:nth-child(10) {
+  --notebook-part-index: 8;
+}
+[data-notebook-record] > [data-entry-part]:nth-child(11) {
+  --notebook-part-index: 9;
+}
+
+/* ═══════════════════════════════════════════════════
+ * INTERACTION
+ *
+ * Hover and press use the independent `translate` and `scale` properties
+ * rather than `transform`, so they compose with the entrance keyframes above
+ * instead of fighting them for the same property. `--ease-spring` is the
+ * theme's spring curve, so the feel survives the move off Motion — and the
+ * records that carry these states stay server components.
+ * ═══════════════════════════════════════════════════ */
+
+.notebook-lift {
+  transition: translate var(--transition-duration-normal) var(--ease-spring);
+}
+
+.notebook-lift:hover {
+  translate: 0 var(--notebook-hover-y);
+}
+
+.notebook-press {
+  transition:
+    translate var(--transition-duration-normal) var(--ease-spring),
+    scale var(--transition-duration-fast) var(--ease-spring);
+}
+
+.notebook-press:active {
+  scale: var(--notebook-press-scale);
+}
+
+.notebook-media-field {
+  transition: scale var(--transition-duration-normal) var(--ease-spring);
+}
+
+/* The hover target is the record or link that wraps the field, not the field. */
+.group:hover .notebook-media-field,
+.notebook-media-field:hover {
+  scale: var(--notebook-media-hover-scale);
+}
+
+/* Site Header controls: the same hover-and-press language as records, sized
+ * for a control rather than a card. */
+.notebook-control {
+  transition: scale var(--transition-duration-normal) var(--ease-spring);
+}
+
+.notebook-control:hover {
+  scale: var(--notebook-control-hover-scale);
+}
+
+.notebook-control:active {
+  scale: var(--notebook-press-scale);
+}

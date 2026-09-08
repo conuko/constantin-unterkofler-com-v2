@@ -1,6 +1,3 @@
-"use client";
-
-import { stagger, type Variants } from "motion/react";
 import Image from "next/image";
 import {
   NotebookAnnotation,
@@ -19,19 +16,8 @@ type WorkPresentationProps = {
   entries: WorkEntry[];
 };
 
-const workGroupSequence: Variants = {
-  hidden: {},
-  visible: {
-    transition: {
-      delayChildren: stagger(0.08),
-    },
-  },
-};
-
-const workRecordSequence = {
-  delayChildren: 0,
-  staggerChildren: 0.045,
-};
+const workGroupStep = 0.08;
+const workRecordPartStep = 0.045;
 
 const markSizeClasses: Record<WorkMark["src"], string> = {
   "/marks/levi.svg": "w-21/50 max-w-44",
@@ -83,12 +69,12 @@ function WorkMarks({
 
 export function WorkPresentation({ entries }: WorkPresentationProps) {
   return (
-    <NotebookCollection variants={workGroupSequence}>
+    <NotebookCollection step={workGroupStep}>
       {entries.map((entry, index) => {
         const loadImmediately = index < 2;
 
         return (
-          <NotebookRecord key={entry.client} sequence={workRecordSequence}>
+          <NotebookRecord key={entry.client} partStep={workRecordPartStep}>
             <NotebookIndex>{`W–${String(index + 1).padStart(2, "0")}`}</NotebookIndex>
             <NotebookMedia
               mediaClassName="rounded-xl border-rule bg-card-glass/60 shadow-sm backdrop-blur-glass"
