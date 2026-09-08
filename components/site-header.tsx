@@ -330,37 +330,52 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
       animate="visible"
       variants={siteHeaderReveal}
       data-site-header
-      className={`sticky top-4 z-10 flex justify-between gap-6 rounded-xl border border-transparent max-lg:transition-site-header max-lg:duration-normal max-lg:ease-default lg:z-0 lg:rounded-none lg:pb-8 ${
-        isScrolled
-          ? "max-lg:border-rule max-lg:bg-card-glass max-lg:px-4 max-lg:py-3 max-lg:shadow-sm max-lg:backdrop-blur-md"
-          : "max-lg:pb-8"
-      }`}
+      className="sticky top-7 z-10 pb-8 lg:top-4 lg:z-0"
     >
-      <m.div
-        variants={notebookPartReveal}
-        whileHover={hoverScale}
-        whileTap={tapScale}
-        transition={interactionTransition}
-        className="self-start"
-      >
-        <Link
-          href="/"
-          aria-label="Home"
-          className="flex size-10 items-center justify-center text-ink text-xs"
+      <div className="relative flex justify-between gap-6">
+        {/* The glass surface is its own layer rather than the header's own
+         * background, for two reasons. iOS Safari silently drops
+         * `position: sticky` from any element that also carries a backdrop
+         * filter, so a header that grew its own filter on scroll stopped
+         * sticking on real devices. And because this layer holds a constant
+         * filter and constant box, crossing the scroll threshold animates
+         * opacity alone — no relayout, and no asking WebKit to build a
+         * backdrop layer mid-scroll, which is what made the switch flicker.
+         * Insets, not padding, keep the header's content still while the
+         * surface fades in around it. */}
+        <div
+          aria-hidden
+          className={`pointer-events-none absolute -inset-x-4 -inset-y-3 -z-10 rounded-xl border border-rule bg-card-glass shadow-sm backdrop-blur-md transition-opacity duration-normal ease-default lg:hidden ${
+            isScrolled ? "opacity-100" : "opacity-0"
+          }`}
+        />
+
+        <m.div
+          variants={notebookPartReveal}
+          whileHover={hoverScale}
+          whileTap={tapScale}
+          transition={interactionTransition}
+          className="self-start"
         >
-          {identity.shortName}
-        </Link>
-      </m.div>
+          <Link
+            href="/"
+            aria-label="Home"
+            className="flex size-10 items-center justify-center text-ink text-xs"
+          >
+            {identity.shortName}
+          </Link>
+        </m.div>
 
-      <m.div
-        variants={notebookPartReveal}
-        className="hidden flex-col items-end lg:flex"
-      >
-        <AppearanceControl />
-        <DesktopWayfinding items={primaryWayfinding} pathname={pathname} />
-      </m.div>
+        <m.div
+          variants={notebookPartReveal}
+          className="hidden flex-col items-end lg:flex"
+        >
+          <AppearanceControl />
+          <DesktopWayfinding items={primaryWayfinding} pathname={pathname} />
+        </m.div>
 
-      <MobileDisclosure items={primaryWayfinding} pathname={pathname} />
+        <MobileDisclosure items={primaryWayfinding} pathname={pathname} />
+      </div>
     </m.header>
   );
 }

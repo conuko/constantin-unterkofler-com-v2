@@ -35,9 +35,13 @@
 
   --shadow-media-field: inset 0 1px 0 var(--color-media-field-highlight);
 
-  --duration-fast: 150ms;
-  --duration-normal: 300ms;
-  --duration-slow: 500ms;
+  /* `--transition-duration-*` is the namespace Tailwind's `duration-*` utility
+   * resolves against. A plainer `--duration-*` name reads better but is not a
+   * namespace, so `duration-normal` would generate no CSS and every use would
+   * fall back to Tailwind's 150ms default — silently. Don't shorten these. */
+  --transition-duration-fast: 150ms;
+  --transition-duration-normal: 300ms;
+  --transition-duration-slow: 500ms;
   --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
@@ -108,8 +112,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   :root {
-    --duration-fast: 0ms;
-    --duration-normal: 0ms;
-    --duration-slow: 0ms;
+    --transition-duration-fast: 0ms;
+    --transition-duration-normal: 0ms;
+    --transition-duration-slow: 0ms;
   }
 }
