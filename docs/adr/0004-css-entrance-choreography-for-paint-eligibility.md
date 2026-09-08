@@ -1,3 +1,7 @@
+---
+status: superseded in part by ADR-0005 and ADR-0006 — the interactions this record kept on Motion have since moved to CSS, and the Site Header identity mark, not the introduction, now stays opaque at first paint
+---
+
 # Move Engineering Notebook entrance choreography from Motion to CSS
 
 Every Portfolio Page's entrance — page identity settling, rules drawing, records registering — is now driven by CSS animations rendered into the server HTML, not by Motion variants run after hydration. Shared primitives still own consistent reveal, focus, hover, and press behavior through common timing tokens, as ADR-0001 established; only the mechanism moved. Interaction that genuinely depends on runtime state — the mobile wayfinding disclosure, the active-route underline's shared layout animation — remains on Motion, because that work happens well after load and costs nothing on the critical path.

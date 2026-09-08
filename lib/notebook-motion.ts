@@ -1,24 +1,18 @@
-import type { Transition } from "motion/react";
 import type { CSSProperties } from "react";
 
 /**
- * Interaction — hover, press, layout — stays with Motion. It runs after load,
- * where JavaScript costs nothing on the critical path.
+ * The Engineering Notebook's choreography is CSS, all of it.
  *
- * Entrance does not. It lives in `app/motion.css` as CSS animations keyed off
- * an absolute `--notebook-delay`, so the notebook registers itself at first
- * paint instead of waiting for hydration. The offsets below are that
- * choreography's single source of truth; see `app/motion.css` for why.
+ * Entrance lives in `app/motion.css` as CSS animations keyed off an absolute
+ * `--notebook-delay`, so the notebook registers itself at first paint instead
+ * of waiting for hydration. Interaction — hover, press, the Site Header's
+ * disclosure — is CSS transitions in the same file. The offsets below are the
+ * entrance's single source of truth; see `app/motion.css` for why.
  */
-export const notebookInteractionTransition = {
-  type: "spring",
-  visualDuration: 0.24,
-  bounce: 0.1,
-} satisfies Transition;
 
-/** Seconds from first paint. Reading order, top of the page downward. */
+/** Seconds from first paint. Reading order, top of the page downward. The
+ * Site Header's identity mark is absent on purpose: it has no entrance. */
 export const notebookTiming = {
-  siteHeaderIdentity: 0,
   siteHeaderControls: 0.06,
   siteHeaderWayfindingLead: 0.1,
   siteHeaderWayfindingStagger: 0.08,

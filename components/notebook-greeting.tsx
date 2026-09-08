@@ -1,6 +1,5 @@
 "use client";
 
-import { useReducedMotion } from "motion/react";
 import { type CSSProperties, useEffect, useState } from "react";
 import type { Greeting } from "@/content/greetings";
 import {
@@ -9,6 +8,7 @@ import {
   greetingStepDelay,
   settledGreetingCycle,
 } from "@/lib/notebook-greeting";
+import { usePrefersReducedMotion } from "@/lib/use-prefers-reduced-motion";
 
 type NotebookGreetingProps = {
   greetings: readonly Greeting[];
@@ -29,16 +29,10 @@ export function NotebookGreeting({ greetings }: NotebookGreetingProps) {
     settledGreetingCycle(greetingGraphemes(leadGreeting.text).length),
   );
 
-  // The rotation waits for mount: the hydrating render has to match the
-  // server's whole greeting, and only the client knows the motion preference.
-  const prefersReducedMotion = useReducedMotion();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const rotating = mounted && !prefersReducedMotion;
+  // Reads as "reduced" on the server and while hydrating, so the first render
+  // matches the server's whole greeting and the rotation begins only on the
+  // client, once the preference is actually known.
+  const rotating = !usePrefersReducedMotion();
 
   const greeting = greetings[cycle.greetingIndex] ?? leadGreeting;
   const graphemes = greetingGraphemes(greeting.text);

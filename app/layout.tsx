@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Space_Grotesk } from "next/font/google";
 import type { ReactNode } from "react";
-import { MotionLayout } from "@/components/motion-layout";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { ThemeProvider } from "@/components/theme-provider";
 import { portfolioContent } from "@/content/site-content";
 import "./globals.css";
 
@@ -40,17 +40,32 @@ export default function RootLayout({
       className={`${displayFont.variable} ${bodyFont.variable}`}
     >
       <body className="flex min-h-dvh flex-col bg-paper text-ink leading-relaxed">
-        <MotionLayout
-          header={
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <a href="#main-content" className="skip-link">
+            Skip to main content
+          </a>
+
+          <div className="flex w-full flex-1 flex-col p-6">
             <SiteHeader
               identity={portfolioContent.identity}
               primaryWayfinding={portfolioContent.primaryWayfinding}
             />
-          }
-          footer={<SiteFooter closingRecord={portfolioContent.closingRecord} />}
-        >
-          {children}
-        </MotionLayout>
+
+            <main
+              id="main-content"
+              className="mx-auto w-full max-w-270 flex-1 pb-16"
+            >
+              {children}
+            </main>
+
+            <SiteFooter closingRecord={portfolioContent.closingRecord} />
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );

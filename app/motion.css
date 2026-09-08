@@ -16,12 +16,13 @@
  *    reconsider it when an animation later reveals it. Fading the whole page
  *    header in from `opacity: 0` did not delay those metrics — it forfeited
  *    them outright: no FCP and no LCP reported on any page, however visible
- *    the text looked a moment later. The Portfolio Page introduction
- *    (`.notebook-in-introduction`) is the element that stays opaque and
- *    carries this for every page that has one; see its own comment below.
- *    Everything else above the fold may still fade — once FCP and LCP have
- *    been recorded from the introduction, an element that starts transparent
- *    is simply never a candidate, which costs nothing.
+ *    the text looked a moment later. The Site Header's identity mark is the
+ *    element that carries this on every page, and it does so by staying out of
+ *    the choreography altogether: it has no entrance class, so it is simply
+ *    there, opaque, from the first frame — the notebook's stationery, printed
+ *    before the entry is written into it. Everything else above the fold may
+ *    fade — once FCP and LCP have been recorded from the mark, an element that
+ *    starts transparent is simply never a candidate, which costs nothing.
  *
  * Stagger is an absolute `--notebook-delay` per element, rendered into the
  * server HTML. No runtime sequencing, no callback chain.
@@ -47,15 +48,6 @@
   }
   to {
     clip-path: inset(0 0% 0 0);
-  }
-}
-
-@keyframes notebook-settle-in {
-  from {
-    transform: translateY(var(--motion-initial-y));
-  }
-  to {
-    transform: none;
   }
 }
 
@@ -113,20 +105,14 @@
   animation-duration: 0.42s;
 }
 
-/* The introduction is the one thing above the fold that never fades, and it
- * carries the whole page's paint timing.
- *
- * Chrome drops an element that is transparent or fully clipped when painted
- * from First and Largest Contentful Paint, and never reconsiders it: the
- * reveal runs on the compositor, so no second paint is ever recorded. With the
- * title wiping and the section code fading, this paragraph is the only
- * contentful element eligible at first paint — and measurably so. Fade it and
- * every page reports no FCP and no LCP at all, not merely a late one.
- *
- * It still settles into place. It just does so legibly. */
+/* The introduction fades and settles like every other part, only a beat
+ * slower: a paragraph reads calmer arriving over 0.5s than a label does over
+ * 0.32s. It is invisible until its own entrance begins — which is exactly why
+ * it cannot carry the page's paint timing; the static identity mark does (see
+ * rule 2 above). */
 .notebook-in-introduction {
-  animation-name: notebook-settle-in;
-  animation-duration: 0.42s;
+  animation-name: notebook-part-in;
+  animation-duration: 0.5s;
 }
 
 .notebook-in-heading {
@@ -150,10 +136,16 @@
 @media (prefers-reduced-motion: reduce) {
   .notebook-in-part,
   .notebook-in-identity,
+  .notebook-in-introduction,
   .notebook-in-rule,
   .notebook-in-heading,
   .notebook-in-record {
     animation: none;
+  }
+
+  .notebook-disclosure,
+  .notebook-disclosure-item {
+    transition: none;
   }
 }
 
@@ -282,7 +274,7 @@
  * Hover and press use the independent `translate` and `scale` properties
  * rather than `transform`, so they compose with the entrance keyframes above
  * instead of fighting them for the same property. `--ease-spring` is the
- * theme's spring curve, so the feel survives the move off Motion — and the
+ * theme's spring curve, so a state change still lands like a spring — and the
  * records that carry these states stay server components.
  * ═══════════════════════════════════════════════════ */
 
@@ -326,4 +318,54 @@
 
 .notebook-control:active {
   scale: var(--notebook-press-scale);
+}
+
+/* ═══════════════════════════════════════════════════
+ * DISCLOSURE
+ *
+ * The Site Header's mobile wayfinding opens on a tap, long after load, so
+ * nothing here touches first paint. The panel stays in the DOM and moves
+ * between its closed and open states with transitions, so one set of rules
+ * carries both the entrance and the exit. `visibility` rides along: it flips
+ * to visible the instant the panel opens and holds until the exit has
+ * finished, and while hidden the panel is out of the accessibility tree and
+ * takes neither focus nor clicks.
+ * ═══════════════════════════════════════════════════ */
+
+.notebook-disclosure {
+  visibility: hidden;
+  opacity: var(--motion-initial-opacity);
+  translate: 0 var(--motion-initial-y);
+  scale: var(--motion-initial-scale);
+  transition-property: visibility, opacity, translate, scale;
+  transition-duration: var(--transition-duration-normal);
+  /* `visibility` runs on a straight line. The spring overshoots past 1, and a
+   * discrete property maps any progress beyond the end onto the end value —
+   * on the spring, the panel would blink hidden midway through its exit. */
+  transition-timing-function:
+    linear, var(--ease-spring), var(--ease-spring), var(--ease-spring);
+}
+
+.notebook-disclosure[data-open="true"] {
+  visibility: visible;
+  opacity: 1;
+  translate: 0 0;
+  scale: 1;
+}
+
+/* Items register in reading order once the panel is open, on the DOM-order
+ * stagger above; on close they leave with the panel, undelayed, so the next
+ * opening starts from a clean sheet. */
+.notebook-disclosure-item {
+  opacity: var(--motion-initial-opacity);
+  translate: var(--motion-initial-x) 0;
+  transition-property: opacity, translate;
+  transition-duration: 0.24s;
+  transition-timing-function: var(--notebook-ease);
+}
+
+.notebook-disclosure[data-open="true"] .notebook-disclosure-item {
+  opacity: 1;
+  translate: 0 0;
+  transition-delay: var(--notebook-delay, 0s);
 }
