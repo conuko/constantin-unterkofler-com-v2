@@ -1,6 +1,3 @@
-"use client";
-
-import { stagger, type Variants } from "motion/react";
 import Image from "next/image";
 import { AppleMusicIcon, SpotifyIcon } from "@/components/icons";
 import {
@@ -20,30 +17,19 @@ type PlayPresentationProps = {
   entries: TrackEntry[];
 };
 
-const playGroupSequence: Variants = {
-  hidden: {},
-  visible: {
-    transition: {
-      delayChildren: stagger(0.07),
-    },
-  },
-};
-
-const playRecordSequence = {
-  delayChildren: 0,
-  staggerChildren: 0.04,
-};
+const playGroupStep = 0.07;
+const playRecordPartStep = 0.04;
 
 export function PlayPresentation({ entries }: PlayPresentationProps) {
   return (
-    <NotebookCollection variants={playGroupSequence}>
+    <NotebookCollection step={playGroupStep}>
       {entries.map((entry, index) => {
         const loadImmediately = index < 2;
 
         return (
           <NotebookRecord
             key={`${entry.title}-${entry.artist}`}
-            sequence={playRecordSequence}
+            partStep={playRecordPartStep}
           >
             <NotebookIndex>{`P–${String(index + 1).padStart(2, "0")}`}</NotebookIndex>
             <NotebookMedia mediaClassName="aspect-square p-0 sm:p-0">

@@ -1,92 +1,32 @@
-import { stagger, type Transition, type Variants } from "motion/react";
+import type { CSSProperties } from "react";
 
-export const notebookEase = [0.16, 1, 0.3, 1] as const;
+/**
+ * The Engineering Notebook's choreography is CSS, all of it.
+ *
+ * Entrance lives in `app/motion.css` as CSS animations keyed off an absolute
+ * `--notebook-delay`, so the notebook registers itself at first paint instead
+ * of waiting for hydration. Interaction — hover, press, the Site Header's
+ * disclosure — is CSS transitions in the same file. The offsets below are the
+ * entrance's single source of truth; see `app/motion.css` for why.
+ */
 
-export const notebookInteractionTransition = {
-  type: "spring",
-  visualDuration: 0.24,
-  bounce: 0.1,
-} satisfies Transition;
+/** Seconds from first paint. Reading order, top of the page downward. The
+ * Site Header's identity mark is absent on purpose: it has no entrance. */
+export const notebookTiming = {
+  siteHeaderControls: 0.06,
+  siteHeaderWayfindingLead: 0.1,
+  siteHeaderWayfindingStagger: 0.08,
 
-export function createNotebookRecordReveal(sequence: {
-  delayChildren: number;
-  staggerChildren: number;
-}): Variants {
-  return {
-    hidden: {
-      y: "var(--motion-initial-y)",
-    },
-    visible: {
-      y: 0,
-      transition: {
-        duration: 0.42,
-        ease: notebookEase,
-        ...sequence,
-      },
-    },
-  };
-}
+  pageIdentity: 0.04,
+  pageHeading: 0.08,
+  pageIntroduction: 0.12,
+  pageHeaderRule: 0.16,
 
-export const notebookPartReveal: Variants = {
-  hidden: {
-    opacity: "var(--motion-initial-opacity)",
-    y: "var(--motion-initial-y)",
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.32,
-      ease: notebookEase,
-    },
-  },
-};
-
-export const notebookRuleReveal: Variants = {
-  hidden: {
-    opacity: "var(--motion-initial-opacity)",
-    scaleX: "var(--motion-initial-rule-scale)",
-  },
-  visible: {
-    opacity: 1,
-    scaleX: 1,
-    transition: {
-      duration: 0.36,
-      ease: notebookEase,
-    },
-  },
-};
-
-export const notebookPageIdentityReveal: Variants = {
-  hidden: {
-    opacity: "var(--motion-initial-opacity)",
-    y: "var(--motion-initial-y)",
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.42,
-      ease: notebookEase,
-    },
-  },
-};
-
-export const notebookPageHeadingReveal: Variants = {
-  hidden: {
-    opacity: "var(--motion-initial-opacity)",
-    clipPath: "var(--motion-initial-clip)",
-  },
-  visible: {
-    opacity: 1,
-    clipPath: "inset(0 0% 0 0)",
-    transition: {
-      duration: 0.9,
-      ease: notebookEase,
-      opacity: { duration: 0.42, ease: notebookEase },
-    },
-  },
-};
+  /* Record groups begin once the page has named itself. Deliberately short:
+   * anything longer reads as a blank page to Speed Index. */
+  content: 0.3,
+  closingRecord: 0.4,
+} as const;
 
 /**
  * Timing contract for sectioned record groups such as the CV: each section
@@ -116,29 +56,13 @@ export function notebookSectionSequenceStarts(entryCounts: number[]) {
   });
 }
 
-export const notebookSectionGroupReveal: Variants = {
-  hidden: {},
-  visible: {
-    transition: {
-      delayChildren: stagger(notebookSectionSequence.sectionStagger),
-    },
-  },
-};
-
-export const notebookSectionReveal: Variants = {
-  hidden: {},
-  visible: {
-    transition: {
-      delayChildren: stagger(notebookSectionSequence.headingLead),
-    },
-  },
-};
-
-export const notebookRecordRowsReveal: Variants = {
-  hidden: {},
-  visible: {
-    transition: {
-      delayChildren: stagger(notebookSectionSequence.entryStagger),
-    },
-  },
-};
+/**
+ * The delay an entrance class waits before it runs, as an inline custom
+ * property. Server-rendered, so the stagger survives with JavaScript disabled
+ * and needs no runtime sequencing.
+ */
+export function notebookDelay(seconds: number): CSSProperties {
+  return {
+    "--notebook-delay": `${Number(seconds.toFixed(3))}s`,
+  } as CSSProperties;
+}

@@ -1,9 +1,5 @@
-"use client";
-
-import * as m from "motion/react-m";
 import {
   NotebookLabel,
-  NotebookRecordGroup,
   NotebookRecordRow,
   NotebookRecordRowBody,
   NotebookRowIndex,
@@ -11,9 +7,8 @@ import {
 } from "@/components/notebook-primitives";
 import type { CvSection } from "@/content/site-content";
 import {
-  notebookRecordRowsReveal,
-  notebookSectionGroupReveal,
-  notebookSectionReveal,
+  notebookSectionSequenceStarts,
+  notebookTiming,
 } from "@/lib/notebook-motion";
 
 type CvProps = {
@@ -28,48 +23,62 @@ function formatRecordIndex(sectionCode: string, position: number) {
 /**
  * The CV registers section by section: Work heading, Work entries, Education
  * heading, Education entries. Rows are indexed continuously across sections.
+ *
+ * The sequence is irregular — headings and rows interleave across sections —
+ * so it resolves to absolute offsets here rather than riding the DOM-order
+ * stagger the record collections use.
  */
 export function Cv({ sectionCode, sections }: CvProps) {
+  const starts = notebookSectionSequenceStarts(
+    sections.map((section) => section.entries.length),
+  );
   let position = 0;
 
   return (
-    <NotebookRecordGroup
-      variants={notebookSectionGroupReveal}
-      className="flex w-full flex-col gap-10"
-    >
-      {sections.map((section) => (
-        <m.section
-          key={section.title}
-          variants={notebookSectionReveal}
-          className="w-full"
-        >
-          <NotebookSectionHeading>{section.title}</NotebookSectionHeading>
-          <m.ol variants={notebookRecordRowsReveal} className="mt-3">
-            {section.entries.map((entry) => {
-              position += 1;
+    <div className="flex w-full flex-col gap-10">
+      {sections.map((section, sectionIndex) => {
+        const sectionStarts = starts[sectionIndex];
 
-              return (
-                <NotebookRecordRow key={`${entry.organization}-${entry.years}`}>
-                  <NotebookRecordRowBody>
-                    <NotebookRowIndex>
-                      {formatRecordIndex(sectionCode, position)}
-                    </NotebookRowIndex>
-                    <div className="order-last min-w-0 basis-full sm:order-none sm:flex-1 sm:basis-auto">
-                      <h3 className="font-semibold text-sm">
-                        {entry.organization}
-                      </h3>
-                      <p className="text-ink-muted text-sm">{entry.role}</p>
-                    </div>
-                    <NotebookLabel className="ml-auto tabular-nums sm:ml-0 sm:w-24 sm:text-right">
-                      {entry.years}
-                    </NotebookLabel>
-                  </NotebookRecordRowBody>
-                </NotebookRecordRow>
-              );
-            })}
-          </m.ol>
-        </m.section>
-      ))}
-    </NotebookRecordGroup>
+        return (
+          <section key={section.title} className="w-full">
+            <NotebookSectionHeading
+              delay={notebookTiming.content + (sectionStarts?.heading ?? 0)}
+            >
+              {section.title}
+            </NotebookSectionHeading>
+            <ol className="mt-3">
+              {section.entries.map((entry, entryIndex) => {
+                position += 1;
+
+                return (
+                  <NotebookRecordRow
+                    key={`${entry.organization}-${entry.years}`}
+                    delay={
+                      notebookTiming.content +
+                      (sectionStarts?.entries[entryIndex] ?? 0)
+                    }
+                  >
+                    <NotebookRecordRowBody>
+                      <NotebookRowIndex>
+                        {formatRecordIndex(sectionCode, position)}
+                      </NotebookRowIndex>
+                      <div className="order-last min-w-0 basis-full sm:order-none sm:flex-1 sm:basis-auto">
+                        <h3 className="font-semibold text-sm">
+                          {entry.organization}
+                        </h3>
+                        <p className="text-ink-muted text-sm">{entry.role}</p>
+                      </div>
+                      <NotebookLabel className="ml-auto tabular-nums sm:ml-0 sm:w-24 sm:text-right">
+                        {entry.years}
+                      </NotebookLabel>
+                    </NotebookRecordRowBody>
+                  </NotebookRecordRow>
+                );
+              })}
+            </ol>
+          </section>
+        );
+      })}
+    </div>
   );
 }

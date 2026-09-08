@@ -1,5 +1,3 @@
-"use client";
-
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import {
   NotebookRecordGroup,
@@ -8,7 +6,7 @@ import {
   NotebookRowIndex,
 } from "@/components/notebook-primitives";
 import type { ContactLink } from "@/content/site-content";
-import { notebookRecordRowsReveal } from "@/lib/notebook-motion";
+import { notebookSectionSequence } from "@/lib/notebook-motion";
 
 type ContactListProps = {
   links: ContactLink[];
@@ -27,7 +25,7 @@ export function ContactList({ links, sectionCode }: ContactListProps) {
   return (
     <NotebookRecordGroup
       as="ul"
-      variants={notebookRecordRowsReveal}
+      step={notebookSectionSequence.entryStagger}
       className="w-full"
     >
       {links.map((link, index) => {
