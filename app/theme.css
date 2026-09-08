@@ -35,6 +35,8 @@
 
   --shadow-media-field: inset 0 1px 0 var(--color-media-field-highlight);
 
+  --blur-glass: 1px;
+
   /* `--transition-duration-*` is the namespace Tailwind's `duration-*` utility
    * resolves against. A plainer `--duration-*` name reads better but is not a
    * namespace, so `duration-normal` would generate no CSS and every use would
@@ -96,7 +98,7 @@
   --color-rule: rgba(248, 247, 242, 0.18);
   --color-dot: rgba(248, 247, 242, 0.14);
   --color-card-stroke: rgba(248, 247, 242, 0.82);
-  --color-card-glass: rgba(26, 25, 23, 0.52);
+  --color-card-glass: rgba(248, 247, 242, 0.08);
   --color-media-field: rgba(248, 247, 242, 0.92);
   --color-media-field-rule: rgba(248, 247, 242, 0.28);
   --color-media-field-highlight: rgba(255, 255, 255, 0.32);
