@@ -36,6 +36,8 @@ export function NotebookPageIdentityProvider({
 }
 
 type NotebookPageHeaderProps = {
+  /** Takes the section code's slot on a Portfolio Page that greets instead. */
+  greeting?: ReactNode;
   introduction?: ReactNode;
   sectionCode: string;
   sequence: Variants;
@@ -74,6 +76,7 @@ function NotebookPageHeading({
 }
 
 export function NotebookPageHeader({
+  greeting,
   introduction,
   sectionCode,
   sequence,
@@ -114,12 +117,15 @@ export function NotebookPageHeader({
       data-notebook-header
       className="flex w-full flex-col items-start"
     >
-      {sectionCode && (
+      {(greeting || sectionCode) && (
         <m.p
           variants={notebookPageIdentityReveal}
-          className="label mb-4 text-ink-muted text-label"
+          className={cn(
+            "mb-4 text-ink-muted",
+            greeting ? "text-sm" : "label text-label",
+          )}
         >
-          {sectionCode}
+          {greeting ?? sectionCode}
         </m.p>
       )}
       <NotebookPageHeading

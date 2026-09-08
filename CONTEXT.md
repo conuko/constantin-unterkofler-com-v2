@@ -36,6 +36,10 @@ _Avoid_: Star score, review score
 The in-flow footer record that ends every Portfolio Page with a hairline rule, the copyright, and one concise identity/status line.
 _Avoid_: Footer bar, fixed copyright
 
+**Greeting**:
+The home Portfolio Page's opening line: one warm welcome at a time — each language's equivalent of "good to see you", in its own script — written left to right, erased right to left, and rewritten every five seconds in a new language and a new random color. It occupies the section code's slot, which the home page has none of.
+_Avoid_: Section code, eyebrow, typewriter, hero text, hello
+
 **Record Row**:
 The shared single-line record anatomy (rule, index, title, metadata, trailing value or action) that CV entries and Contact routes compose while keeping their own semantics.
 _Avoid_: List item, table row

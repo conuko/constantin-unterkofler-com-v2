@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { NotebookGreeting } from "@/components/notebook-greeting";
 import { PortfolioPage } from "@/components/portfolio-page";
 import { portfolioContent } from "@/content/site-content";
 
@@ -11,6 +12,7 @@ export default function Home() {
     <PortfolioPage
       title={home.title}
       sectionCode={home.sectionCode}
+      greeting={<NotebookGreeting greetings={home.content.greetings} />}
       showHeaderRule={false}
       width={home.width}
       introduction={

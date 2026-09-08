@@ -61,6 +61,22 @@
     0.9962,
     1
   );
+
+  --animate-caret: caret-blink 1.05s step-end infinite;
+
+  @keyframes caret-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+}
+
+/* Greeting: the hue is random per language and arrives inline from the
+ * component. Lightness and chroma stay theme-owned, so every hue the rotation
+ * lands on keeps its contrast against paper. */
+:root {
+  --greeting-lightness: 0.48;
+  --greeting-chroma: 0.15;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -80,6 +96,8 @@
   --color-media-field: rgba(248, 247, 242, 0.92);
   --color-media-field-rule: rgba(248, 247, 242, 0.28);
   --color-media-field-highlight: rgba(255, 255, 255, 0.32);
+  --greeting-lightness: 0.78;
+  --greeting-chroma: 0.13;
   --color-background: var(--color-paper);
   --color-foreground: var(--color-ink);
 }

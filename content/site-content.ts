@@ -11,6 +11,7 @@ import coverOhCherie from "@/content/covers/oh-cherie.jpg";
 import coverSongsInTheKeyOfLife from "@/content/covers/songs-in-the-key-of-life.jpg";
 import coverTheFearlessFlyers from "@/content/covers/the-fearless-flyers.jpg";
 import coverUndercurrent from "@/content/covers/undercurrent.jpg";
+import { greetings } from "@/content/greetings";
 
 export type NavItem = {
   href: string;
@@ -468,7 +469,7 @@ const portfolioPages = {
   home: {
     publicationStatus: "published" satisfies PublicationStatus,
     route: "/",
-    sectionCode: "Hi!",
+    sectionCode: "",
     title: identity.name,
     width: "reading",
     metadata: {
@@ -476,6 +477,7 @@ const portfolioPages = {
       description: identity.description,
     },
     content: {
+      greetings,
       introduction: {
         role: "Software Engineer",
         organization: {

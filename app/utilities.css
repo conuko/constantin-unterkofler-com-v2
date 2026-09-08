@@ -51,6 +51,14 @@
     background-color, border-color, box-shadow, padding, backdrop-filter;
 }
 
+/* Greeting colour, composed on the element so the inline per-language
+ * `--greeting-hue` substitutes here rather than resolving at :root. */
+@utility greeting-ink {
+  color: oklch(
+    var(--greeting-lightness) var(--greeting-chroma) var(--greeting-hue, 0)
+  );
+}
+
 /* Factual list marker used by Engineering Notebook metadata tags */
 @utility notebook-tag-marker {
   &::before {

@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils/cn";
 type PortfolioPageProps = {
   title: string;
   sectionCode: string;
+  greeting?: ReactNode;
   introduction?: ReactNode;
   children?: ReactNode;
   showHeaderRule?: boolean;
@@ -40,6 +41,7 @@ const pageIdentitySequence: Variants = {
 export function PortfolioPage({
   title,
   sectionCode,
+  greeting,
   introduction,
   children,
   showHeaderRule,
@@ -69,6 +71,7 @@ export function PortfolioPage({
         >
           <NotebookPageHeader
             sectionCode={sectionCode}
+            greeting={greeting}
             sequence={pageIdentitySequence}
             title={title}
             introduction={introduction}
