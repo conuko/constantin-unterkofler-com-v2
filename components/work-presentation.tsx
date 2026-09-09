@@ -30,6 +30,11 @@ const markSizeClasses: Record<WorkMark["src"], string> = {
   "/marks/fussball-de.svg": "w-11/50 max-w-24",
 };
 
+const markThemeClasses: Partial<Record<WorkMark["src"], string>> = {
+  "/marks/harrods.svg": "dark:brightness-0 dark:invert",
+  "/marks/fielmann.svg": "dark:brightness-0 dark:invert",
+};
+
 function WorkMarks({
   marks,
   loadImmediately,
@@ -39,30 +44,43 @@ function WorkMarks({
 }) {
   return (
     <div
-      className={
-        marks.length > 1
-          ? "grid h-full w-full grid-cols-2 items-center divide-x divide-rule"
-          : "flex h-full w-full items-center justify-center"
-      }
-    >
-      {marks.map((mark) => (
-        <div
-          key={mark.src}
-          className="flex h-full w-full min-w-0 items-center justify-center px-3 sm:px-6"
-        >
-          <Image
-            src={mark.src}
-            alt={mark.alt}
-            width={mark.width}
-            height={mark.height}
-            loading={loadImmediately ? "eager" : "lazy"}
-            fetchPriority={loadImmediately ? "high" : undefined}
-            sizes="(min-width: 1152px) 516px, (min-width: 1024px) calc((100vw - 96px) / 2), (min-width: 768px) calc((100vw - 80px) / 2), calc(100vw - 48px)"
-            unoptimized
-            className={`h-auto object-contain ${markSizeClasses[mark.src]}`}
-          />
-        </div>
-      ))}
+        className={
+          marks.length > 1
+            ? "grid h-full w-full grid-cols-2 items-center divide-x divide-rule"
+            : "flex h-full w-full items-center justify-center"
+        }
+      >
+        {marks.map((mark) => (
+          <div
+            key={mark.src}
+            className="flex h-full w-full min-w-0 items-center justify-center px-3 sm:px-6"
+          >
+            <Image
+              src={mark.src}
+              alt={mark.alt}
+              width={mark.width}
+              height={mark.height}
+              loading={loadImmediately ? "eager" : "lazy"}
+              fetchPriority={loadImmediately ? "high" : undefined}
+              sizes="(min-width: 1152px) 516px, (min-width: 1024px) calc((100vw - 96px) / 2), (min-width: 768px) calc((100vw - 80px) / 2), calc(100vw - 48px)"
+              unoptimized
+              className={`h-auto object-contain ${markSizeClasses[mark.src]} ${mark.src === "/marks/scayle.svg" ? "dark:hidden" : (markThemeClasses[mark.src] ?? "")}`}
+            />
+            {mark.src === "/marks/scayle.svg" && (
+              <Image
+                src="/marks/scayle-dark.svg"
+                alt=""
+                width={mark.width}
+                height={mark.height}
+                loading={loadImmediately ? "eager" : "lazy"}
+                fetchPriority={loadImmediately ? "high" : undefined}
+                sizes="(min-width: 1152px) 516px, (min-width: 1024px) calc((100vw - 96px) / 2), (min-width: 768px) calc((100vw - 80px) / 2), calc(100vw - 48px)"
+                unoptimized
+                className={`hidden h-auto object-contain dark:block ${markSizeClasses[mark.src]}`}
+              />
+            )}
+          </div>
+        ))}
     </div>
   );
 }

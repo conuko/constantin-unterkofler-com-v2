@@ -7,8 +7,7 @@ import { cn } from "@/lib/utils/cn";
  *
  * These are server components on purpose. Their entrance is CSS (see
  * `app/motion.css`), their hover and press states are CSS, and none of them
- * hold state — so none of them need to ship, hydrate, or run. What used to be
- * sixty Motion components on the Work page is now zero.
+ * hold state — so none of them need to ship, hydrate, or run.
  */
 
 type NotebookPageHeaderProps = {
