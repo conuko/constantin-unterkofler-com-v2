@@ -35,6 +35,20 @@
 
   --shadow-media-field: inset 0 1px 0 var(--color-media-field-highlight);
 
+  /* 1px, and that is not a typo or a placeholder — it is measured.
+   *
+   * A backdrop blur can only show what is behind it, and behind every glass
+   * surface here is the body's dot grid: 0.9px dots on a 22px pitch. Sampled
+   * against that grid, 1px softens the dots to roughly a third of their
+   * contrast — they stay visible, smeared, which is the thing the eye reads as
+   * glass. At 3px they are almost gone; from 5px up they are erased outright
+   * and the surface collapses into flat tint, indistinguishable from a plain
+   * translucent background. So the conventional 8-12px frost is exactly wrong
+   * on this backdrop: more blur here means less visible glass.
+   *
+   * The Site Header's own surface uses `backdrop-blur-md` instead, and that is
+   * consistent rather than contradictory: it sits over running text, which has
+   * structure at a much coarser scale and needs the heavier radius. */
   --blur-glass: 1px;
 
   /* `--transition-duration-*` is the namespace Tailwind's `duration-*` utility

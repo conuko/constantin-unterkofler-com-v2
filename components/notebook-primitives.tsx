@@ -196,11 +196,20 @@ export function NotebookMedia({
   mediaClassName,
   link,
 }: NotebookMediaProps) {
+  /* The entrance rides on the field itself, not on the `[data-entry-part]`
+   * wrapper the way every other part does — and that placement is load-bearing
+   * for any glass `mediaClassName`. An ancestor whose opacity is under 1
+   * becomes a Backdrop Root, and a `backdrop-filter` inside one samples an
+   * empty backdrop and renders as flat tint. So while the wrapper faded, the
+   * tile's blur was simply absent until the entrance finished. Fading the
+   * field itself composites the already-blurred surface, which is what we
+   * want; the wrapper keeps `data-entry-part` so the stagger still supplies
+   * `--notebook-delay`, and it inherits down to here. */
   const field = (
     <div
       data-notebook-media-field
       className={cn(
-        "notebook-media-field relative flex aspect-video items-center justify-center overflow-hidden border border-media-field-rule bg-media-field p-7 shadow-media-field sm:p-10",
+        "notebook-in-part notebook-media-field relative flex aspect-video items-center justify-center overflow-hidden border border-media-field-rule bg-media-field p-7 shadow-media-field sm:p-10",
         mediaClassName,
       )}
     >
@@ -209,7 +218,7 @@ export function NotebookMedia({
   );
 
   return (
-    <div data-entry-part="media" className="notebook-in-part mb-5">
+    <div data-entry-part="media" className="mb-5">
       {link ? (
         <a
           href={link.href}

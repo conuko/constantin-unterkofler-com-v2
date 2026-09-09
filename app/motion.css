@@ -51,14 +51,19 @@
   }
 }
 
+/* `translate`, not `transform: translateY()`. A non-`none` `transform` on an
+ * ancestor orphans a descendant's `backdrop-filter` (see the fill-mode note
+ * below); the independent `translate` property does not. Measured on the Work
+ * page's glass tiles: ancestor `translate` keeps the blur, ancestor
+ * `transform` — even an identity matrix — destroys it. */
 @keyframes notebook-part-in {
   from {
     opacity: 0;
-    transform: translateY(var(--motion-initial-y));
+    translate: 0 var(--motion-initial-y);
   }
   to {
     opacity: 1;
-    transform: none;
+    translate: none;
   }
 }
 
@@ -75,15 +80,40 @@
   }
 }
 
+/* Same reason as `notebook-part-in`: the record's `<article>` is an ancestor
+ * of the Work page's glass tiles, so its entrance may not touch `transform`. */
 @keyframes notebook-record-in {
   from {
-    transform: translateY(var(--motion-initial-y));
+    translate: 0 var(--motion-initial-y);
   }
   to {
-    transform: none;
+    translate: none;
   }
 }
 
+/* `backwards`, not `both`, and the difference is load-bearing.
+ *
+ * The backwards half is what the stagger needs: it holds each element at its
+ * first keyframe — transparent, offset — through its `animation-delay`, so
+ * nothing appears before its turn.
+ *
+ * The forwards half looks free, because every `to` block below already names
+ * the element's natural resting style (`opacity: 1`, `transform: none`, an
+ * unclipped `clip-path`). It is not. A held `transform: none` is still an
+ * *animated* value, and Chrome resolves it to `matrix(1, 0, 0, 1, 0, 0)` — an
+ * identity matrix, but not the keyword `none`. A non-`none` transform makes
+ * the element a boundary that `backdrop-filter` samples from, so any glass
+ * surface *inside* one of these elements has nothing behind it to blur and
+ * renders as flat tint. That is what silently emptied the Work page's media
+ * tiles (`backdrop-blur-md` computed correctly and did nothing).
+ *
+ * Dropping the forwards half lets the animated values fall away entirely at
+ * the end, leaving `transform: none` for real.
+ *
+ * `opacity` under 1 orphans a backdrop the same way, and that one is spec, not
+ * a Chrome quirk — which is why `NotebookMedia` hangs this entrance on the
+ * glass field itself rather than on a wrapper above it. An element's own fade
+ * composites its already-blurred surface; an ancestor's fade empties it. */
 .notebook-in-part,
 .notebook-in-identity,
 .notebook-in-introduction,
@@ -91,7 +121,7 @@
 .notebook-in-heading,
 .notebook-in-record {
   animation-delay: var(--notebook-delay, 0s);
-  animation-fill-mode: both;
+  animation-fill-mode: backwards;
   animation-timing-function: var(--notebook-ease);
 }
 
@@ -272,10 +302,23 @@
  * INTERACTION
  *
  * Hover and press use the independent `translate` and `scale` properties
- * rather than `transform`, so they compose with the entrance keyframes above
- * instead of fighting them for the same property. `--ease-spring` is the
- * theme's spring curve, so a state change still lands like a spring — and the
- * records that carry these states stay server components.
+ * rather than `transform`. The original reason was composition — they used to
+ * be the only movers not competing with an entrance that animated `transform`.
+ * The entrance now animates `translate` too, so `.notebook-lift` and
+ * `notebook-record-in` do share a property on the `<article>`, and that is
+ * fine: a running animation outranks a transition, so an entrance in flight
+ * simply wins, and the moment it ends (no forwards fill) the hover transition
+ * takes the property back. Both keyframes end at `translate: none`, which is
+ * the resting value, so nothing jumps at the handover.
+ *
+ * The stronger reason to stay off `transform` is now `backdrop-filter`: any
+ * non-`none` `transform` on an ancestor orphans a descendant's backdrop, and
+ * the Work page's glass tiles sit under these very elements. `translate` and
+ * `scale` leave the backdrop intact — measured, not assumed.
+ *
+ * `--ease-spring` is the theme's spring curve, so a state change still lands
+ * like a spring — and the records that carry these states stay server
+ * components.
  * ═══════════════════════════════════════════════════ */
 
 .notebook-lift {

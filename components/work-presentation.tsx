@@ -77,7 +77,7 @@ export function WorkPresentation({ entries }: WorkPresentationProps) {
           <NotebookRecord key={entry.client} partStep={workRecordPartStep}>
             <NotebookIndex>{`W–${String(index + 1).padStart(2, "0")}`}</NotebookIndex>
             <NotebookMedia
-              mediaClassName="rounded-xl border-rule bg-card-glass/60 shadow-sm backdrop-blur-glass"
+              mediaClassName="rounded-xl border-rule bg-card-glass shadow-sm backdrop-blur-glass"
               link={
                 entry.url
                   ? {

@@ -62,7 +62,7 @@ export function Cv({ sectionCode, sections }: CvProps) {
                       <NotebookRowIndex>
                         {formatRecordIndex(sectionCode, position)}
                       </NotebookRowIndex>
-                      <div className="order-last min-w-0 basis-full sm:order-none sm:flex-1 sm:basis-auto">
+                      <div className="order-last min-w-0 basis-full sm:order-0 sm:flex-1 sm:basis-auto">
                         <h3 className="font-semibold text-sm">
                           {entry.organization}
                         </h3>
