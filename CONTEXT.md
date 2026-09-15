@@ -47,3 +47,11 @@ _Avoid_: Stats grid, info cards, hero meta, about box
 **Record Row**:
 The shared single-line record anatomy (rule, index, title, metadata, trailing value or action) that CV entries and Contact routes compose while keeping their own semantics.
 _Avoid_: List item, table row
+
+**Site Console**:
+The dark terminal window, mounted once at the root, that answers the same routes the Site Header does through typed commands. It docks in the right corner on desktop or along the bottom edge, opens with `K` or the control in the Closing Record, and is a second way in, never the only way.
+_Avoid_: Terminal, command palette, CLI
+
+**Console Banner**:
+The greeting in block capitals — "Hello there!" — that the Site Console prints above its boot text, typed left to right the first time the window opens. It is the console's motd, not its heading: it welcomes the reader rather than naming the site, and `clear` takes it with the rest of the session.
+_Avoid_: ASCII art, logo, splash screen, hero

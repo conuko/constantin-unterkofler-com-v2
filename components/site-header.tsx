@@ -246,7 +246,10 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
   const isScrolled = useScrolled();
 
   return (
-    <header data-site-header className="sticky top-7 z-10 pb-10 lg:top-4 lg:z-0">
+    <header
+      data-site-header
+      className="sticky top-7 z-10 pb-10 lg:top-4 lg:z-0"
+    >
       <div className="relative flex justify-between gap-6">
         {/* The glass surface is its own layer rather than the header's own
          * background, for two reasons. iOS Safari silently drops

@@ -120,7 +120,7 @@ describe("Portfolio Content", () => {
       { label: "Role", value: "Software Engineer, Jung von Matt TECH" },
       { label: "Based", value: "Berlin · 52.5200° N, 13.4050° E" },
       { label: "Focus", value: "Commerce platforms, modern web, AI" },
-      { label: "Stack", value: "TypeScript · React / Next.js · Vue / Nuxt" },
+      { label: "Stack", value: "TypeScript · React / Next · Vue / Nuxt" },
     ]);
   });
 

@@ -15,6 +15,7 @@
   --notebook-control-hover-scale: 1.05;
   --notebook-press-scale: 0.995;
   --console-initial-y: 24px;
+  --console-initial-x: 24px;
 }
 
 html {
@@ -56,6 +57,7 @@ body {
     --notebook-control-hover-scale: 1;
     --notebook-press-scale: 1;
     --console-initial-y: 0px;
+    --console-initial-x: 0px;
   }
 
   *,
@@ -76,6 +78,13 @@ body {
 :focus-visible {
   outline: 2px solid var(--color-ink);
   outline-offset: 2px;
+}
+
+/* The console prompt marks focus with its own blinking caret; the ring would
+ * frame the whole line. Unlayered so it outranks the utilities layer, which
+ * is why `outline-none` on the input alone is not enough here. */
+.notebook-console input:focus-visible {
+  outline: none;
 }
 
 .skip-link {

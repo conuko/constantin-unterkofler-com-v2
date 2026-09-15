@@ -264,7 +264,7 @@ the data face and left in full ink, with only the labels muted.
 | Disclosure control | 36px box, unframed. Three lines folding into a cross. |
 | Wayfinding link | Unchanged: `underline-reveal`, 300ms, `--ease-spring`. |
 | Action link | Square, 1px `--color-rule`, glass fill, Space Mono 10 caps. Hover lifts border and text to full ink. |
-| Console control | Square, ink-filled, 36px tall. Prompt glyph in annotation colour, `⌘K` in a hairline box. |
+| Console control | Square, ink-filled, 36px tall. Prompt glyph in annotation colour, `K` in a hairline box. Sits in the Closing Record's right column, above the build stamp. |
 | Disabled | 1px dashed `--color-rule`, text at 40% ink. |
 
 Hit targets stay at or above 36px, and every interactive element keeps
@@ -281,40 +281,86 @@ link, the console control, and the mobile disclosure panel.
 
 ## 8. Console
 
-A console control docks bottom-right on every page. It opens a terminal that
-slides up from the lower edge.
+The console control sits in the Closing Record's right column, above the build
+stamp, on every page. It opens a terminal that docks in one of two places: a
+column in the right corner (the default on desktop) or along the bottom edge.
+The amber light docks it to the bottom, the green light to the right — the
+same two lights that minimise and zoom a window on the platform the chrome is
+quoted from. Below `lg` it always docks to the bottom and the two lights are
+disabled.
 
 - **Surface** — one dark surface in both themes: `#15141a`, 1px border at
   ink / 14%, `border-radius: 10px`, a long soft drop shadow. The traffic lights
   and this radius are the only round shapes in the system.
-- **Chrome** — three 11px dots at the left (red `#ff5f57`, amber `#febc2e`,
-  green `#28c840`), centred session title
+- **Chrome** — three 11px lights at the left (red `#ff5f57` closes, amber
+  `#febc2e` docks bottom, green `#28c840` docks right), each in a 20px hit box.
+  Hovering any light shows the macOS glyphs on all three — a cross, a bar, the
+  two zoom triangles — in ink at 60%. Centred session title
   `cu@portfolio — ~/constantin-unterkofler.com`, `ESC` at the right.
-- **Body** — Space Mono 13 / 1.8. Prompt `~ ❯`, the `~` in annotation colour.
-  Command names in green; output at 55% ink.
-- **Caret** — 8 × 16 block on the existing `caret-blink` animation, the same one
-  the greeting uses.
-- **Motion** — opacity and `translate: 0 24px` over 300ms on the notebook's
-  entrance easing. `translate`, not `transform`: a non-`none` transform on an
-  ancestor orphans a descendant's `backdrop-filter` (see `app/motion.css`).
-- **Open** — click the control, or `⌘K` / `Ctrl+K`. **Close** — `Esc`, the red
-  light, the `ESC` label, or the control again.
+- **Body** — Space Mono 13 / 1.8. The prompt shows the working directory —
+  `~` on the front sheet, `~/work` elsewhere — in annotation colour, then `❯`.
+  Command names in green; output at 55% ink. The session opens on a short boot
+  text (login line, identity, the three starter commands, the key hints) so the
+  window has height before the first command.
+- **Banner** — `HELLO THERE!` in ANSI Shadow block capitals above the boot
+  text, in annotation colour, the way a shell prints an motd before the first
+  prompt. One line, 89 columns at leading 1, sized so those 89 columns fill
+  the window it is docked in and capped at 12px so the bottom dock does not
+  print it at poster size. It is the one thing here not set in Space Mono:
+  that face ships no block or box-drawing glyphs, so the browser composed the
+  art per character out of two advances — 0.61em for the Latin, 0.97em for
+  every `█` beside it — and the columns stopped lining up. The banner names
+  the platform's own terminal stack instead, which has the glyphs and sets all
+  of them on one advance. It carries `role="img"` and the greeting as its
+  label, because the greeting is the one thing the boot text does not also
+  say. `clear` takes it with the rest of the session.
+- **Size** — bottom dock: the body grows from a 13rem floor to
+  `min(52vh, 26rem)`, then scrolls. Side dock: a fixed column, 30rem wide and
+  `min(72vh, 44rem)` tall, the body filling it.
+- **Caret** — 8 × 16 block in the command green on the existing `caret-blink`
+  animation, the same one the greeting uses; steady at 40% while the input is
+  unfocused. The native caret is transparent.
+- **Scrollbar** — thin, thumb at the console rule colour on a transparent track
+  via `scrollbar-color`, with WebKit pseudo-elements only where the standard
+  property is missing.
+- **Motion** — opacity and `translate: 0 24px` at the bottom dock,
+  `translate: 24px 0` at the side dock, over 300ms on the notebook's entrance
+  easing. `translate`, not `transform`: a non-`none` transform on an ancestor
+  orphans a descendant's `backdrop-filter` (see `app/motion.css`). Switching
+  dock while open repositions the window without a transition.
+- **Intro** — the banner types itself the first time the window opens, and
+  only then: one sweep left to right over 1.1s. It is a clip wipe stepped once
+  per column — eased, the edge slides through the middle of a glyph and leaves
+  half a block standing; on `steps()` it only ever lands on a character cell,
+  which is what reads as typing rather than as a wipe. The session holds at
+  the top of the window while it runs and settles onto the prompt when the
+  greeting lands; typing a command ends it early. Reduced motion prints the
+  banner and skips straight to the prompt.
+- **Open** — click the control, or press `K` anywhere outside a text field.
+  **Close** — `Esc`, the red light, the `ESC` label, or the control again.
 
 ### Commands
 
 | Command | Result |
 | --- | --- |
 | `help` | List commands |
-| `about` | Navigate to `/about` |
-| `work` | Navigate to `/work`; `work --list` prints the record index |
-| `contact` | Navigate to `/contact`; `contact --list` prints the routes |
 | `whoami` | Identity line |
+| `home` | Navigate to `/` and close |
+| `about` | Navigate to `/about` and close |
+| `work` | Navigate to `/work` and close; `work --list` prints the record index |
+| `contact` | Navigate to `/contact` and close |
+| `ls` | List the routes, Home first |
+| `cd` | Change route like a shell and stay open: `cd work`, `cd /about`, `cd ~/about`, `cd ..`, `cd ~` (or bare `cd`), `cd -` for the previous route |
 | `theme` | Toggle light / dark |
 | `source` | Open the repository |
 | `clear` | Clear the session |
+| `exit` | Close the console |
 
 The console answers the same routes the navigation does. It is a second way in,
-never the only way: nothing is reachable through the console alone.
+never the only way: nothing is reachable through the console alone. `cd` keeps
+the window open where the named shortcuts close it: the sheet changes beside
+the window and the prompt path confirms the move, so going back and forth costs
+one command rather than a reopen each time.
 
 ---
 

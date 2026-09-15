@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Space_Grotesk, Space_Mono } from "next/font/google";
 import type { ReactNode } from "react";
+import { SiteConsoleProvider } from "@/components/console/console-provider";
 import { SiteConsole } from "@/components/console/site-console";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -61,27 +62,29 @@ export default function RootLayout({
             Skip to main content
           </a>
 
-          <div className="flex w-full flex-1 flex-col p-6">
-            <SiteHeader
+          <SiteConsoleProvider>
+            <div className="flex w-full flex-1 flex-col p-6">
+              <SiteHeader
+                identity={portfolioContent.identity}
+                primaryWayfinding={portfolioContent.primaryWayfinding}
+              />
+
+              <main
+                id="main-content"
+                className="mx-auto w-full max-w-270 flex-1 pb-16"
+              >
+                {children}
+              </main>
+
+              <SiteFooter closingRecord={portfolioContent.closingRecord} />
+            </div>
+
+            {/* Mounted once at the root so the session survives navigation. */}
+            <SiteConsole
               identity={portfolioContent.identity}
-              primaryWayfinding={portfolioContent.primaryWayfinding}
+              wayfinding={portfolioContent.primaryWayfinding}
             />
-
-            <main
-              id="main-content"
-              className="mx-auto w-full max-w-270 flex-1 pb-16"
-            >
-              {children}
-            </main>
-
-            <SiteFooter closingRecord={portfolioContent.closingRecord} />
-          </div>
-
-          {/* Mounted once at the root so the session survives navigation. */}
-          <SiteConsole
-            identity={portfolioContent.identity}
-            wayfinding={portfolioContent.primaryWayfinding}
-          />
+          </SiteConsoleProvider>
         </ThemeProvider>
       </body>
     </html>

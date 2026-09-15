@@ -63,10 +63,17 @@
    * scannable line by line. */
   --leading-console: 1.8;
 
-  /* The session scrolls once it passes this; the viewport cap keeps the window
-   * off the page header on short screens. `--max-height-*` is the namespace
-   * `max-h-*` resolves against — a `--size-*` name generates no CSS at all. */
+  /* Bottom dock: the session grows from this floor and scrolls once it passes
+   * the cap; the viewport cap keeps the window off the page header on short
+   * screens. `--max-height-*` / `--min-height-*` are the namespaces `max-h-*`
+   * and `min-h-*` resolve against — a `--size-*` name generates no CSS at all. */
+  --min-height-console-body: 13rem;
   --max-height-console-body: min(52vh, 26rem);
+
+  /* Side dock: a fixed column in the right corner, the body filling it. Wide
+   * enough for the `help` grid and the session title without wrapping. */
+  --width-console-side: 45rem;
+  --height-console-side: min(72vh, 40rem);
 
   /* Command name column in `help` output, wide enough for the longest name
    * plus its flag. */
@@ -78,6 +85,15 @@
   --font-sans: var(--font-body), sans-serif;
   --font-heading: var(--font-display), serif;
   --font-mono: var(--font-mono-face), ui-monospace, monospace;
+
+  /* Block art only. Space Mono ships no block or box-drawing glyphs, so a
+   * banner set in it is composed per character by the browser's fallback —
+   * measured here, the Latin glyphs came out at 0.61em and every █ and ╗
+   * beside them at 0.97em, which is not a grid any more. This stack is the
+   * platform's own terminal face, which has the glyphs and sets all of them
+   * on one advance. It is the console banner's face and nothing else's. */
+  --font-mono-block:
+    ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
 
   --text-label: 0.6875rem;
   --text-micro: 0.625rem;
