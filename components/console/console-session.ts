@@ -36,6 +36,7 @@ export type ConsoleResult = {
 export type ConsoleContext = {
   identityName: string;
   identityRole: string;
+  identityLocation: string;
   /** Every route the console can move to, Home included — see `consoleRoutes`. */
   routes: NavItem[];
   /** The route currently on screen and the one before it, for `cd -`. */
@@ -148,7 +149,10 @@ const commands: CommandSpec[] = [
     description: "who is typing back",
     run: (_args, context) =>
       output(
-        line("output", `${context.identityName} — ${context.identityRole}`),
+        line(
+          "output",
+          `${context.identityName} — ${context.identityRole} · ${context.identityLocation}`,
+        ),
       ),
   },
   {

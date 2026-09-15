@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 import { portfolioContent } from "@/content/site-content";
 import { expectedRecentReading } from "@/tests/fixtures/recent-reading";
+import packageJson from "../../package.json";
 
 describe("Portfolio Content", () => {
   test("defines every Portfolio Page with a unique route, title, and metadata", () => {
@@ -86,10 +87,7 @@ describe("Portfolio Content", () => {
       "buildStamp",
     ]);
     expect(portfolioContent.closingRecord.copyrightYear).toBe(2026);
-    // The stamp is dated per release, so this holds its shape, not its value.
-    expect(portfolioContent.closingRecord.buildStamp).toMatch(
-      /^\d{4}\.\d{2}\.\d{2}$/,
-    );
+    expect(portfolioContent.closingRecord.buildStamp).toBe(packageJson.version);
     expect(portfolioContent.identity.name).toBe("Constantin Unterkofler");
   });
 
@@ -318,6 +316,24 @@ describe("Portfolio Content", () => {
       "Web platform",
       "Platform migration",
     ]);
+  });
+
+  test("derives the console projection from canonical Home and Work content", () => {
+    const homeSpecification = portfolioContent.pages.home.content.specification;
+
+    expect(portfolioContent.console.identity).toEqual({
+      name: portfolioContent.identity.name,
+      role: homeSpecification.find((field) => field.label === "Role")?.value,
+      location: homeSpecification.find((field) => field.label === "Based")
+        ?.value,
+    });
+    expect(portfolioContent.console.records).toEqual(
+      portfolioContent.pages.work.content.entries.map((entry, index) => ({
+        index: `W–${String(index + 1).padStart(2, "0")}`,
+        label: entry.client,
+        meta: entry.primaryMetadata.toLowerCase(),
+      })),
+    );
   });
 
   test("keeps Work destinations optional and marks draft descriptions for owner review", () => {

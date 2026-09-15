@@ -81,7 +81,7 @@ export default function RootLayout({
 
             {/* Mounted once at the root so the session survives navigation. */}
             <SiteConsole
-              identity={portfolioContent.identity}
+              content={portfolioContent.console}
               wayfinding={portfolioContent.primaryWayfinding}
             />
           </SiteConsoleProvider>

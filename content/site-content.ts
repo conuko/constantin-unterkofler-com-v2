@@ -12,6 +12,7 @@ import coverSongsInTheKeyOfLife from "@/content/covers/songs-in-the-key-of-life.
 import coverTheFearlessFlyers from "@/content/covers/the-fearless-flyers.jpg";
 import coverUndercurrent from "@/content/covers/undercurrent.jpg";
 import { greetings } from "@/content/greetings";
+import packageJson from "../package.json";
 
 export type NavItem = {
   href: string;
@@ -84,6 +85,16 @@ export type ContactLink = {
   value: string;
 };
 
+export type SiteConsoleContent = {
+  identity: {
+    name: string;
+    role: string;
+    location: string;
+  };
+  repositoryUrl: string;
+  records: { index: string; label: string; meta: string }[];
+};
+
 const identity = {
   name: "Constantin Unterkofler",
   shortName: "CU",
@@ -93,7 +104,7 @@ const identity = {
 
 const closingRecord = {
   copyrightYear: 2026,
-  buildStamp: "2026.09.14", // TODO: update this automatically in the build process with the current version from package.json
+  buildStamp: packageJson.version,
 };
 
 const aboutIntroduction =
@@ -476,7 +487,7 @@ const portfolioPages = {
     publicationStatus: "published" satisfies PublicationStatus,
     route: "/",
     sectionCode: "",
-    sheetMeta: "Sheet 00 · Berlin",
+    sheetMeta: "",
     title: identity.name,
     width: "reading",
     metadata: {
@@ -628,9 +639,42 @@ const primaryWayfinding: NavItem[] = Object.values(portfolioPages)
   .sort((a, b) => a.order - b.order)
   .map(({ href, label }) => ({ href, label }));
 
+function specificationValue(label: string): string {
+  const field = portfolioPages.home.content.specification.find(
+    (candidate) => candidate.label === label,
+  );
+
+  if (!field) {
+    throw new Error(`Missing Home specification field: ${label}`);
+  }
+
+  return field.value;
+}
+
+const githubLink = contactLinks.find((link) => link.label === "GitHub");
+
+if (!githubLink) {
+  throw new Error("Missing GitHub contact link");
+}
+
+const siteConsoleContent: SiteConsoleContent = {
+  identity: {
+    name: identity.name,
+    role: specificationValue("Role"),
+    location: specificationValue("Based"),
+  },
+  repositoryUrl: githubLink.href,
+  records: workEntries.map((entry, index) => ({
+    index: `W–${String(index + 1).padStart(2, "0")}`,
+    label: entry.client,
+    meta: entry.primaryMetadata.toLowerCase(),
+  })),
+};
+
 export const portfolioContent = {
   identity,
   closingRecord,
   pages: portfolioPages,
   primaryWayfinding,
+  console: siteConsoleContent,
 } as const;

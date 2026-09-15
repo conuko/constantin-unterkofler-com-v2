@@ -21,17 +21,14 @@ import {
   promptLine,
   runCommand,
 } from "@/components/console/console-session";
-import { type NavItem, portfolioContent } from "@/content/site-content";
+import type { NavItem, SiteConsoleContent } from "@/content/site-content";
 import { useMediaQuery } from "@/lib/use-media-query";
 import { cn } from "@/lib/utils/cn";
 
 type SiteConsoleProps = {
-  identity: { name: string };
+  content: SiteConsoleContent;
   wayfinding: NavItem[];
 };
-
-const repositoryUrl = "https://github.com/conuko";
-const identityRole = "Software Engineer, Berlin";
 
 /* Tailwind's `lg`. Below it the window always docks to the bottom edge — a
  * column in the right corner has no room on a phone. */
@@ -154,7 +151,7 @@ function TrafficLight({
  * exit the same choreography as the entrance without anything watching for
  * unmount.
  */
-export function SiteConsole({ identity, wayfinding }: SiteConsoleProps) {
+export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
   const {
     isOpen,
     close,
@@ -252,19 +249,14 @@ export function SiteConsole({ identity, wayfinding }: SiteConsoleProps) {
 
     const entered = input;
     const context: ConsoleContext = {
-      identityName: identity.name,
-      identityRole,
+      identityName: content.identity.name,
+      identityRole: content.identity.role,
+      identityLocation: content.identity.location,
       routes: consoleRoutes(wayfinding),
       pathname,
       previousPathname: previousPathnameRef.current,
-      repositoryUrl,
-      records: portfolioContent.pages.work.content.entries.map(
-        (entry, index) => ({
-          index: `W–${String(index + 1).padStart(2, "0")}`,
-          label: entry.client,
-          meta: entry.primaryMetadata.toLowerCase(),
-        }),
-      ),
+      repositoryUrl: content.repositoryUrl,
+      records: content.records,
     };
     const result = runCommand(entered, context);
 

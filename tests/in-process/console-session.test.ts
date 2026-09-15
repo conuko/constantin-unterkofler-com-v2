@@ -18,7 +18,8 @@ const wayfinding = [
 function context(overrides: Partial<ConsoleContext> = {}): ConsoleContext {
   return {
     identityName: "Constantin Unterkofler",
-    identityRole: "Software Engineer, Berlin",
+    identityRole: "Software Engineer",
+    identityLocation: "Berlin",
     routes: consoleRoutes(wayfinding),
     pathname: "/",
     previousPathname: null,
@@ -29,6 +30,13 @@ function context(overrides: Partial<ConsoleContext> = {}): ConsoleContext {
 }
 
 describe("console routes", () => {
+  test("whoami prints the supplied identity attributes", () => {
+    expect(runCommand("whoami", context()).lines[0]).toMatchObject({
+      kind: "output",
+      text: "Constantin Unterkofler — Software Engineer · Berlin",
+    });
+  });
+
   test("lists Home first, ahead of the primary wayfinding", () => {
     expect(consoleRoutes(wayfinding).map((route) => route.href)).toEqual([
       "/",
