@@ -87,6 +87,34 @@ body {
   outline: none;
 }
 
+/* Below `lg` the console stays the window it is on desktop — docked along the
+ * bottom edge, the page still visible around it — but the software keyboard
+ * would cover it: `position: fixed` resolves against the layout viewport, and
+ * the keyboard only shrinks the visual one. Both variables are measured from
+ * `window.visualViewport` while the window is open. The first lifts it clear
+ * of the keyboard, the second trims it to the screen that is left, so the
+ * prompt stays in view without the window ever taking the whole display. */
+.notebook-console[data-mobile="true"] {
+  --console-edge: max(1.5rem, env(safe-area-inset-bottom));
+  bottom: calc(var(--console-keyboard-inset, 0px) + var(--console-edge));
+  max-height: calc(
+    var(--console-visible-height, 100dvh) -
+    var(--console-edge) -
+    1.5rem
+  );
+}
+
+/* The session gives up its floor as the visible screen runs out, so the window
+ * shrinks to a keyboard-sized viewport instead of overflowing it. Wherever
+ * there is room it keeps the height it has on desktop. */
+.notebook-console[data-mobile="true"] .console-session {
+  min-height: clamp(
+    0px,
+    calc(var(--console-visible-height, 100dvh) - 7rem),
+    var(--min-height-console-body)
+  );
+}
+
 .skip-link {
   position: absolute;
   top: -3rem;

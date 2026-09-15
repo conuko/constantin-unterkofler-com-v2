@@ -21,6 +21,10 @@ import {
   promptLine,
   runCommand,
 } from "@/components/console/console-session";
+import {
+  consoleViewportVariableNames,
+  consoleViewportVariables,
+} from "@/components/console/console-viewport";
 import type { NavItem, SiteConsoleContent } from "@/content/site-content";
 import { useMediaQuery } from "@/lib/use-media-query";
 import { cn } from "@/lib/utils/cn";
@@ -97,8 +101,9 @@ type TrafficLightProps = {
   disabled?: boolean;
 };
 
-/* An 11px light inside a 20px hit box. Hovering any light reveals the glyphs
- * on all three, as the platform does. */
+/* An 11px light inside a 20px hit box, opened to 24px on touch so the target
+ * clears the minimum. Hovering any light reveals the glyphs on all three, as
+ * the platform does. */
 function TrafficLight({
   tone,
   label,
@@ -113,7 +118,7 @@ function TrafficLight({
       aria-label={label}
       aria-pressed={pressed}
       disabled={disabled}
-      className="flex size-5 cursor-pointer items-center justify-center disabled:cursor-default"
+      className="flex size-6 cursor-pointer items-center justify-center disabled:cursor-default lg:size-5"
     >
       <span
         className={cn(
@@ -176,6 +181,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
   const [historyCursor, setHistoryCursor] = useState<number | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const router = useRouter();
@@ -218,6 +224,48 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [isOpen, close, toggle]);
+
+  /* Below `lg` the window docks to the bottom edge, where the software
+   * keyboard would otherwise sit on top of the prompt. Measure the two
+   * viewports against each other while the window is open and hand the
+   * difference to the stylesheet, which lifts the window clear of the
+   * keyboard and trims it to the screen that is left. */
+  useEffect(() => {
+    const panel = panelRef.current;
+
+    if (!isOpen || isDesktop || !panel) return;
+
+    const viewport = window.visualViewport;
+
+    const syncViewport = () => {
+      const variables = consoleViewportVariables({
+        offsetTop: viewport?.offsetTop ?? 0,
+        height: viewport?.height ?? window.innerHeight,
+        layoutHeight: document.documentElement.clientHeight,
+      });
+
+      for (const [name, value] of Object.entries(variables)) {
+        panel.style.setProperty(name, value);
+      }
+
+      followSession(scrollRef.current);
+    };
+
+    syncViewport();
+    viewport?.addEventListener("resize", syncViewport);
+    viewport?.addEventListener("scroll", syncViewport, { passive: true });
+    window.addEventListener("resize", syncViewport);
+
+    return () => {
+      viewport?.removeEventListener("resize", syncViewport);
+      viewport?.removeEventListener("scroll", syncViewport);
+      window.removeEventListener("resize", syncViewport);
+
+      for (const name of consoleViewportVariableNames) {
+        panel.style.removeProperty(name);
+      }
+    };
+  }, [isDesktop, isOpen]);
 
   useEffect(() => {
     if (isOpen) inputRef.current?.focus();
@@ -302,7 +350,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
   }
 
   function onInputKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Tab") {
+    if (event.key === "Tab" && !event.shiftKey) {
       event.preventDefault();
       recall(completeCommand(input));
       return;
@@ -353,9 +401,11 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
 
   return (
     <section
+      ref={panelRef}
       id={panelId}
       data-open={isOpen}
       data-dock={dock}
+      data-mobile={!isDesktop}
       aria-label="Site console"
       className={cn(
         "notebook-console fixed z-50 flex flex-col overflow-hidden rounded-console border border-console-rule bg-console-surface shadow-console",
@@ -364,7 +414,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
           : "inset-x-6 bottom-6",
       )}
     >
-      <div className="flex items-center gap-3 border-console-rule border-b bg-console-chrome px-3.5 py-2.5">
+      <div className="flex shrink-0 items-center gap-3 border-console-rule border-b bg-console-chrome px-3.5 py-2.5">
         <div className="group/lights -ml-1 flex">
           <TrafficLight tone="close" label="Close console" onClick={close} />
           <TrafficLight
@@ -388,7 +438,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
         <button
           type="button"
           onClick={close}
-          className="label cursor-pointer text-console-ink-muted text-micro"
+          className="label -my-2.5 -mr-1.5 cursor-pointer px-1.5 py-2.5 text-console-ink-muted text-micro"
         >
           Esc
         </button>
@@ -397,43 +447,45 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
       <div
         ref={scrollRef}
         className={cn(
-          "console-scroll overflow-y-auto px-5.5 py-4.5 font-mono text-console-ink text-sm leading-console",
+          "console-scroll console-session overflow-y-auto overscroll-contain px-5.5 py-4.5 font-mono text-console-ink text-sm leading-console lg:overscroll-auto",
           dock === "side"
             ? "min-h-0 flex-1"
             : "max-h-console-body min-h-console-body",
         )}
       >
-        {hasBanner ? (
-          <ConsoleBanner intro={intro} onIntroEnd={() => setIntro("done")} />
-        ) : null}
+        <div role="log" aria-live="polite" aria-relevant="additions text">
+          {hasBanner ? (
+            <ConsoleBanner intro={intro} onIntroEnd={() => setIntro("done")} />
+          ) : null}
 
-        {lines.map((entry) =>
-          entry.kind === "prompt" ? (
-            <p key={entry.id} className="mt-2.5">
-              <span className="text-console-accent">{entry.path ?? "~"}</span>{" "}
-              <span className="text-console-ink-muted">❯</span> {entry.text}
-            </p>
-          ) : entry.name ? (
-            <p key={entry.id} className="grid grid-cols-console-help gap-x-5">
-              <span className="text-console-command">{entry.name}</span>
-              <span className="text-console-ink-muted">{entry.text}</span>
-            </p>
-          ) : (
-            <p
-              key={entry.id}
-              className={
-                entry.kind === "error"
-                  ? "text-console-error"
-                  : entry.kind === "muted"
-                    ? "text-console-ink-muted"
-                    : undefined
-              }
-            >
-              {/* An empty line still takes its line-height. */}
-              {entry.text === "" ? " " : entry.text}
-            </p>
-          ),
-        )}
+          {lines.map((entry) =>
+            entry.kind === "prompt" ? (
+              <p key={entry.id} className="mt-2.5">
+                <span className="text-console-accent">{entry.path ?? "~"}</span>{" "}
+                <span className="text-console-ink-muted">❯</span> {entry.text}
+              </p>
+            ) : entry.name ? (
+              <p key={entry.id} className="grid grid-cols-console-help gap-x-5">
+                <span className="text-console-command">{entry.name}</span>
+                <span className="text-console-ink-muted">{entry.text}</span>
+              </p>
+            ) : (
+              <p
+                key={entry.id}
+                className={
+                  entry.kind === "error"
+                    ? "text-console-error"
+                    : entry.kind === "muted"
+                      ? "text-console-ink-muted"
+                      : undefined
+                }
+              >
+                {/* An empty line still takes its line-height. */}
+                {entry.text === "" ? " " : entry.text}
+              </p>
+            ),
+          )}
+        </div>
 
         <form onSubmit={submit} className="mt-2.5 flex items-center gap-2">
           <span aria-hidden className="text-console-accent">
@@ -456,12 +508,13 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
               onKeyDown={onInputKeyDown}
               spellCheck={false}
               autoComplete="off"
+              autoCapitalize="none"
               aria-label="Console input"
-              className="w-full bg-transparent p-0 font-mono text-console-ink caret-transparent outline-none"
+              className="w-full bg-transparent p-0 font-mono text-base text-console-ink caret-transparent outline-none lg:text-sm"
             />
             <span
               aria-hidden
-              className="pointer-events-none absolute inset-y-0 left-0 flex items-center whitespace-pre"
+              className="pointer-events-none absolute inset-y-0 left-0 flex items-center whitespace-pre text-base lg:text-sm"
             >
               <span className="invisible">{input.slice(0, caretIndex)}</span>
               <span

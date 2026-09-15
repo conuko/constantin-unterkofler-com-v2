@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Bebas_Neue, Space_Grotesk, Space_Mono } from "next/font/google";
 import type { ReactNode } from "react";
 import { SiteConsoleProvider } from "@/components/console/console-provider";
@@ -38,6 +38,16 @@ export const metadata: Metadata = {
     template: `%s | ${portfolioContent.identity.name}`,
   },
   description: portfolioContent.identity.description,
+};
+
+/* Supporting browsers resize the layout viewport around the software keyboard,
+ * which is all the Site Console needs from them; iOS does not, so the console
+ * measures `visualViewport` itself. Scaling stays on the default — a page that
+ * cannot be pinched is a page some readers cannot read. */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  interactiveWidget: "resizes-content",
 };
 
 export default function RootLayout({
