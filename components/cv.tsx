@@ -35,18 +35,19 @@ export function Cv({ sectionCode, sections }: CvProps) {
   let position = 0;
 
   return (
-    <div className="flex w-full flex-col gap-10">
+    <div className="flex w-full flex-col gap-11">
       {sections.map((section, sectionIndex) => {
         const sectionStarts = starts[sectionIndex];
 
         return (
           <section key={section.title} className="w-full">
             <NotebookSectionHeading
+              count={section.entries.length}
               delay={notebookTiming.content + (sectionStarts?.heading ?? 0)}
             >
               {section.title}
             </NotebookSectionHeading>
-            <ol className="mt-3">
+            <ol className="mt-3.5">
               {section.entries.map((entry, entryIndex) => {
                 position += 1;
 
@@ -68,7 +69,7 @@ export function Cv({ sectionCode, sections }: CvProps) {
                         </h3>
                         <p className="text-ink-muted text-sm">{entry.role}</p>
                       </div>
-                      <NotebookLabel className="ml-auto tabular-nums sm:ml-0 sm:w-24 sm:text-right">
+                      <NotebookLabel className="num ml-auto text-label sm:ml-0 sm:w-26 sm:text-right">
                         {entry.years}
                       </NotebookLabel>
                     </NotebookRecordRowBody>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { Bebas_Neue, Space_Grotesk } from "next/font/google";
+import { Bebas_Neue, Space_Grotesk, Space_Mono } from "next/font/google";
 import type { ReactNode } from "react";
+import { SiteConsole } from "@/components/console/site-console";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -16,6 +17,16 @@ const displayFont = Bebas_Neue({
 
 const bodyFont = Space_Grotesk({
   variable: "--font-body",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+/* Space Grotesk was drawn from Space Mono — same skeleton, same terminals.
+ * The data face is the fixed-width cut of the text face already in use, not a
+ * third voice. */
+const monoFont = Space_Mono({
+  weight: ["400", "700"],
+  variable: "--font-mono-face",
   subsets: ["latin"],
   display: "swap",
 });
@@ -37,7 +48,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${displayFont.variable} ${bodyFont.variable}`}
+      className={`${displayFont.variable} ${bodyFont.variable} ${monoFont.variable}`}
     >
       <body className="flex min-h-dvh flex-col bg-paper text-ink leading-relaxed">
         <ThemeProvider
@@ -65,6 +76,12 @@ export default function RootLayout({
 
             <SiteFooter closingRecord={portfolioContent.closingRecord} />
           </div>
+
+          {/* Mounted once at the root so the session survives navigation. */}
+          <SiteConsole
+            identity={portfolioContent.identity}
+            wayfinding={portfolioContent.primaryWayfinding}
+          />
         </ThemeProvider>
       </body>
     </html>

@@ -73,6 +73,11 @@ export type WorkMark = {
   height: number;
 };
 
+export type SpecificationField = {
+  label: string;
+  value: string;
+};
+
 export type ContactLink = {
   label: string;
   href: string;
@@ -88,6 +93,7 @@ const identity = {
 
 const closingRecord = {
   copyrightYear: 2026,
+  buildStamp: "2026.09.14", // TODO: update this automatically in the build process with the current version from package.json
 };
 
 const aboutIntroduction =
@@ -470,6 +476,7 @@ const portfolioPages = {
     publicationStatus: "published" satisfies PublicationStatus,
     route: "/",
     sectionCode: "",
+    sheetMeta: "Sheet 00 · Berlin",
     title: identity.name,
     width: "reading",
     metadata: {
@@ -485,12 +492,22 @@ const portfolioPages = {
           url: "https://www.jvm.com/",
         },
       },
+      specification: [
+        { label: "Role", value: "Software Engineer, Jung von Matt TECH" },
+        { label: "Based", value: "Berlin · 52.5200° N, 13.4050° E" },
+        {
+          label: "Focus",
+          value: "Commerce platforms, modern web, AI",
+        },
+        { label: "Stack", value: "TypeScript · React / Next · Vue / Nuxt" },
+      ] satisfies SpecificationField[],
     },
   },
   about: {
     publicationStatus: "published" satisfies PublicationStatus,
     route: "/about",
     sectionCode: "A",
+    sheetMeta: "Sheet A · 06 records",
     title: "About me",
     width: "reading",
     metadata: {
@@ -511,6 +528,7 @@ const portfolioPages = {
     publicationStatus: "published" satisfies PublicationStatus,
     route: "/contact",
     sectionCode: "C",
+    sheetMeta: "Sheet C · 03 routes",
     title: "Contact",
     width: "reading",
     metadata: {
@@ -531,6 +549,7 @@ const portfolioPages = {
     publicationStatus: "published" satisfies PublicationStatus,
     route: "/work",
     sectionCode: "W",
+    sheetMeta: "Sheet W · 07 records",
     title: "Work",
     width: "collection",
     metadata: {
@@ -552,6 +571,7 @@ const portfolioPages = {
     publicationStatus: "unpublished" satisfies PublicationStatus,
     route: "/read",
     sectionCode: "R",
+    sheetMeta: "Sheet R · 06 records",
     title: "What I recently read",
     width: "collection",
     metadata: {
@@ -573,6 +593,7 @@ const portfolioPages = {
     publicationStatus: "unpublished" satisfies PublicationStatus,
     route: "/play",
     sectionCode: "P",
+    sheetMeta: "Sheet P · 06 records",
     title: "What I currently play",
     width: "collection",
     metadata: {

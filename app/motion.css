@@ -1,8 +1,12 @@
 /* ═══════════════════════════════════════════════════
  * ENTRANCE CHOREOGRAPHY
  *
+ * Unchanged by the technical revision. Every timing, curve, and stagger below
+ * is the same one the notebook shipped with; see ADR-0004 for why it is CSS
+ * and why the identity mark stays out of it.
+ *
  * The Engineering Notebook registers itself on load: rules draw, parts settle.
- * Two rules govern how, and both come from measurement. See ADR-0004.
+ * Two rules govern how, and both come from measurement.
  *
  * 1. It is CSS, not JavaScript. When the entrance ran through Motion variants,
  *    every part shipped from the server at `opacity: 0` and stayed there until
@@ -13,16 +17,10 @@
  * 2. At least one above-the-fold element must be opaque in the server-rendered
  *    HTML. Chrome excludes an element that is transparent or fully clipped
  *    when painted from both First and Largest Contentful Paint, and does not
- *    reconsider it when an animation later reveals it. Fading the whole page
- *    header in from `opacity: 0` did not delay those metrics — it forfeited
- *    them outright: no FCP and no LCP reported on any page, however visible
- *    the text looked a moment later. The Site Header's identity mark is the
- *    element that carries this on every page, and it does so by staying out of
- *    the choreography altogether: it has no entrance class, so it is simply
- *    there, opaque, from the first frame — the notebook's stationery, printed
- *    before the entry is written into it. Everything else above the fold may
- *    fade — once FCP and LCP have been recorded from the mark, an element that
- *    starts transparent is simply never a candidate, which costs nothing.
+ *    reconsider it when an animation later reveals it. The Site Header's
+ *    identity mark carries this on every page by staying out of the
+ *    choreography altogether — the notebook's stationery, printed before the
+ *    entry is written into it.
  *
  * Stagger is an absolute `--notebook-delay` per element, rendered into the
  * server HTML. No runtime sequencing, no callback chain.
@@ -112,8 +110,7 @@
  *
  * `opacity` under 1 orphans a backdrop the same way, and that one is spec, not
  * a Chrome quirk — which is why `NotebookMedia` hangs this entrance on the
- * glass field itself rather than on a wrapper above it. An element's own fade
- * composites its already-blurred surface; an ancestor's fade empties it. */
+ * glass field itself rather than on a wrapper above it. */
 .notebook-in-part,
 .notebook-in-identity,
 .notebook-in-introduction,
@@ -137,9 +134,7 @@
 
 /* The introduction fades and settles like every other part, only a beat
  * slower: a paragraph reads calmer arriving over 0.5s than a label does over
- * 0.32s. It is invisible until its own entrance begins — which is exactly why
- * it cannot carry the page's paint timing; the static identity mark does (see
- * rule 2 above). */
+ * 0.32s. */
 .notebook-in-introduction {
   animation-name: notebook-part-in;
   animation-duration: 0.5s;
@@ -174,7 +169,8 @@
   }
 
   .notebook-disclosure,
-  .notebook-disclosure-item {
+  .notebook-disclosure-item,
+  .notebook-console {
     transition: none;
   }
 }
@@ -184,8 +180,7 @@
  *
  * Reading order is DOM order, so the index comes from the DOM. A group names
  * its own base offset and step once, inline; every child derives its delay
- * from its position. Nothing is threaded through props, and nothing needs
- * JavaScript to sequence it.
+ * from its position.
  * ═══════════════════════════════════════════════════ */
 
 [data-notebook-stagger] > * {
@@ -302,23 +297,14 @@
  * INTERACTION
  *
  * Hover and press use the independent `translate` and `scale` properties
- * rather than `transform`. The original reason was composition — they used to
- * be the only movers not competing with an entrance that animated `transform`.
- * The entrance now animates `translate` too, so `.notebook-lift` and
- * `notebook-record-in` do share a property on the `<article>`, and that is
- * fine: a running animation outranks a transition, so an entrance in flight
- * simply wins, and the moment it ends (no forwards fill) the hover transition
- * takes the property back. Both keyframes end at `translate: none`, which is
- * the resting value, so nothing jumps at the handover.
+ * rather than `transform`. A running animation outranks a transition, so an
+ * entrance in flight simply wins, and the moment it ends (no forwards fill)
+ * the hover transition takes the property back. Both keyframes end at
+ * `translate: none`, which is the resting value, so nothing jumps.
  *
- * The stronger reason to stay off `transform` is now `backdrop-filter`: any
+ * The stronger reason to stay off `transform` is `backdrop-filter`: any
  * non-`none` `transform` on an ancestor orphans a descendant's backdrop, and
- * the Work page's glass tiles sit under these very elements. `translate` and
- * `scale` leave the backdrop intact — measured, not assumed.
- *
- * `--ease-spring` is the theme's spring curve, so a state change still lands
- * like a spring — and the records that carry these states stay server
- * components.
+ * the Work page's glass tiles sit under these very elements.
  * ═══════════════════════════════════════════════════ */
 
 .notebook-lift {
@@ -369,10 +355,7 @@
  * The Site Header's mobile wayfinding opens on a tap, long after load, so
  * nothing here touches first paint. The panel stays in the DOM and moves
  * between its closed and open states with transitions, so one set of rules
- * carries both the entrance and the exit. `visibility` rides along: it flips
- * to visible the instant the panel opens and holds until the exit has
- * finished, and while hidden the panel is out of the accessibility tree and
- * takes neither focus nor clicks.
+ * carries both the entrance and the exit.
  * ═══════════════════════════════════════════════════ */
 
 .notebook-disclosure {
@@ -397,8 +380,7 @@
 }
 
 /* Items register in reading order once the panel is open, on the DOM-order
- * stagger above; on close they leave with the panel, undelayed, so the next
- * opening starts from a clean sheet. */
+ * stagger above; on close they leave with the panel, undelayed. */
 .notebook-disclosure-item {
   opacity: var(--motion-initial-opacity);
   translate: var(--motion-initial-x) 0;
@@ -411,4 +393,28 @@
   opacity: 1;
   translate: 0 0;
   transition-delay: var(--notebook-delay, 0s);
+}
+
+/* ═══════════════════════════════════════════════════
+ * CONSOLE
+ *
+ * Slides up from the lower edge on the notebook's entrance easing. Same
+ * `visibility` reasoning as the disclosure: it rides the transition on a
+ * linear curve so the panel never blinks out mid-exit. `translate`, not
+ * `transform`, for the backdrop reason above.
+ * ═══════════════════════════════════════════════════ */
+
+.notebook-console {
+  visibility: hidden;
+  opacity: 0;
+  translate: 0 var(--console-initial-y);
+  transition-property: visibility, opacity, translate;
+  transition-duration: var(--transition-duration-normal);
+  transition-timing-function: linear, var(--notebook-ease), var(--notebook-ease);
+}
+
+.notebook-console[data-open="true"] {
+  visibility: visible;
+  opacity: 1;
+  translate: 0 0;
 }

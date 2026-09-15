@@ -1,10 +1,31 @@
-/* Eyebrow / uppercase label — used across nav, cards, section headings */
+/* Eyebrow / uppercase label — used across nav, cards, section headings.
+ * Space Mono now carries it: everywhere the notebook already said "this is a
+ * code, an index, or a measurement", it says it in the face built for that. */
 @utility label {
-  font-size: var(--font-size-xs);
-  line-height: var(--font-size-xs--line-height);
-  font-weight: 600;
-  letter-spacing: var(--tracking-widest);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 400;
+  letter-spacing: var(--tracking-label);
+  line-height: 1.4;
   text-transform: uppercase;
+}
+
+/* Record index — W-01, A-03, C-02. Annotation colour is applied at the call
+ * site, because the same code is muted in some rows and marked in others. */
+@utility code {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-code);
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+/* Any figure a reader might compare against another figure. */
+@utility num {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
 }
 
 /* Animated underline that reveals on hover or [data-active] */
@@ -57,7 +78,80 @@
 @utility notebook-tag-marker {
   &::before {
     content: "+";
-    margin-inline-end: 0.375rem;
+    margin-inline-end: 0.4em;
     color: var(--color-rule);
+  }
+}
+
+/* Four corner Ls, 7px long, 5px clear of the frame — the drafting mark that
+ * replaced the card radius.
+ *
+ * One pseudo-element, not four spans: a 1px border box inset by -5px, masked
+ * down to its four 8x8 corners. The mask is the whole trick — without it the
+ * element is an ordinary outline, and with it the arms are exactly as long as
+ * the mask tile. */
+@utility crop-marks {
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    pointer-events: none;
+    border: 1px solid var(--color-rule);
+    --crop-mask: linear-gradient(#000 0 0);
+    mask:
+      var(--crop-mask) 0 0 / 8px 8px no-repeat,
+      var(--crop-mask) 100% 0 / 8px 8px no-repeat,
+      var(--crop-mask) 0 100% / 8px 8px no-repeat,
+      var(--crop-mask) 100% 100% / 8px 8px no-repeat;
+  }
+}
+
+/* A hairline that knows where it stops. Use it wherever the rule bounds a
+ * thing; a plain rule wherever it merely separates two things.
+ * Applies to an already-positioned rule span. */
+@utility rule-ticked {
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    top: -3px;
+    inline-size: 1px;
+    block-size: 7px;
+    background: var(--color-rule);
+  }
+
+  &::before {
+    inset-inline-start: 0;
+  }
+
+  &::after {
+    inset-inline-end: 0;
+  }
+}
+
+/* Annotation only, never structure. One per page at most. */
+@utility dimension-line {
+  position: relative;
+  block-size: 1px;
+  background: var(--color-annotation);
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    top: -4px;
+    inline-size: 1px;
+    block-size: 9px;
+    background: var(--color-annotation);
+  }
+
+  &::before {
+    inset-inline-start: 0;
+  }
+
+  &::after {
+    inset-inline-end: 0;
   }
 }

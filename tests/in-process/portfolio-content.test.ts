@@ -80,10 +80,16 @@ describe("Portfolio Content", () => {
     ]);
   });
 
-  test("owns the footer closing record copyright", () => {
-    expect(portfolioContent.closingRecord).toEqual({
-      copyrightYear: 2026,
-    });
+  test("owns the footer closing record copyright and build stamp", () => {
+    expect(Object.keys(portfolioContent.closingRecord)).toEqual([
+      "copyrightYear",
+      "buildStamp",
+    ]);
+    expect(portfolioContent.closingRecord.copyrightYear).toBe(2026);
+    // The stamp is dated per release, so this holds its shape, not its value.
+    expect(portfolioContent.closingRecord.buildStamp).toMatch(
+      /^\d{4}\.\d{2}\.\d{2}$/,
+    );
     expect(portfolioContent.identity.name).toBe("Constantin Unterkofler");
   });
 
@@ -106,6 +112,15 @@ describe("Portfolio Content", () => {
       { pageName: "work", sectionCode: "W", width: "collection" },
       { pageName: "read", sectionCode: "R", width: "collection" },
       { pageName: "play", sectionCode: "P", width: "collection" },
+    ]);
+  });
+
+  test("states the home Specification Block fields in reading order", () => {
+    expect(portfolioContent.pages.home.content.specification).toEqual([
+      { label: "Role", value: "Software Engineer, Jung von Matt TECH" },
+      { label: "Based", value: "Berlin · 52.5200° N, 13.4050° E" },
+      { label: "Focus", value: "Commerce platforms, modern web, AI" },
+      { label: "Stack", value: "TypeScript · React / Next.js · Vue / Nuxt" },
     ]);
   });
 

@@ -12,6 +12,7 @@ export default function ContactPage() {
     <PortfolioPage
       title={contact.title}
       sectionCode={contact.sectionCode}
+      sheetMeta={contact.sheetMeta}
       width={contact.width}
       introduction={<p>{contact.content.introduction}</p>}
     >

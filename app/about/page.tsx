@@ -12,6 +12,7 @@ export default function AboutPage() {
     <PortfolioPage
       title={about.title}
       sectionCode={about.sectionCode}
+      sheetMeta={about.sheetMeta}
       width={about.width}
       introduction={<p>{about.content.introduction}</p>}
     >

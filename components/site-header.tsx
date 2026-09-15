@@ -55,6 +55,11 @@ function WayfindingLink({
   );
 }
 
+/* Controls are unframed: the glyph is the control. The 36px box stays as the
+ * hit target, and the spring scale-on-hover is unchanged. */
+const controlBox =
+  "notebook-control group relative flex size-9 cursor-pointer items-center justify-center text-ink";
+
 function AppearanceControl() {
   const { resolvedTheme, setTheme } = useTheme();
 
@@ -62,7 +67,7 @@ function AppearanceControl() {
     <button
       type="button"
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-      className="notebook-control group relative flex size-10 cursor-pointer items-center justify-center text-ink"
+      className={controlBox}
     >
       <Sun className="size-4 rotate-0 scale-100 transition-transform duration-normal ease-spring group-hover:text-amber-500 dark:-rotate-90 dark:scale-0" />
       <Moon className="absolute size-4 rotate-90 scale-0 transition-transform duration-normal ease-spring group-hover:text-indigo-400 dark:rotate-0 dark:scale-100" />
@@ -105,9 +110,12 @@ type DisclosureControlProps = {
 
 /* Three lines that fold into a cross. Each line moves on the independent
  * `rotate`, `translate`, and `scale` properties, so the two states are plain
- * utilities and the spring curve carries the change between them. */
+ * utilities and the spring curve carries the change between them.
+ *
+ * Square ends, not rounded — the only rounded shapes left in the system are
+ * the console window and its traffic lights. */
 const disclosureLine =
-  "absolute h-0.5 w-5 rounded-full bg-current duration-normal ease-spring";
+  "absolute h-0.5 w-5 bg-current duration-normal ease-spring";
 
 function DisclosureControl({
   controlRef,
@@ -122,7 +130,7 @@ function DisclosureControl({
       aria-expanded={isOpen}
       aria-controls="site-header-mobile-wayfinding"
       aria-label={isOpen ? "Close menu" : "Open menu"}
-      className="notebook-control relative flex size-10 cursor-pointer items-center justify-center"
+      className={controlBox}
     >
       <div className="flex size-5 flex-col items-center justify-center">
         <span
@@ -158,17 +166,12 @@ type MobileDisclosureProps = {
 };
 
 /* The panel's items register in reading order on the same DOM-order stagger
- * the record groups use: the list names its offset and step once, and
- * `app/motion.css` resolves each item's delay from its position. */
+ * the record groups use. */
 const disclosureStagger = {
   "--notebook-stagger-base": "0.05s",
   "--notebook-stagger-step": "0.05s",
 } as CSSProperties;
 
-/* The disclosure opens on a tap, long after load, so it never touches first
- * paint. It stays in the DOM and transitions between its closed and open states
- * (see the DISCLOSURE block in `app/motion.css`), which gives the exit the same
- * choreography as the entrance without anything watching for unmount. */
 function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
   const [isOpen, setIsOpen] = useState(false);
   const previousPathnameRef = useRef(pathname);
@@ -215,7 +218,7 @@ function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
         id="site-header-mobile-wayfinding"
         aria-label="Mobile navigation"
         data-open={isOpen}
-        className="notebook-disclosure absolute top-full right-0 mt-2 min-w-40 origin-top-right rounded-xl border border-rule bg-paper/85 p-4 shadow-lg backdrop-blur-md"
+        className="notebook-disclosure absolute top-full right-0 mt-2 min-w-40 origin-top-right border border-rule bg-paper/85 p-4 shadow-lg backdrop-blur-md"
       >
         <ul data-notebook-stagger style={disclosureStagger}>
           {items.map((item) => (
@@ -230,7 +233,7 @@ function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
           ))}
         </ul>
 
-        <div className="mt-2 border-rule border-t pt-2">
+        <div className="mt-3 border-rule border-t pt-3">
           <AppearanceControl />
         </div>
       </nav>
@@ -243,7 +246,7 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
   const isScrolled = useScrolled();
 
   return (
-    <header data-site-header className="sticky top-7 z-10 pb-8 lg:top-4 lg:z-0">
+    <header data-site-header className="sticky top-7 z-10 pb-10 lg:top-4 lg:z-0">
       <div className="relative flex justify-between gap-6">
         {/* The glass surface is its own layer rather than the header's own
          * background, for two reasons. iOS Safari silently drops
@@ -252,12 +255,10 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
          * sticking on real devices. And because this layer holds a constant
          * filter and constant box, crossing the scroll threshold animates
          * opacity alone — no relayout, and no asking WebKit to build a
-         * backdrop layer mid-scroll, which is what made the switch flicker.
-         * Insets, not padding, keep the header's content still while the
-         * surface fades in around it. */}
+         * backdrop layer mid-scroll, which is what made the switch flicker. */}
         <div
           aria-hidden
-          className={`pointer-events-none absolute -inset-x-4 -inset-y-3 -z-10 rounded-xl border border-rule bg-card-glass shadow-sm backdrop-blur-md transition-opacity duration-normal ease-default lg:hidden ${
+          className={`pointer-events-none absolute -inset-x-4 -inset-y-3 -z-10 border border-rule bg-card-glass shadow-sm backdrop-blur-md transition-opacity duration-normal ease-default lg:hidden ${
             isScrolled ? "opacity-100" : "opacity-0"
           }`}
         />
@@ -266,11 +267,12 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
          * first frame. That makes it the one element above the fold that is
          * opaque at first paint, which is what keeps FCP and LCP reportable
          * while everything else arrives from transparent — see the
-         * paint-timing notes in `app/motion.css`. */}
+         * paint-timing notes in `app/motion.css`. Like every other control it
+         * is unframed — the two letters alone carry it. */}
         <div className="self-start">
           <Link
             href="/"
-            className="notebook-control flex size-10 items-center justify-center text-ink text-xs"
+            className="notebook-control code flex size-9 items-center justify-center text-ink"
           >
             {identity.shortName}
             <span className="sr-only">— home</span>
@@ -279,7 +281,7 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
 
         <div
           style={notebookDelay(notebookTiming.siteHeaderControls)}
-          className="notebook-in-part hidden flex-col items-end lg:flex"
+          className="notebook-in-part hidden flex-col items-end gap-2.5 lg:flex"
         >
           <AppearanceControl />
           <DesktopWayfinding items={primaryWayfinding} pathname={pathname} />
