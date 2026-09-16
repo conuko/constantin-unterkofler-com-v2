@@ -38,17 +38,22 @@ The new field is two stacked radial layers:
 ```css
 background-image:
   radial-gradient(circle at 1px 1px, var(--color-dot) 0.5px, transparent 1px),
-  radial-gradient(circle at 1px 1px, var(--color-dot-major) 0.9px, transparent 1.4px);
-background-size: var(--grid-pitch) var(--grid-pitch),
-                 var(--grid-pitch-major) var(--grid-pitch-major);
+  radial-gradient(
+    circle at 1px 1px,
+    var(--color-dot-major) 0.9px,
+    transparent 1.4px
+  );
+background-size:
+  var(--grid-pitch) var(--grid-pitch),
+  var(--grid-pitch-major) var(--grid-pitch-major);
 ```
 
-| Token | Value | Note |
-| --- | --- | --- |
-| `--grid-pitch` | `8px` | Minor. Two base units. |
-| `--grid-pitch-major` | `40px` | Every fifth dot, heavier. |
-| `--color-dot` | ink / 8.5% | Light. Dark theme: 7%. |
-| `--color-dot-major` | ink / 20% | Light. Dark theme: 16%. |
+| Token                | Value      | Note                      |
+| -------------------- | ---------- | ------------------------- |
+| `--grid-pitch`       | `8px`      | Minor. Two base units.    |
+| `--grid-pitch-major` | `40px`     | Every fifth dot, heavier. |
+| `--color-dot`        | ink / 8.5% | Light. Dark theme: 7%.    |
+| `--color-dot-major`  | ink / 20%  | Light. Dark theme: 16%.   |
 
 Every fifth dot is heavier so the eye can count without a printed line. Major
 and minor pitch stay in a 1:5 ratio; if the minor pitch is tuned, the major
@@ -62,29 +67,29 @@ Paper and ink are untouched. One token is new.
 
 ### Light
 
-| Token | Value |
-| --- | --- |
-| `--color-paper` | `#f8f7f2` |
-| `--color-ink` | `#111111` |
-| `--color-ink-muted` | ink / 72% |
-| `--color-rule` | ink / 20% |
-| `--color-dot` | ink / 8.5% |
-| `--color-dot-major` | ink / 20% |
+| Token                | Value                  |
+| -------------------- | ---------------------- |
+| `--color-paper`      | `#f8f7f2`              |
+| `--color-ink`        | `#111111`              |
+| `--color-ink-muted`  | ink / 72%              |
+| `--color-rule`       | ink / 20%              |
+| `--color-dot`        | ink / 8.5%             |
+| `--color-dot-major`  | ink / 20%              |
 | `--color-annotation` | `oklch(0.52 0.13 250)` |
-| `--color-card-glass` | white / 52% |
+| `--color-card-glass` | white / 52%            |
 
 ### Dark
 
-| Token | Value |
-| --- | --- |
-| `--color-paper` | `#1a1917` |
-| `--color-ink` | `#f8f7f2` |
-| `--color-ink-muted` | ink / 72% |
-| `--color-rule` | ink / 20% |
-| `--color-dot` | ink / 7% |
-| `--color-dot-major` | ink / 16% |
+| Token                | Value                  |
+| -------------------- | ---------------------- |
+| `--color-paper`      | `#1a1917`              |
+| `--color-ink`        | `#f8f7f2`              |
+| `--color-ink-muted`  | ink / 72%              |
+| `--color-rule`       | ink / 20%              |
+| `--color-dot`        | ink / 7%               |
+| `--color-dot-major`  | ink / 16%              |
 | `--color-annotation` | `oklch(0.78 0.11 250)` |
-| `--color-card-glass` | ink / 6% |
+| `--color-card-glass` | ink / 6%               |
 
 `--color-rule` moved from 18% to 20%. The hairline now has to hold its own
 against a denser dot field; at 18% it dissolved into it.
@@ -97,11 +102,11 @@ The annotation colour is separate and never rotates.
 
 ## 4. Three faces
 
-| Role | Face | Change |
-| --- | --- | --- |
-| Display | Bebas Neue | none |
-| Text | Space Grotesk | none |
-| Data | Space Mono | **new** |
+| Role    | Face          | Change  |
+| ------- | ------------- | ------- |
+| Display | Bebas Neue    | none    |
+| Text    | Space Grotesk | none    |
+| Data    | Space Mono    | **new** |
 
 Space Grotesk was drawn from Space Mono — same foundry, same skeleton, same
 terminals. Pairing them is not a contrast decision; it is the proportional face
@@ -113,16 +118,16 @@ it in the face built for that.
 
 ### Scale
 
-| Token | Spec | Use |
-| --- | --- | --- |
+| Token        | Spec                     | Use                        |
+| ------------ | ------------------------ | -------------------------- |
 | `display-lg` | Bebas 72 / 1.0 / -0.02em | Page title (48 below `lg`) |
-| `display-sm` | Bebas 24 / 1.0 / -0.01em | Record title |
-| `body` | Grotesk 14 / 1.625 | Annotation, introduction |
-| `body-sm` | Grotesk 13 / 1.6 | Supporting copy |
-| `code` | Mono 11 / 0.14em | Record index |
-| `label` | Mono 11 caps / 0.12em | Metadata, section heading |
-| `micro` | Mono 10 caps / 0.10em | Tags, footer |
-| `num` | Mono 11 tabular | Years, counts |
+| `display-sm` | Bebas 24 / 1.0 / -0.01em | Record title               |
+| `body`       | Grotesk 14 / 1.625       | Annotation, introduction   |
+| `body-sm`    | Grotesk 13 / 1.6         | Supporting copy            |
+| `code`       | Mono 11 / 0.14em         | Record index               |
+| `label`      | Mono 11 caps / 0.12em    | Metadata, section heading  |
+| `micro`      | Mono 10 caps / 0.10em    | Tags, footer               |
+| `num`        | Mono 11 tabular          | Years, counts              |
 
 Minimum type size on the site is 10px, and only for uppercase mono at 72% ink.
 
@@ -130,11 +135,11 @@ Minimum type size on the site is 10px, and only for uppercase mono at 72% ink.
 
 ## 5. Rules and ticks
 
-| Element | Drawing | Where |
-| --- | --- | --- |
-| Hairline | 1px at `--color-rule` | Between records. Unchanged; still draws open left to right. |
-| Ticked rule | Hairline + 7px end ticks | Above record groups and page sections. |
-| Dimension line | Annotation-coloured rule, end ticks, centred mono caption | Annotation only. One per page at most. |
+| Element        | Drawing                                                   | Where                                                       |
+| -------------- | --------------------------------------------------------- | ----------------------------------------------------------- |
+| Hairline       | 1px at `--color-rule`                                     | Between records. Unchanged; still draws open left to right. |
+| Ticked rule    | Hairline + 7px end ticks                                  | Above record groups and page sections.                      |
+| Dimension line | Annotation-coloured rule, end ticks, centred mono caption | Annotation only. One per page at most.                      |
 
 A ticked rule is a hairline that knows where it stops. Use it wherever the rule
 bounds a thing (a record, a section); use a plain hairline wherever it merely
@@ -146,12 +151,12 @@ Principle 1 read strictly. Each of these bounded nothing a reader could not
 already see, so each came out. They are listed because each one is the kind of
 line a drafting metaphor invites back.
 
-| Not drawn | Why |
-| --- | --- |
-| Column guides at the reading-column edges | The column's own content marks its edges. Two full-height hairlines running past every record read as a frame around the page rather than a measurement of it. |
-| The closing record's top rule | The page's bottom edge already ends the sheet. A rule there separated the footer from nothing. |
-| Frames on the identity mark and the controls | See §7. |
-| An inset highlight on the media field | See §6. |
+| Not drawn                                    | Why                                                                                                                                                            |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Column guides at the reading-column edges    | The column's own content marks its edges. Two full-height hairlines running past every record read as a frame around the page rather than a measurement of it. |
+| The closing record's top rule                | The page's bottom edge already ends the sheet. A rule there separated the footer from nothing.                                                                 |
+| Frames on the identity mark and the controls | See §7.                                                                                                                                                        |
+| An inset highlight on the media field        | See §6.                                                                                                                                                        |
 
 `--color-rule-hair` existed only for the first two and is gone with them. A
 future line quiet enough to need it should ask first whether it needs to exist.
@@ -162,7 +167,7 @@ future line quiet enough to need it should ask first whether it needs to exist.
 
 ```
   ┌ ticked rule ──────────────────────────────────┐
-  W–01                                        16:9     index (annotation) / format
+  W–01                                  levi.svg     index (annotation) / filename
   ┌─┐                                        ┌─┐
   │   ╔═══════════════════════════════════╗   │        crop marks, 5px clear
   │   ║          brand mark               ║   │        square glass field, 16:9
@@ -175,8 +180,8 @@ future line quiet enough to need it should ask first whether it needs to exist.
 
 1. **Ticked rule** — the record's hairline gains end ticks, so the card reads as
    a measured span rather than a torn page.
-2. **Index and format** — index left in annotation colour, aspect ratio right.
-   Both Space Mono.
+2. **Index and filename** — index left in annotation colour, source filename
+   right. Both Space Mono.
 3. **Crop marks** — four corner Ls, 7px long, 5px clear of the frame. They
    replace the 12px radius. Implemented as one masked pseudo-element
    (`crop-marks` utility), not four elements.
@@ -209,11 +214,11 @@ A mark inside the field meets the inversion in one of three ways, and the
 mark's entry in `markRendering` (`components/work-presentation.tsx`) names
 which:
 
-| Answer | For | How |
-| --- | --- | --- |
-| Nothing | Marks legible on either ground — Levi's, FIFA, TenneT, fussball.de, ABOUT YOU | One image, no dark handling. |
-| A filter | Single-colour wordmarks — Harrods, Fielmann | `dark:brightness-0 dark:invert` re-inks the whole mark. |
-| A second cut | Marks with a brand accent — SCAYLE | `darkSrc` names a file whose wordmark is inverted and whose accent is not. |
+| Answer       | For                                                                           | How                                                                        |
+| ------------ | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Nothing      | Marks legible on either ground — Levi's, FIFA, TenneT, fussball.de, ABOUT YOU | One image, no dark handling.                                               |
+| A filter     | Single-colour wordmarks — Harrods, Fielmann                                   | `dark:brightness-0 dark:invert` re-inks the whole mark.                    |
+| A second cut | Marks with a brand accent — SCAYLE                                            | `darkSrc` names a file whose wordmark is inverted and whose accent is not. |
 
 The third case exists because a filter is all-or-nothing: inverting SCAYLE's
 wordmark would take its green with it. The pair is two elements, not one
@@ -257,15 +262,15 @@ the data face and left in full ink, with only the labels muted.
 
 ## 7. Controls
 
-| Control | Treatment |
-| --- | --- |
-| Identity mark (CU) | 36px box, unframed, Space Mono 11 / 0.08em. Still has no entrance — it carries FCP/LCP (ADR-0004, ADR-0006). |
-| Theme toggle | 36px box, unframed, same spring scale-on-hover. |
-| Disclosure control | 36px box, unframed. Three lines folding into a cross. |
-| Wayfinding link | Unchanged: `underline-reveal`, 300ms, `--ease-spring`. |
-| Action link | Square, 1px `--color-rule`, glass fill, Space Mono 10 caps. Hover lifts border and text to full ink. |
-| Console control | Square, ink-filled, 36px tall. Prompt glyph in annotation colour, `K` in a hairline box. Sits in the Closing Record's right column, above the build stamp. |
-| Disabled | 1px dashed `--color-rule`, text at 40% ink. |
+| Control            | Treatment                                                                                                                                                  |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Identity mark (CU) | 36px box, unframed, Space Mono 11 / 0.08em. Still has no entrance — it carries FCP/LCP (ADR-0004, ADR-0006).                                               |
+| Theme toggle       | 36px box, unframed, same spring scale-on-hover.                                                                                                            |
+| Disclosure control | 36px box, unframed. Three lines folding into a cross.                                                                                                      |
+| Wayfinding link    | Unchanged: `underline-reveal`, 300ms, `--ease-spring`.                                                                                                     |
+| Action link        | Square, 1px `--color-rule`, glass fill, Space Mono 10 caps. Hover lifts border and text to full ink.                                                       |
+| Console control    | Square, ink-filled, 36px tall. Prompt glyph in annotation colour, `K` in a hairline box. Sits in the Closing Record's right column, above the build stamp. |
+| Disabled           | 1px dashed `--color-rule`, text at 40% ink.                                                                                                                |
 
 Hit targets stay at or above 36px, and every interactive element keeps
 `notebook-control` / `notebook-press` / `notebook-lift`.
@@ -341,20 +346,20 @@ disabled.
 
 ### Commands
 
-| Command | Result |
-| --- | --- |
-| `help` | List commands |
-| `whoami` | Identity line |
-| `home` | Navigate to `/` and close |
-| `about` | Navigate to `/about` and close |
-| `work` | Navigate to `/work` and close; `work --list` prints the record index |
-| `contact` | Navigate to `/contact` and close |
-| `ls` | List the routes, Home first |
-| `cd` | Change route like a shell and stay open: `cd work`, `cd /about`, `cd ~/about`, `cd ..`, `cd ~` (or bare `cd`), `cd -` for the previous route |
-| `theme` | Toggle light / dark |
-| `source` | Open the repository |
-| `clear` | Clear the session |
-| `exit` | Close the console |
+| Command   | Result                                                                                                                                       |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `help`    | List commands                                                                                                                                |
+| `whoami`  | Identity line                                                                                                                                |
+| `home`    | Navigate to `/` and close                                                                                                                    |
+| `about`   | Navigate to `/about` and close                                                                                                               |
+| `work`    | Navigate to `/work` and close; `work --list` prints the record index                                                                         |
+| `contact` | Navigate to `/contact` and close                                                                                                             |
+| `ls`      | List the routes, Home first                                                                                                                  |
+| `cd`      | Change route like a shell and stay open: `cd work`, `cd /about`, `cd ~/about`, `cd ..`, `cd ~` (or bare `cd`), `cd -` for the previous route |
+| `theme`   | Toggle light / dark                                                                                                                          |
+| `source`  | Open the repository                                                                                                                          |
+| `clear`   | Clear the session                                                                                                                            |
+| `exit`    | Close the console                                                                                                                            |
 
 The console answers the same routes the navigation does. It is a second way in,
 never the only way: nothing is reachable through the console alone. `cd` keeps
@@ -386,7 +391,7 @@ Restated so it is not lost in the migration:
 - [ ] `app/globals.css` — two-layer dot field on `body`
 - [ ] `app/utilities.css` — `label` → mono; new `code`, `num`, `crop-marks`, `rule-ticked`
 - [ ] `app/layout.tsx` — load Space Mono as `--font-mono-face`; mount the console; no column guides
-- [ ] `components/notebook-primitives.tsx` — ticked rules, square media field with no inset highlight, crop marks, mono index/metadata/tags, record format label
+- [ ] `components/notebook-primitives.tsx` — ticked rules, square media field with no inset highlight, crop marks, mono index/metadata/tags, record filename label
 - [ ] `components/site-header.tsx` — unframed identity mark and controls
 - [ ] `components/site-footer.tsx` — build stamp opposite the copyright, no top rule
 - [ ] `components/work-presentation.tsx` — index/format row, square tiles, one `markRendering` table carrying each mark's width and dark-theme answer

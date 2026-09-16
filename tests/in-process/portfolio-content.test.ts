@@ -416,6 +416,9 @@ describe("Portfolio Content", () => {
         existsSync(join(process.cwd(), "public", mark.src)),
       ),
     ).toBe(true);
+    expect(marks.every((mark) => mark.src.endsWith(`/${mark.filename}`))).toBe(
+      true,
+    );
   });
 
   test("keeps required image sources and descriptions with Portfolio Content", () => {

@@ -191,18 +191,20 @@ export function NotebookRecord({
 
 type NotebookIndexProps = {
   children: ReactNode;
-  /** Right-hand stamp on the same baseline, e.g. the media aspect ratio. */
-  format?: string;
+  /** Right-hand filename stamp on the same baseline. */
+  filename?: string;
 };
 
-export function NotebookIndex({ children, format }: NotebookIndexProps) {
+export function NotebookIndex({ children, filename }: NotebookIndexProps) {
   return (
     <div
       data-entry-part="index"
       className="notebook-in-part mb-3.5 flex items-baseline justify-between gap-4"
     >
       <p className="code text-annotation">{children}</p>
-      {format && <p className="label text-ink-muted/60 text-micro">{format}</p>}
+      {filename && (
+        <p className="label text-ink-muted/60 text-micro">{filename}</p>
+      )}
     </div>
   );
 }

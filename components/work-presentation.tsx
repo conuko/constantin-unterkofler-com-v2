@@ -140,7 +140,9 @@ export function WorkPresentation({ entries }: WorkPresentationProps) {
 
         return (
           <NotebookRecord key={entry.client} partStep={workRecordPartStep}>
-            <NotebookIndex format="16:9">
+            <NotebookIndex
+              filename={entry.marks.map((mark) => mark.filename).join(" + ")}
+            >
               {`W–${String(index + 1).padStart(2, "0")}`}
             </NotebookIndex>
             <NotebookMedia

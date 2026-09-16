@@ -69,6 +69,7 @@ export type WorkEntry = {
 
 export type WorkMark = {
   src: `/marks/${string}.svg`;
+  filename: `${string}.svg`;
   alt: string;
   width: number;
   height: number;
@@ -319,6 +320,7 @@ const workEntries: WorkEntry[] = [
     marks: [
       {
         src: "/marks/levi.svg",
+        filename: "levi.svg",
         alt: "Levi's red Batwing mark",
         width: 722,
         height: 300,
@@ -343,6 +345,7 @@ const workEntries: WorkEntry[] = [
     marks: [
       {
         src: "/marks/harrods.svg",
+        filename: "harrods.svg",
         alt: "Harrods green wordmark",
         width: 115,
         height: 49,
@@ -366,6 +369,7 @@ const workEntries: WorkEntry[] = [
     marks: [
       {
         src: "/marks/fielmann.svg",
+        filename: "fielmann.svg",
         alt: "Fielmann black wordmark",
         width: 115,
         height: 56,
@@ -389,12 +393,14 @@ const workEntries: WorkEntry[] = [
     marks: [
       {
         src: "/marks/scayle.svg",
+        filename: "scayle.svg",
         alt: "SCAYLE wordmark with green directional accents",
         width: 2036,
         height: 471,
       },
       {
         src: "/marks/about-you.svg",
+        filename: "about-you.svg",
         alt: "ABOUT YOU black-and-white wordmark",
         width: 242,
         height: 48,
@@ -411,6 +417,7 @@ const workEntries: WorkEntry[] = [
     marks: [
       {
         src: "/marks/fifa.svg",
+        filename: "fifa.svg",
         alt: "FIFA blue wordmark",
         width: 677,
         height: 223,
@@ -434,6 +441,7 @@ const workEntries: WorkEntry[] = [
     marks: [
       {
         src: "/marks/tennet.svg",
+        filename: "tennet.svg",
         alt: "TenneT blue-and-green wordmark",
         width: 154,
         height: 29,
@@ -456,6 +464,7 @@ const workEntries: WorkEntry[] = [
     marks: [
       {
         src: "/marks/fussball-de.svg",
+        filename: "fussball-de.svg",
         alt: "fussball.de green field mark",
         width: 545,
         height: 360,
