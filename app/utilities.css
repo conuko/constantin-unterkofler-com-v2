@@ -74,6 +74,23 @@
   );
 }
 
+/* A two-line writing field keeps every script close to the name without
+ * shifting the headline or the content below while the greeting rewrites. */
+@utility greeting-stage {
+  min-block-size: 2lh;
+}
+
+/* The caret shares the greeting's inline formatting context, so its em-sized
+ * body follows the active script's baseline instead of the two-line stage. */
+@utility greeting-caret {
+  display: inline-block;
+  inline-size: 2px;
+  block-size: 0.78em;
+  margin-inline-start: 0.12em;
+  vertical-align: 0.02em;
+  background: currentColor;
+}
+
 /* Factual list marker used by Engineering Notebook metadata tags */
 @utility notebook-tag-marker {
   &::before {

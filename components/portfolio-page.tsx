@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils/cn";
 
 type PortfolioPageProps = {
   title: string;
-  /** Absent on the home Portfolio Page, where the Greeting takes this slot. */
+  /** Absent on the home Portfolio Page, whose title begins with a greeting. */
   sectionCode?: string;
   /** Right-aligned sheet stamp, e.g. "Sheet W · 07 records". */
   sheetMeta?: string;

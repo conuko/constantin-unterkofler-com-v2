@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils/cn";
  */
 
 type NotebookPageHeaderProps = {
-  /** Takes the section code's slot on a Portfolio Page that greets instead. */
+  /** Replaces the default title presentation on the home Portfolio Page. */
   greeting?: ReactNode;
   introduction?: ReactNode;
   /** Absent on the home Portfolio Page, where the Greeting takes this slot. */
@@ -51,21 +51,23 @@ export function NotebookPageHeader({
           )}
         </div>
       )}
-      {greeting && (
-        <p
-          style={notebookDelay(notebookTiming.pageIdentity)}
-          className="notebook-in-identity mb-3.5 text-sm"
+      {greeting ? (
+        <div
+          style={notebookDelay(notebookTiming.pageHeading)}
+          data-notebook-title
+          className="notebook-in-heading w-full pr-2"
         >
           {greeting}
-        </p>
+        </div>
+      ) : (
+        <h1
+          style={notebookDelay(notebookTiming.pageHeading)}
+          data-notebook-title
+          className="notebook-in-heading w-fit pr-2 font-heading font-semibold text-5xl leading-none tracking-tight lg:text-7xl"
+        >
+          {title}
+        </h1>
       )}
-      <h1
-        style={notebookDelay(notebookTiming.pageHeading)}
-        data-notebook-title
-        className="notebook-in-heading w-fit pr-2 font-heading font-semibold text-5xl leading-none tracking-tight lg:text-7xl"
-      >
-        {title}
-      </h1>
       {introduction && (
         <div
           style={notebookDelay(notebookTiming.pageIntroduction)}

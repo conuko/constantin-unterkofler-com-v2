@@ -13,7 +13,12 @@ export default function Home() {
     <PortfolioPage
       title={home.title}
       sheetMeta={home.sheetMeta}
-      greeting={<NotebookGreeting greetings={home.content.greetings} />}
+      greeting={
+        <NotebookGreeting
+          greetings={home.content.greetings}
+          name={home.title}
+        />
+      }
       width={home.width}
       introduction={
         <div className="space-y-2">

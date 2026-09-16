@@ -21,6 +21,10 @@ function draws(...values: number[]) {
   return () => values[index++ % values.length];
 }
 
+function animationGraphemes(greeting: (typeof greetings)[number]) {
+  return greetingGraphemes(greeting.text);
+}
+
 function runCycle(
   state: GreetingCycleState,
   steps: number,
@@ -31,7 +35,7 @@ function runCycle(
   let elapsed = 0;
 
   for (let step = 0; step < steps; step += 1) {
-    const graphemes = greetingGraphemes(greetings[current.greetingIndex].text);
+    const graphemes = animationGraphemes(greetings[current.greetingIndex]);
 
     frames.push({
       written: graphemes.slice(0, current.revealed).join(""),
@@ -53,13 +57,13 @@ describe("Greeting", () => {
   test("greets in its own script, tagged with a valid language", () => {
     expect(greetings.length).toBeGreaterThan(0);
     expect(greetings[0]).toEqual({
-      text: "Good to see you",
+      text: "Hello, I’m",
       language: "English",
       lang: "en",
     });
     expect(
       greetings.find((greeting) => greeting.language === "German")?.text,
-    ).toBe("Schön, dass du da bist");
+    ).toBe("Hallo, ich bin");
     expect(new Set(greetings.map((greeting) => greeting.language)).size).toBe(
       greetings.length,
     );
@@ -84,15 +88,19 @@ describe("Greeting", () => {
       greetings.map((greeting) => [greeting.language, greeting.text]),
     );
 
-    expect(byLanguage.get("Japanese")).toBe("会えてうれしいです");
-    expect(byLanguage.get("Chinese (Simplified)")).toBe("很高兴见到你");
-    expect(byLanguage.get("Chinese (Traditional)")).toBe("很高興見到你");
-    expect(byLanguage.get("Korean")).toBe("만나서 반갑습니다");
-    expect(byLanguage.get("Hindi")).toBe("आपको देखकर अच्छा लगा");
-    expect(byLanguage.get("Arabic")).toBe("سعيد برؤيتك");
-    expect(byLanguage.get("Hebrew")).toBe("טוב לראות אותך");
-    expect(byLanguage.get("Greek")).toBe("Χαίρομαι που σε βλέπω");
-    expect(byLanguage.get("Georgian")).toBe("მიხარია, რომ გხედავ");
+    expect(byLanguage.get("Chinese (Simplified)")).toBe("你好，我是");
+    expect(byLanguage.get("Chinese (Traditional)")).toBe("你好，我是");
+    expect(byLanguage.get("Arabic")).toBe("مرحبًا، أنا");
+    expect(byLanguage.get("Hebrew")).toBe("שלום, אני");
+    expect(byLanguage.get("Greek")).toBe("Γεια, είμαι ο");
+    expect(byLanguage.get("Georgian")).toBe("გამარჯობა, მე ვარ");
+    expect(
+      greetings.some((greeting) =>
+        ["Basque", "Armenian", "Hindi", "Japanese", "Korean"].includes(
+          greeting.language,
+        ),
+      ),
+    ).toBe(false);
   });
 
   test("writes whole graphemes, never half a composed glyph", () => {
@@ -139,52 +147,26 @@ describe("Greeting", () => {
   });
 
   test("writes left to right, rests, then erases right to left", () => {
+    const greeting = greetingGraphemes(greetings[0].text);
     const written = runCycle(
       { greetingIndex: 0, hue: 24, phase: "writing", revealed: 0 },
-      32,
+      2 * greeting.length + 2,
       draws(0.5),
     );
     const frames = written.frames.map((frame) => frame.written);
 
     // Written one grapheme at a time, left to right.
-    expect(frames.slice(0, 16)).toEqual([
-      "",
-      "G",
-      "Go",
-      "Goo",
-      "Good",
-      "Good ",
-      "Good t",
-      "Good to",
-      "Good to ",
-      "Good to s",
-      "Good to se",
-      "Good to see",
-      "Good to see ",
-      "Good to see y",
-      "Good to see yo",
-      // Written whole, then held for the rest of the slot.
-      "Good to see you",
-    ]);
+    expect(frames.slice(0, greeting.length + 1)).toEqual(
+      Array.from({ length: greeting.length + 1 }, (_, index) =>
+        greeting.slice(0, index).join(""),
+      ),
+    );
     // Erased right to left, back to an empty line.
-    expect(frames.slice(16)).toEqual([
-      "Good to see you",
-      "Good to see yo",
-      "Good to see y",
-      "Good to see ",
-      "Good to see",
-      "Good to se",
-      "Good to s",
-      "Good to ",
-      "Good to",
-      "Good t",
-      "Good ",
-      "Good",
-      "Goo",
-      "Go",
-      "G",
-      "",
-    ]);
+    expect(frames.slice(greeting.length + 1)).toEqual(
+      Array.from({ length: greeting.length + 1 }, (_, index) =>
+        greeting.slice(0, greeting.length - index).join(""),
+      ),
+    );
   });
 
   test("changes language and color only once the line is empty", () => {
@@ -194,7 +176,11 @@ describe("Greeting", () => {
       phase: "writing",
       revealed: 0,
     };
-    const { frames, state } = runCycle(start, 31, draws(0.5));
+    const { frames, state } = runCycle(
+      start,
+      2 * greetingGraphemes(greetings[0].text).length + 1,
+      draws(0.5),
+    );
 
     // Every frame of the first greeting keeps the colour it was written in.
     expect(new Set(frames.map((frame) => frame.hue))).toEqual(new Set([24]));
@@ -205,7 +191,7 @@ describe("Greeting", () => {
 
   test("gives every language a five-second slot", () => {
     greetings.forEach((greeting, greetingIndex) => {
-      const graphemeCount = greetingGraphemes(greeting.text).length;
+      const graphemeCount = animationGraphemes(greeting).length;
       const { elapsed, state } = runCycle(
         { greetingIndex, hue: 24, phase: "writing", revealed: 0 },
         // n writing steps, one hold, n erasing steps.
@@ -250,7 +236,7 @@ describe("Greeting", () => {
     expect(guaranteedHold).toBeGreaterThan(0);
 
     for (const greeting of greetings) {
-      const graphemeCount = greetingGraphemes(greeting.text).length;
+      const graphemeCount = animationGraphemes(greeting).length;
 
       // Structurally guaranteed, up to floating-point rounding on the pace.
       expect(greetingHoldDuration(graphemeCount)).toBeGreaterThan(

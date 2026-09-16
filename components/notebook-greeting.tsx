@@ -12,18 +12,18 @@ import { usePrefersReducedMotion } from "@/lib/use-prefers-reduced-motion";
 
 type NotebookGreetingProps = {
   greetings: readonly Greeting[];
+  name: string;
 };
 
 /**
- * The home Portfolio Page's Greeting: one hello at a time, written left to
- * right, erased right to left, then rewritten in another language and another
- * random color. The first greeting is server-rendered whole, so the line is
- * never blank before the rotation takes over.
+ * The home Portfolio Page's compact introduction: the localized greeting is
+ * written above one stable name, erased, then rewritten in another language
+ * and color.
  *
  * Reduced motion keeps the first greeting standing: no writing, no erasing, no
  * rotation, so the line never changes under a reader who asked it not to.
  */
-export function NotebookGreeting({ greetings }: NotebookGreetingProps) {
+export function NotebookGreeting({ greetings, name }: NotebookGreetingProps) {
   const [leadGreeting] = greetings;
   const [cycle, setCycle] = useState(() =>
     settledGreetingCycle(greetingGraphemes(leadGreeting.text).length),
@@ -55,27 +55,29 @@ export function NotebookGreeting({ greetings }: NotebookGreetingProps) {
     return () => clearTimeout(step);
   }, [cycle, graphemes.length, greetings.length, rotating]);
 
-  const written = rotating
-    ? graphemes.slice(0, cycle.revealed).join("")
-    : leadGreeting.text;
+  const revealed = rotating ? cycle.revealed : graphemes.length;
+  const written = graphemes.slice(0, revealed).join("");
   const displayed = rotating ? greeting : leadGreeting;
+  const caret = rotating && <span className="greeting-caret animate-caret" />;
 
   return (
     <>
-      <span
+      <p
         aria-hidden="true"
-        className="greeting-ink normal-case"
+        className="greeting-stage greeting-ink flex w-full items-end font-heading font-semibold text-3xl leading-tight tracking-tight lg:text-4xl"
         dir="auto"
         lang={displayed.lang}
         style={{ "--greeting-hue": cycle.hue } as CSSProperties}
       >
-        {written}
-        {rotating && (
-          <span className="ml-0.5 inline-block h-3 w-0.5 animate-caret bg-current align-middle" />
-        )}
-      </span>
-      {/* One stable greeting for assistive technology, in place of a line that rewrites itself. */}
-      <span className="sr-only">{leadGreeting.text}</span>
+        <span className="inline-block">
+          {written}
+          {caret}
+        </span>
+      </p>
+      <p className="sr-only">{leadGreeting.text}</p>
+      <h1 className="w-fit font-heading font-semibold text-5xl leading-none tracking-tight lg:text-7xl">
+        <span translate="no">{name}</span>
+      </h1>
     </>
   );
 }

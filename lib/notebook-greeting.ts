@@ -10,10 +10,9 @@ export const greetingCycle = {
   preferredWriteStep: 110,
   preferredEraseStep: 55,
   /**
-   * Ceilings on how much of a slot writing and erasing may spend. Greetings
-   * range from six graphemes to thirty-four, so the long ones write faster
-   * than the preferred pace rather than overrunning their slot. What is left
-   * is the resting hold, which is therefore never shorter than
+   * Ceilings on how much of a slot writing and erasing may spend. Longer
+   * scripts write faster than the preferred pace rather than overrunning their
+   * slot. What is left is the resting hold, which is therefore never shorter than
    * `slotDuration - writeBudget - eraseBudget`.
    */
   writeBudget: 2_250,

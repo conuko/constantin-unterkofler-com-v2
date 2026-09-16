@@ -19,7 +19,7 @@ describe("Portfolio Content", () => {
     ).toEqual([
       {
         route: "/",
-        title: "Constantin Unterkofler",
+        title: "Constantin",
         metadataTitle: "Home",
         hasMetadataDescription: true,
       },
