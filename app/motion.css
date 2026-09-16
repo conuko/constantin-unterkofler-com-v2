@@ -14,13 +14,18 @@
  *    The page painted at ~680ms and did not become contentful until ~1500ms.
  *    As CSS, the animation starts at first paint instead.
  *
- * 2. At least one above-the-fold element must be opaque in the server-rendered
- *    HTML. Chrome excludes an element that is transparent or fully clipped
- *    when painted from both First and Largest Contentful Paint, and does not
- *    reconsider it when an animation later reveals it. The Site Header's
- *    identity mark carries this on every page by staying out of the
- *    choreography altogether — the notebook's stationery, printed before the
- *    entry is written into it.
+ * 2. Nothing that reports a paint metric may be painted at `opacity: 0`.
+ *    Chrome excludes a transparent element from First and Largest Contentful
+ *    Paint and only catches it several frames later, long after the compositor
+ *    has revealed it. Clipping is not the same: a fully clipped element is
+ *    recorded at first paint, at its unclipped size — measured, and the reason
+ *    the page title keeps its wipe (see ADR-0007).
+ *
+ *    That lands on two elements. The Site Header's identity mark stays out of
+ *    the choreography altogether — the notebook's stationery, printed before
+ *    the entry is written into it — and carries FCP on every page. The page
+ *    title is the largest candidate on every sheet, so it carries LCP, and it
+ *    settles on `clip-path` alone for the same reason.
  *
  * Stagger is an absolute `--notebook-delay` per element, rendered into the
  * server HTML. No runtime sequencing, no callback chain.
@@ -28,15 +33,6 @@
 
 :root {
   --notebook-ease: cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes notebook-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
 }
 
 /* The page title wipes open left to right — the notebook's signature move. */
@@ -140,9 +136,17 @@
   animation-duration: 0.5s;
 }
 
+/* The wipe, and only the wipe. The title is the largest paint candidate on
+ * every sheet, so it is the one that reports LCP, and an element painted at
+ * `opacity: 0` is excluded until a later frame catches it — which cost this
+ * heading ~450ms of render delay while the clip was already open. A fully
+ * clipped element is not excluded the same way: Chrome records it at first
+ * paint at its unclipped size. Measured both ways on the production build;
+ * see ADR-0007. So the clip stays and the fade goes, and the move is the same
+ * move — a fade under a wipe was only ever tinting the part already revealed. */
 .notebook-in-heading {
-  animation-name: notebook-heading-clip-in, notebook-fade-in;
-  animation-duration: 0.9s, 0.42s;
+  animation-name: notebook-heading-clip-in;
+  animation-duration: 0.9s;
 }
 
 .notebook-in-rule {

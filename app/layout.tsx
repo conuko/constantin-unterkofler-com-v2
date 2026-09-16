@@ -24,9 +24,15 @@ const bodyFont = Space_Grotesk({
 
 /* Space Grotesk was drawn from Space Mono — same skeleton, same terminals.
  * The data face is the fixed-width cut of the text face already in use, not a
- * third voice. */
+ * third voice.
+ *
+ * Regular only. The bold cut was drawn down on every page load — `next/font`
+ * preloads every weight it is given — and the one rule that asked for it was
+ * `.skip-link`, which sits off-screen until a keyboard reaches it. ~9 KB of
+ * font on every visit for a link most visitors never focus; the skip link now
+ * sets its own weight to 400. */
 const monoFont = Space_Mono({
-  weight: ["400", "700"],
+  weight: ["400"],
   variable: "--font-mono-face",
   subsets: ["latin"],
   display: "swap",

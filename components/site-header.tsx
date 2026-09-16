@@ -31,6 +31,32 @@ type WayfindingLinkProps = {
   onSelect?: () => void;
 };
 
+/* Wayfinding prefetches on intent, not on sight.
+ *
+ * `<Link>`'s default prefetches every route in the viewport as soon as it is
+ * there. The notebook's wayfinding is above the fold on every sheet and every
+ * route is static, so that default fired the full payload for the whole site
+ * during the first load — 15 extra requests, measured, all of them inside the
+ * window Lighthouse charges against Largest Contentful Paint. The notebook is
+ * five sheets; a reader opens one of them.
+ *
+ * `prefetch={false}` suppresses prefetching on hover as well as on sight, so
+ * intent has to turn it back on: `null` restores the default the moment the
+ * reader points at a link, and the prefetch runs then. Pointer, focus, and
+ * touch all count as intent, which keeps keyboard and touch readers on the
+ * same instant navigation a mouse gets. See ADR-0007. */
+function useIntentPrefetch() {
+  const [intended, setIntended] = useState(false);
+  const declareIntent = useCallback(() => setIntended(true), []);
+
+  return {
+    prefetch: intended ? null : false,
+    onMouseEnter: declareIntent,
+    onFocus: declareIntent,
+    onTouchStart: declareIntent,
+  } as const;
+}
+
 /* The current route is marked by the link's own rule, drawn open by the
  * `underline-reveal` utility. On a route change the old rule retracts and the
  * new one draws — the same move every other rule in the notebook makes. */
@@ -41,16 +67,34 @@ function WayfindingLink({
   onSelect,
 }: WayfindingLinkProps) {
   const isCurrent = isCurrentRoute(pathname, item.href);
+  const intentPrefetch = useIntentPrefetch();
 
   return (
     <Link
       href={item.href}
+      {...intentPrefetch}
       onClick={onSelect}
       className={cn("underline-reveal text-xs", className)}
       data-active={isCurrent}
       aria-current={isCurrent ? "page" : undefined}
     >
       {item.label}
+    </Link>
+  );
+}
+
+/* The identity mark is a link home, and takes the same intent rule. */
+function IdentityMark({ shortName }: { shortName: string }) {
+  const intentPrefetch = useIntentPrefetch();
+
+  return (
+    <Link
+      href="/"
+      {...intentPrefetch}
+      className="notebook-control code flex size-9 items-center justify-center text-ink"
+    >
+      {shortName}
+      <span className="sr-only">— home</span>
     </Link>
   );
 }
@@ -267,19 +311,14 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
         />
 
         {/* The identity mark has no entrance: it is simply there from the
-         * first frame. That makes it the one element above the fold that is
-         * opaque at first paint, which is what keeps FCP and LCP reportable
-         * while everything else arrives from transparent — see the
+         * first frame. That makes it the first opaque thing above the fold,
+         * which is what has First Contentful Paint reported at all while the
+         * rest of the sheet is still arriving; Largest Contentful Paint is the
+         * page title's to carry, and does so for the same reason — see the
          * paint-timing notes in `app/motion.css`. Like every other control it
          * is unframed — the two letters alone carry it. */}
         <div className="self-start">
-          <Link
-            href="/"
-            className="notebook-control code flex size-9 items-center justify-center text-ink"
-          >
-            {identity.shortName}
-            <span className="sr-only">— home</span>
-          </Link>
+          <IdentityMark shortName={identity.shortName} />
         </div>
 
         <div
