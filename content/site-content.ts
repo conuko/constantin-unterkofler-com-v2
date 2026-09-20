@@ -429,14 +429,14 @@ const workEntries: WorkEntry[] = [
     url: "https://www.tennet.eu/",
     primaryMetadata: "Web platform",
     description:
-      "Turborepo-based monorepo powering TenneT's corporate website, careers platform, and Storybook design system — unifying shared components, design tokens, and Contentful tooling.",
+      "Turborepo-based monorepo powering TenneT's corporate website, together with a Nest.js powered Transparency Data API, a PostgreSQL database, and a Swagger / OpenAPI specification for the API.",
     techStack: [
       "Next.js",
       "TypeScript",
       "Turborepo",
-      "Contentful",
-      "Tailwind CSS",
-      "Storybook",
+      "NestJS",
+      "PostgreSQL",
+      "Swagger / OpenAPI",
     ],
     marks: [
       {
@@ -523,7 +523,7 @@ const portfolioPages = {
         {
           label: "Stack",
           value:
-            "TypeScript · React / Next  · React Native / Expo · Node.js · Go · PostgreSQL/Prisma · Redis · Docker · Tailwind CSS · Turborepo",
+            "TypeScript · React / Next · Vue / Nuxt · Node.js / NestJS · PostgreSQL / Prisma · Redis · Docker · Tailwind CSS · Turborepo · React Native / Expo · Go",
         },
       ] satisfies SpecificationField[],
     },
