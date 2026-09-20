@@ -118,7 +118,7 @@ function TrafficLight({
       aria-label={label}
       aria-pressed={pressed}
       disabled={disabled}
-      className="flex size-6 cursor-pointer items-center justify-center disabled:cursor-default lg:size-5"
+      className="flex size-6 cursor-pointer items-center justify-center disabled:cursor-default disabled:border disabled:border-console-rule disabled:border-dashed disabled:opacity-40 lg:size-5"
     >
       <span
         className={cn(
@@ -169,7 +169,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
   const prefersReducedMotion = useMediaQuery(reducedMotionQuery);
   const dock = isDesktop ? preferredDock : "bottom";
 
-  const [lines, setLines] = useState<ConsoleLine[]>(() => bootLines());
+  const [lines, setLines] = useState<ConsoleLine[]>([]);
   /* The banner is boot output like the lines under it, so `clear` takes it
    * with the rest of the session. */
   const [hasBanner, setHasBanner] = useState(true);
@@ -183,6 +183,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const sessionOpenedAtRef = useRef<Date | null>(null);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -269,6 +270,16 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
 
   useEffect(() => {
     if (isOpen) inputRef.current?.focus();
+  }, [isOpen]);
+
+  /* A reload remounts this component, intentionally starting a new session.
+   * Within one mount, reopening keeps the original login timestamp and output. */
+  useEffect(() => {
+    if (!isOpen || sessionOpenedAtRef.current) return;
+
+    const openedAt = new Date();
+    sessionOpenedAtRef.current = openedAt;
+    setLines(bootLines(openedAt));
   }, [isOpen]);
 
   /* The intro runs on the first open and only there. It cannot run at load —
@@ -467,7 +478,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
             ) : entry.name ? (
               <p key={entry.id} className="grid grid-cols-console-help gap-x-5">
                 <span className="text-console-command">{entry.name}</span>
-                <span className="text-console-ink-muted">{entry.text}</span>
+                <span className="text-console-output">{entry.text}</span>
               </p>
             ) : (
               <p
@@ -477,7 +488,9 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
                     ? "text-console-error"
                     : entry.kind === "muted"
                       ? "text-console-ink-muted"
-                      : undefined
+                      : entry.kind === "output"
+                        ? "text-console-output"
+                        : undefined
                 }
               >
                 {/* An empty line still takes its line-height. */}

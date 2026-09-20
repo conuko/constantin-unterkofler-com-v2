@@ -109,7 +109,7 @@ const closingRecord = {
 };
 
 const aboutIntroduction =
-  "I’m a Software Engineer passionate about building thoughtful digital products and scalable web experiences. Italian-German, grew up in Bolzano, Italy, now based in Berlin. I studied Philosophy and Cultural Studies before earning a degree in Software Engineering. Currently I work at Jung von Matt, specializing in e-commerce projects and modern web and AI applications for international corporate clients.";
+  "I’m a Software Engineer passionate about building thoughtful digital products, e-commerce platforms and scalable web experiences. Italian-German, I grew up in Bolzano and studied Philosophy and Cultural Studies before earning a degree in Software Engineering. At Jung von Matt, I work alongside client engineering teams from early technical decisions through implementation.";
 
 const cvSections: CvSection[] = [
   {
@@ -307,15 +307,15 @@ const workEntries: WorkEntry[] = [
     url: "https://www.scayle.com/customers/levi-strauss/",
     primaryMetadata: "Commerce migration",
     description:
-      "Currently collaborating with the team at SCAYLE to migrate Levi's legacy Vue 2 codebase into a modern Vue 3 / Nuxt 4 e-commerce application powered by the SCAYLE Commerce Engine.",
+      "Currently working within SCAYLE and Levi's engineering teams to migrate the legacy Vue 2 / Hybris architecture into a modern Vue 3 / Nuxt 4 e-commerce application powered by the SCAYLE Commerce Engine.",
     techStack: [
       "Vue 3",
       "Nuxt 4",
       "TypeScript",
       "Constructor",
       "Contentstack",
-      "Tailwind CSS",
-      "SCAYLE",
+      "SCAYLE Commerce Engine",
+      "Storefront SDK",
     ],
     marks: [
       {
@@ -332,15 +332,15 @@ const workEntries: WorkEntry[] = [
     url: "https://www.scayle.com/customers/harrods/",
     primaryMetadata: "Commerce delivery",
     description:
-      "Worked with the SCAYLE and Harrods teams to deliver new features and prepare a full client handover — including technical workshops, architectural documentation, and knowledge transfer.",
+      "Worked within the SCAYLE and Harrods engineering teams to deliver complex new features, help with shaping the software architecture, and prepare a full client handover — including technical workshops, architectural documentation, and knowledge transfer.",
     techStack: [
       "Vue 3",
       "Nuxt 3",
       "TypeScript",
       "Contentful",
       "Algolia",
-      "Tailwind CSS",
-      "SCAYLE",
+      "SCAYLE Commerce Engine",
+      "Storefront SDK",
     ],
     marks: [
       {
@@ -357,14 +357,14 @@ const workEntries: WorkEntry[] = [
     url: "https://www.scayle.com/case-studies/fielmann/",
     primaryMetadata: "Commerce platform",
     description:
-      "Set up and maintained the e-commerce platform across DACH, embedded in the client team for over 1.5 years. Also supported the launch of the Fielmann Italy shop.",
+      "Set up and maintained the e-commerce platform across DACH, embedded in the client engineering team for over 1.5 years. Also supported the launch of the Fielmann Italy shop.",
     techStack: [
       "Vue 3",
       "Nuxt 3",
       "TypeScript",
       "Storyblok",
-      "Tailwind CSS",
-      "SCAYLE",
+      "SCAYLE Commerce Engine",
+      "Storefront SDK",
     ],
     marks: [
       {
@@ -517,9 +517,13 @@ const portfolioPages = {
         { label: "Based", value: "Berlin · 52.5200° N, 13.4050° E" },
         {
           label: "Focus",
-          value: "Commerce platforms, modern web, AI",
+          value: "Commerce platforms, systems architecture, web & AI",
         },
-        { label: "Stack", value: "TypeScript · React / Next · Vue / Nuxt" },
+        {
+          label: "Stack",
+          value:
+            "TypeScript · React / Next · Vue / Nuxt · Node.js · Cloud engineering",
+        },
       ] satisfies SpecificationField[],
     },
   },
@@ -583,7 +587,7 @@ const portfolioPages = {
     },
     content: {
       introduction:
-        "At Jung von Matt, I work hands-on within client teams to build and scale digital products, commerce platforms, and modern web applications for international brands including BMW, FIFA, Harrods, Levi's, SCAYLE / ABOUT YOU, Fielmann, and the DFB. Below you'll find some of my personal highlights.",
+        "At Jung von Matt, I work embedded in client engineering teams to build and scale digital products and solve complex commerce and platform challenges. My role often spans the early technical work, architecture, implementation, and handover. Below are a few projects I have contributed to for international brands including BMW, FIFA, Harrods, Levi's, SCAYLE / ABOUT YOU, Fielmann, and the DFB.",
       entries: workEntries,
     },
   },

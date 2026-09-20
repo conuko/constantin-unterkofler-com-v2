@@ -243,13 +243,40 @@ const commands: CommandSpec[] = [
 
 export const commandNames = commands.map((command) => command.name);
 
+const loginDateFormatter = new Intl.DateTimeFormat("en-US", {
+  weekday: "short",
+  month: "short",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hourCycle: "h23",
+});
+
+type LoginDatePart = "weekday" | "month" | "day" | "hour" | "minute" | "second";
+
+/** Formats the browser-local timestamp captured when a console session starts. */
+export function formatLastLogin(openedAt: Date): string {
+  const parts = loginDateFormatter.formatToParts(openedAt);
+  const part = (type: LoginDatePart) => {
+    const value = parts.find((candidate) => candidate.type === type)?.value;
+
+    if (!value) throw new Error(`Missing ${type} in login timestamp`);
+
+    return value;
+  };
+
+  return `Last login: ${part("weekday")} ${part("month")} ${part("day")} ${part("hour")}:${part("minute")}:${part("second")} on ttys002`;
+}
+
 /**
  * What the session opens on. A terminal that opens onto a bare prompt is a
  * few lines tall and reads as broken; this gives the window a height and the
  * reader a way in before the first command.
  */
-export function bootLines(): ConsoleLine[] {
+export function bootLines(openedAt: Date): ConsoleLine[] {
   const lines: [ConsoleLineKind, string, string?][] = [
+    ["muted", formatLastLogin(openedAt)],
     [
       "muted",
       "Welcome to the portfolio console. Every route this site publishes is a directory; move between them like a shell.",

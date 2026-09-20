@@ -48,6 +48,7 @@
   --color-console-rule: rgba(248, 247, 242, 0.14);
   --color-console-ink: rgba(248, 247, 242, 0.82);
   --color-console-ink-muted: rgba(248, 247, 242, 0.45);
+  --color-console-output: rgba(248, 247, 242, 0.55);
   --color-console-accent: oklch(0.78 0.11 250);
   --color-console-command: oklch(0.86 0.14 150);
   --color-console-error: #ff7b72;

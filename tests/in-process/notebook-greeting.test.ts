@@ -63,7 +63,7 @@ describe("Greeting", () => {
     });
     expect(
       greetings.find((greeting) => greeting.language === "German")?.text,
-    ).toBe("Hallo, ich bin");
+    ).toBe("Hi, ich bin");
     expect(new Set(greetings.map((greeting) => greeting.language)).size).toBe(
       greetings.length,
     );
@@ -88,17 +88,20 @@ describe("Greeting", () => {
       greetings.map((greeting) => [greeting.language, greeting.text]),
     );
 
-    expect(byLanguage.get("Chinese (Simplified)")).toBe("你好，我是");
-    expect(byLanguage.get("Chinese (Traditional)")).toBe("你好，我是");
     expect(byLanguage.get("Arabic")).toBe("مرحبًا، أنا");
     expect(byLanguage.get("Hebrew")).toBe("שלום, אני");
     expect(byLanguage.get("Greek")).toBe("Γεια, είμαι ο");
-    expect(byLanguage.get("Georgian")).toBe("გამარჯობა, მე ვარ");
     expect(
       greetings.some((greeting) =>
-        ["Basque", "Armenian", "Hindi", "Japanese", "Korean"].includes(
-          greeting.language,
-        ),
+        [
+          "Basque",
+          "Armenian",
+          "Hindi",
+          "Japanese",
+          "Korean",
+          "Chinese (Simplified)",
+          "Chinese (Traditional)",
+        ].includes(greeting.language),
       ),
     ).toBe(false);
   });

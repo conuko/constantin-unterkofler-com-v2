@@ -31,11 +31,11 @@ export const greetings: Greeting[] = [
   { text: "Ahoj, som", language: "Slovak", lang: "sk" },
   { text: "Živjo, sem", language: "Slovenian", lang: "sl" },
   { text: "Bok, ja sam", language: "Croatian", lang: "hr" },
-  { text: "Здраво, ја сам", language: "Serbian", lang: "sr" },
+  /*   { text: "Здраво, ја сам", language: "Serbian", lang: "sr" },
   { text: "Здравей, аз съм", language: "Bulgarian", lang: "bg" },
   { text: "Привет, я", language: "Russian", lang: "ru" },
   { text: "Привіт, я", language: "Ukrainian", lang: "uk" },
-  { text: "Прывітанне, я", language: "Belarusian", lang: "be" },
+  { text: "Прывітанне, я", language: "Belarusian", lang: "be" }, */
   { text: "Labas, aš esu", language: "Lithuanian", lang: "lt" },
   { text: "Sveiki, es esmu", language: "Latvian", lang: "lv" },
   { text: "Tere, mina olen", language: "Estonian", lang: "et" },
@@ -48,18 +48,8 @@ export const greetings: Greeting[] = [
   { text: "Helo, fy enw i yw", language: "Welsh", lang: "cy" },
   { text: "Dia dhuit, is mise", language: "Irish", lang: "ga" },
   { text: "Saluton, mi estas", language: "Esperanto", lang: "eo" },
-  { text: "გამარჯობა, მე ვარ", language: "Georgian", lang: "ka" },
+  /*   { text: "გამარჯობა, მე ვარ", language: "Georgian", lang: "ka" }, */
   { text: "שלום, אני", language: "Hebrew", lang: "he" },
   { text: "مرحبًا، أنا", language: "Arabic", lang: "ar" },
   { text: "Xin chào, tôi là", language: "Vietnamese", lang: "vi" },
-  {
-    text: "你好，我是",
-    language: "Chinese (Simplified)",
-    lang: "zh-Hans",
-  },
-  {
-    text: "你好，我是",
-    language: "Chinese (Traditional)",
-    lang: "zh-Hant",
-  },
 ];

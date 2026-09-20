@@ -18,7 +18,8 @@ type NotebookGreetingProps = {
 /**
  * The home Portfolio Page's compact introduction: the localized greeting is
  * written above one stable name, erased, then rewritten in another language
- * and color.
+ * and color. The writing field stays anchored above the name; only the text
+ * run changes direction for right-to-left scripts.
  *
  * Reduced motion keeps the first greeting standing: no writing, no erasing, no
  * rotation, so the line never changes under a reader who asked it not to.
@@ -65,11 +66,9 @@ export function NotebookGreeting({ greetings, name }: NotebookGreetingProps) {
       <p
         aria-hidden="true"
         className="greeting-stage greeting-ink flex w-full items-end font-heading font-semibold text-3xl leading-tight tracking-tight lg:text-4xl"
-        dir="auto"
-        lang={displayed.lang}
         style={{ "--greeting-hue": cycle.hue } as CSSProperties}
       >
-        <span className="inline-block">
+        <span dir="auto" lang={displayed.lang} className="inline-block">
           {written}
           {caret}
         </span>

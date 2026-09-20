@@ -305,8 +305,9 @@ disabled.
 - **Body** — Space Mono 13 / 1.8. The prompt shows the working directory —
   `~` on the front sheet, `~/work` elsewhere — in annotation colour, then `❯`.
   Command names in green; output at 55% ink. The session opens on a short boot
-  text (login line, identity, the three starter commands, the key hints) so the
-  window has height before the first command.
+  text (login line, the three starter commands, the key hints) so the window
+  has height before the first command. The login line records the browser-local
+  time of the first open in a page session; a reload starts a fresh session.
 - **Banner** — `HELLO THERE!` in ANSI Shadow block capitals above the boot
   text, in annotation colour, the way a shell prints an motd before the first
   prompt. One line, 89 columns at leading 1, sized so those 89 columns fill
@@ -320,8 +321,8 @@ disabled.
   label, because the greeting is the one thing the boot text does not also
   say. `clear` takes it with the rest of the session.
 - **Size** — bottom dock: the body grows from a 13rem floor to
-  `min(52vh, 26rem)`, then scrolls. Side dock: a fixed column, 30rem wide and
-  `min(72vh, 44rem)` tall, the body filling it.
+  `min(52vh, 26rem)`, then scrolls. Side dock: a fixed column, 45rem wide and
+  `min(72vh, 40rem)` tall, the body filling it.
 - **Caret** — 8 × 16 block in the command green on the existing `caret-blink`
   animation, the same one the greeting uses; steady at 40% while the input is
   unfocused. The native caret is transparent.

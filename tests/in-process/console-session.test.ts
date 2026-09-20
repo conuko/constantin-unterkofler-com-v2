@@ -5,6 +5,7 @@ import {
   commandNames,
   consoleRoutes,
   displayPath,
+  formatLastLogin,
   resolveDirectory,
   runCommand,
 } from "@/components/console/console-session";
@@ -135,13 +136,24 @@ describe("prompt", () => {
   });
 
   test("boots with an introduction that names the starter commands", () => {
-    const lines = bootLines();
+    const openedAt = new Date(2026, 8, 16, 10, 53, 47);
+    const lines = bootLines(openedAt);
     expect(lines.length).toBeGreaterThanOrEqual(7);
+    expect(lines[0]).toMatchObject({
+      kind: "muted",
+      text: "Last login: Wed Sep 16 10:53:47 on ttys002",
+    });
     expect(lines.map((line) => line.name).filter(Boolean)).toEqual([
       "help",
       "ls",
       "cd",
     ]);
     expect(new Set(lines.map((line) => line.id)).size).toBe(lines.length);
+  });
+
+  test("formats the browser-local session timestamp in console form", () => {
+    expect(formatLastLogin(new Date(2026, 8, 16, 10, 53, 47))).toBe(
+      "Last login: Wed Sep 16 10:53:47 on ttys002",
+    );
   });
 });

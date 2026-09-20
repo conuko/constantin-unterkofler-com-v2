@@ -37,8 +37,8 @@ The in-flow footer record that ends every Portfolio Page with the copyright and 
 _Avoid_: Footer bar, fixed copyright
 
 **Greeting**:
-The home Portfolio Page's opening line: one warm welcome at a time — each language's equivalent of "good to see you", in its own script — written left to right, erased right to left, and rewritten every five seconds in a new language and a new random color. It occupies the section code's slot, which the home page has none of.
-_Avoid_: Section code, eyebrow, typewriter, hero text, hello
+The home Portfolio Page's opening line: one localized equivalent of "Hello, I'm" at a time, in its own script — written left to right, erased right to left, and rewritten every five seconds in a new language and a new random color. It sits above Constantin's stable name in the title treatment.
+_Avoid_: Section code, eyebrow, typewriter, hero text, welcome
 
 **Specification Block**:
 The home Portfolio Page's four standing fields — Role, Based, Focus, Stack — stated beneath the introduction as labelled data rather than prose. It carries no record indices: the fields are facts about Constantin, not entries in a collection.
