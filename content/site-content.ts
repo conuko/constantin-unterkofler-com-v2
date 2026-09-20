@@ -109,7 +109,7 @@ const closingRecord = {
 };
 
 const aboutIntroduction =
-  "I’m a Software Engineer passionate about building thoughtful digital products, e-commerce platforms and scalable web experiences. Italian-German, I grew up in Bolzano and studied Philosophy and Cultural Studies before earning a degree in Software Engineering. At Jung von Matt, I work alongside client engineering teams from early technical decisions through implementation.";
+  "I’m a Software Engineer working where client needs, product thinking and engineering meet. At Jung von Matt, I partner closely with client teams from early discovery and technical direction through hands-on delivery and production handover, turning complex requirements into clear product decisions and scalable digital products. Italian-German, I grew up in Bolzano and studied Philosophy and Cultural Studies before earning a degree in Software Engineering. That path still shapes how I ask questions, connect perspectives and make technology understandable.";
 
 const cvSections: CvSection[] = [
   {
@@ -517,12 +517,13 @@ const portfolioPages = {
         { label: "Based", value: "Berlin · 52.5200° N, 13.4050° E" },
         {
           label: "Focus",
-          value: "Commerce platforms, systems architecture, web & AI",
+          value:
+            "Full stack engineering · Embedded client partnerships · E-commerce platforms · Making complex software feel simple",
         },
         {
           label: "Stack",
           value:
-            "TypeScript · React / Next · Vue / Nuxt · Node.js · Cloud engineering",
+            "TypeScript · React / Next  · React Native / Expo · Node.js · Go · PostgreSQL/Prisma · Redis · Docker · Tailwind CSS · Turborepo",
         },
       ] satisfies SpecificationField[],
     },

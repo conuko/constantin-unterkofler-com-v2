@@ -119,12 +119,13 @@ describe("Portfolio Content", () => {
       { label: "Based", value: "Berlin · 52.5200° N, 13.4050° E" },
       {
         label: "Focus",
-        value: "Commerce platforms, systems architecture, web & AI",
+        value:
+          "Full stack engineering · Embedded client partnerships · E-commerce platforms · Making complex software feel simple",
       },
       {
         label: "Stack",
         value:
-          "TypeScript · React / Next · Vue / Nuxt · Node.js · Cloud engineering",
+          "TypeScript · React / Next  · React Native / Expo · Node.js · Go · PostgreSQL/Prisma · Redis · Docker · Tailwind CSS · Turborepo",
       },
     ]);
   });
