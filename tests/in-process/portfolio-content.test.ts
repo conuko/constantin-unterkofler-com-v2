@@ -125,7 +125,7 @@ describe("Portfolio Content", () => {
       {
         label: "Stack",
         value:
-          "TypeScript · React / Next  · React Native / Expo · Node.js · Go · PostgreSQL/Prisma · Redis · Docker · Tailwind CSS · Turborepo",
+          "TypeScript · React / Next · Vue / Nuxt · Node.js / NestJS · PostgreSQL / Prisma · Redis · Docker · Tailwind CSS · Turborepo · React Native / Expo · Go",
       },
     ]);
   });

@@ -429,7 +429,7 @@ const workEntries: WorkEntry[] = [
     url: "https://www.tennet.eu/",
     primaryMetadata: "Web platform",
     description:
-      "Turborepo-based monorepo powering TenneT's corporate website, together with a Nest.js powered Transparency Data API, a PostgreSQL database, and a Swagger / OpenAPI specification for the API.",
+      "Turborepo-based monorepo powering TenneT's corporate website, together with a NestJS powered Transparency Data API, a PostgreSQL database, and a Swagger / OpenAPI specification for the API.",
     techStack: [
       "Next.js",
       "TypeScript",
