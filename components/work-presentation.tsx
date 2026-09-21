@@ -11,6 +11,7 @@ import {
   NotebookTitle,
 } from "@/components/notebook-primitives";
 import type { WorkEntry, WorkMark } from "@/content/site-content";
+import { cn } from "@/lib/utils/cn";
 
 type WorkPresentationProps = {
   entries: WorkEntry[];
@@ -19,21 +20,77 @@ type WorkPresentationProps = {
 const workGroupStep = 0.08;
 const workRecordPartStep = 0.045;
 
-const markSizeClasses: Record<WorkMark["src"], string> = {
-  "/marks/levi.svg": "w-21/50 max-w-44",
-  "/marks/harrods.svg": "w-11/20 max-w-48",
-  "/marks/fielmann.svg": "w-12/25 max-w-44",
-  "/marks/scayle.svg": "w-41/50 max-w-40",
-  "/marks/about-you.svg": "w-41/50 max-w-40",
-  "/marks/fifa.svg": "w-2/5 max-w-40",
-  "/marks/tennet.svg": "w-29/50 max-w-56",
-  "/marks/fussball-de.svg": "w-11/50 max-w-24",
+/**
+ * How one mark is drawn inside the media field.
+ *
+ * `sizeClassName` is tuned per mark, because wordmarks of different
+ * proportions only read at the same optical weight at different widths.
+ *
+ * The two optional fields are the mark's answer to the dark theme, and a mark
+ * names at most one of them:
+ *
+ * - `darkClassName` re-inks a single-colour mark with a filter.
+ * - `darkSrc` names a separate cut, for a mark carrying a brand colour a
+ *   filter would destroy — SCAYLE's wordmark has to invert while its green
+ *   accent stays green.
+ *
+ * A mark that survives the inversion as drawn names neither.
+ */
+type MarkRendering = {
+  sizeClassName: string;
+  darkClassName?: string;
+  darkSrc?: WorkMark["src"];
 };
 
-const markThemeClasses: Partial<Record<WorkMark["src"], string>> = {
-  "/marks/harrods.svg": "dark:brightness-0 dark:invert",
-  "/marks/fielmann.svg": "dark:brightness-0 dark:invert",
+const markRendering: Record<WorkMark["src"], MarkRendering> = {
+  "/marks/levi.svg": { sizeClassName: "w-21/50 max-w-44" },
+  "/marks/harrods.svg": {
+    sizeClassName: "w-11/20 max-w-48",
+    darkClassName: "dark:brightness-0 dark:invert",
+  },
+  "/marks/fielmann.svg": {
+    sizeClassName: "w-12/25 max-w-44",
+    darkClassName: "dark:brightness-0 dark:invert",
+  },
+  "/marks/scayle.svg": {
+    sizeClassName: "w-41/50 max-w-40",
+    darkSrc: "/marks/scayle-dark.svg",
+  },
+  "/marks/about-you.svg": { sizeClassName: "w-41/50 max-w-40" },
+  "/marks/fifa.svg": { sizeClassName: "w-2/5 max-w-40" },
+  "/marks/tennet.svg": { sizeClassName: "w-29/50 max-w-56" },
+  "/marks/fussball-de.svg": { sizeClassName: "w-11/50 max-w-24" },
 };
+
+/* One mark occupies half a record's media field on the two-column grid, and
+ * the whole of it below that. */
+const markSizes =
+  "(min-width: 1152px) 516px, (min-width: 1024px) calc((100vw - 96px) / 2), (min-width: 768px) calc((100vw - 80px) / 2), calc(100vw - 48px)";
+
+type MarkVariant = {
+  src: WorkMark["src"];
+  className: string | undefined;
+};
+
+/**
+ * The images one mark renders as: one, or — for a mark with its own dark cut —
+ * a light and a dark element of which the theme shows exactly one.
+ *
+ * The pair has to be two elements rather than one swapped `src`: the theme
+ * here is a class on `<html>`, not `prefers-color-scheme`, and an external SVG
+ * loaded through `<img>` can read neither. Both cuts are therefore fetched
+ * (3.5KB each) and CSS hides one.
+ */
+function markVariants({ src }: WorkMark): MarkVariant[] {
+  const { sizeClassName, darkClassName, darkSrc } = markRendering[src];
+
+  if (!darkSrc) return [{ src, className: cn(sizeClassName, darkClassName) }];
+
+  return [
+    { src, className: cn(sizeClassName, "dark:hidden") },
+    { src: darkSrc, className: cn(sizeClassName, "hidden dark:block") },
+  ];
+}
 
 function WorkMarks({
   marks,
@@ -44,43 +101,33 @@ function WorkMarks({
 }) {
   return (
     <div
-        className={
-          marks.length > 1
-            ? "grid h-full w-full grid-cols-2 items-center divide-x divide-rule"
-            : "flex h-full w-full items-center justify-center"
-        }
-      >
-        {marks.map((mark) => (
-          <div
-            key={mark.src}
-            className="flex h-full w-full min-w-0 items-center justify-center px-3 sm:px-6"
-          >
+      className={
+        marks.length > 1
+          ? "grid h-full w-full grid-cols-2 items-center divide-x divide-rule"
+          : "flex h-full w-full items-center justify-center"
+      }
+    >
+      {marks.map((mark) => (
+        <div
+          key={mark.src}
+          className="flex h-full w-full min-w-0 items-center justify-center px-3 sm:px-6"
+        >
+          {markVariants(mark).map((variant) => (
             <Image
-              src={mark.src}
+              key={variant.src}
+              src={variant.src}
               alt={mark.alt}
               width={mark.width}
               height={mark.height}
               loading={loadImmediately ? "eager" : "lazy"}
               fetchPriority={loadImmediately ? "high" : undefined}
-              sizes="(min-width: 1152px) 516px, (min-width: 1024px) calc((100vw - 96px) / 2), (min-width: 768px) calc((100vw - 80px) / 2), calc(100vw - 48px)"
+              sizes={markSizes}
               unoptimized
-              className={`h-auto object-contain ${markSizeClasses[mark.src]} ${mark.src === "/marks/scayle.svg" ? "dark:hidden" : (markThemeClasses[mark.src] ?? "")}`}
+              className={cn("h-auto object-contain", variant.className)}
             />
-            {mark.src === "/marks/scayle.svg" && (
-              <Image
-                src="/marks/scayle-dark.svg"
-                alt=""
-                width={mark.width}
-                height={mark.height}
-                loading={loadImmediately ? "eager" : "lazy"}
-                fetchPriority={loadImmediately ? "high" : undefined}
-                sizes="(min-width: 1152px) 516px, (min-width: 1024px) calc((100vw - 96px) / 2), (min-width: 768px) calc((100vw - 80px) / 2), calc(100vw - 48px)"
-                unoptimized
-                className={`hidden h-auto object-contain dark:block ${markSizeClasses[mark.src]}`}
-              />
-            )}
-          </div>
-        ))}
+          ))}
+        </div>
+      ))}
     </div>
   );
 }
@@ -93,9 +140,13 @@ export function WorkPresentation({ entries }: WorkPresentationProps) {
 
         return (
           <NotebookRecord key={entry.client} partStep={workRecordPartStep}>
-            <NotebookIndex>{`W–${String(index + 1).padStart(2, "0")}`}</NotebookIndex>
+            <NotebookIndex
+              filename={entry.marks.map((mark) => mark.filename).join(" + ")}
+            >
+              {`W–${String(index + 1).padStart(2, "0")}`}
+            </NotebookIndex>
             <NotebookMedia
-              mediaClassName="rounded-xl border-rule bg-card-glass shadow-sm backdrop-blur-glass"
+              mediaClassName="border-rule bg-card-glass backdrop-blur-glass"
               link={
                 entry.url
                   ? {
@@ -115,7 +166,7 @@ export function WorkPresentation({ entries }: WorkPresentationProps) {
             <NotebookAnnotation>
               <p>{entry.description}</p>
               {entry.descriptionReview === "owner" && (
-                <p className="label mt-3 inline-flex border border-rule bg-card-glass px-2 py-1 text-ink text-micro backdrop-blur-sm">
+                <p className="label mt-3 inline-flex border border-rule bg-card-glass px-2 py-1 text-ink text-micro backdrop-blur-glass">
                   Draft description · Owner editorial review
                 </p>
               )}

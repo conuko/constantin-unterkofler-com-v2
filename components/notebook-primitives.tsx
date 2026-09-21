@@ -8,13 +8,20 @@ import { cn } from "@/lib/utils/cn";
  * These are server components on purpose. Their entrance is CSS (see
  * `app/motion.css`), their hover and press states are CSS, and none of them
  * hold state — so none of them need to ship, hydrate, or run.
+ *
+ * Technical revision (see Design.md): rules that bound a thing gain end ticks,
+ * media fields are square with crop marks, and every code, index, and figure
+ * moves from Space Grotesk caps to Space Mono.
  */
 
 type NotebookPageHeaderProps = {
-  /** Takes the section code's slot on a Portfolio Page that greets instead. */
+  /** Replaces the default title presentation on the home Portfolio Page. */
   greeting?: ReactNode;
   introduction?: ReactNode;
-  sectionCode: string;
+  /** Absent on the home Portfolio Page, where the Greeting takes this slot. */
+  sectionCode?: string;
+  /** Right-aligned sheet stamp, e.g. "Sheet W · 07 records". */
+  sheetMeta?: string;
   showRule?: boolean;
   title: string;
 };
@@ -23,34 +30,49 @@ export function NotebookPageHeader({
   greeting,
   introduction,
   sectionCode,
+  sheetMeta,
   showRule = true,
   title,
 }: NotebookPageHeaderProps) {
   return (
-    <header data-notebook-header className="flex w-full flex-col items-start">
-      {(greeting || sectionCode) && (
-        <p
+    <header data-notebook-header className="flex w-full flex-col items-stretch">
+      {(sectionCode || sheetMeta) && (
+        <div
           style={notebookDelay(notebookTiming.pageIdentity)}
-          className={cn(
-            "notebook-in-identity mb-4 text-ink-muted",
-            greeting ? "text-sm" : "label text-label",
-          )}
+          className="notebook-in-identity mb-4 flex items-baseline gap-6"
         >
-          {greeting ?? sectionCode}
-        </p>
+          {sectionCode && <p className="code text-annotation">{sectionCode}</p>}
+          {/* `ml-auto`, not `justify-between`: the stamp keeps the right edge
+           * on the home sheet, which has no section code. */}
+          {sheetMeta && (
+            <p className="label ml-auto text-ink-muted/75 text-micro">
+              {sheetMeta}
+            </p>
+          )}
+        </div>
       )}
-      <h1
-        style={notebookDelay(notebookTiming.pageHeading)}
-        data-notebook-title
-        className="notebook-in-heading w-fit pr-2 font-heading font-semibold text-5xl leading-none tracking-tight lg:text-7xl"
-      >
-        {title}
-      </h1>
+      {greeting ? (
+        <div
+          style={notebookDelay(notebookTiming.pageHeading)}
+          data-notebook-title
+          className="notebook-in-heading w-full pr-2"
+        >
+          {greeting}
+        </div>
+      ) : (
+        <h1
+          style={notebookDelay(notebookTiming.pageHeading)}
+          data-notebook-title
+          className="notebook-in-heading w-fit pr-2 font-heading font-semibold text-5xl leading-none tracking-tight lg:text-7xl"
+        >
+          {title}
+        </h1>
+      )}
       {introduction && (
         <div
           style={notebookDelay(notebookTiming.pageIntroduction)}
           data-notebook-introduction
-          className="notebook-in-introduction mt-6 w-full max-w-180 text-ink-muted text-sm"
+          className="notebook-in-introduction mt-5.5 w-full max-w-180 text-ink-muted text-sm"
         >
           {introduction}
         </div>
@@ -59,7 +81,7 @@ export function NotebookPageHeader({
         <div
           style={notebookDelay(notebookTiming.pageHeaderRule)}
           data-notebook-header-rule
-          className="notebook-in-rule mt-7 h-px w-full origin-left bg-rule"
+          className="notebook-in-rule rule-ticked relative mt-7.5 h-px w-full origin-left bg-rule"
         />
       )}
     </header>
@@ -128,7 +150,7 @@ export function NotebookCollection({
       base={base}
       step={step}
       className={cn(
-        "grid w-full grid-cols-1 gap-x-8 gap-y-14 md:grid-cols-2 lg:gap-x-12 lg:gap-y-18",
+        "grid w-full grid-cols-1 gap-x-8 gap-y-15 md:grid-cols-2 lg:gap-x-13 lg:gap-y-19",
         className,
       )}
     >
@@ -158,24 +180,34 @@ export function NotebookRecord({
         className,
       )}
     >
+      {/* A record is a bounded span, not a separation — so the rule is ticked. */}
       <span
         aria-hidden="true"
         data-notebook-record-rule
-        className="notebook-in-rule absolute inset-x-0 top-0 h-px origin-left bg-rule transition-colors duration-fast group-focus-within:bg-ink"
+        className="notebook-in-rule rule-ticked absolute inset-x-0 top-0 h-px origin-left bg-rule transition-colors duration-fast group-focus-within:bg-ink"
       />
       {children}
     </article>
   );
 }
 
-export function NotebookIndex({ children }: { children: ReactNode }) {
+type NotebookIndexProps = {
+  children: ReactNode;
+  /** Right-hand filename stamp on the same baseline. */
+  filename?: string;
+};
+
+export function NotebookIndex({ children, filename }: NotebookIndexProps) {
   return (
-    <p
+    <div
       data-entry-part="index"
-      className="notebook-in-part label mb-3 text-ink-muted text-label"
+      className="notebook-in-part mb-3.5 flex items-baseline justify-between gap-4"
     >
-      {children}
-    </p>
+      <p className="code text-annotation">{children}</p>
+      {filename && (
+        <p className="label text-ink-muted/60 text-micro">{filename}</p>
+      )}
+    </div>
   );
 }
 
@@ -199,16 +231,15 @@ export function NotebookMedia({
    * wrapper the way every other part does — and that placement is load-bearing
    * for any glass `mediaClassName`. An ancestor whose opacity is under 1
    * becomes a Backdrop Root, and a `backdrop-filter` inside one samples an
-   * empty backdrop and renders as flat tint. So while the wrapper faded, the
-   * tile's blur was simply absent until the entrance finished. Fading the
-   * field itself composites the already-blurred surface, which is what we
-   * want; the wrapper keeps `data-entry-part` so the stagger still supplies
-   * `--notebook-delay`, and it inherits down to here. */
+   * empty backdrop and renders as flat tint. Fading the field itself
+   * composites the already-blurred surface, which is what we want; the wrapper
+   * keeps `data-entry-part` so the stagger still supplies `--notebook-delay`,
+   * and it inherits down to here. */
   const field = (
     <div
       data-notebook-media-field
       className={cn(
-        "notebook-in-part notebook-media-field relative flex aspect-video items-center justify-center overflow-hidden border border-media-field-rule bg-media-field p-7 shadow-media-field sm:p-10",
+        "notebook-in-part notebook-media-field relative flex aspect-video items-center justify-center overflow-hidden border border-media-field-rule bg-media-field p-7 sm:p-10",
         mediaClassName,
       )}
     >
@@ -216,8 +247,10 @@ export function NotebookMedia({
     </div>
   );
 
+  /* Crop marks sit on the wrapper, not the field: they are drawn 5px outside
+   * the frame, and the field clips its own overflow. */
   return (
-    <div data-entry-part="media" className="mb-5">
+    <div data-entry-part="media" className="crop-marks mb-5.5">
       {link ? (
         <a
           href={link.href}
@@ -250,7 +283,7 @@ export function NotebookMetadata({ children }: { children: ReactNode }) {
   return (
     <p
       data-entry-part="metadata"
-      className="notebook-in-part label mt-2 text-ink-muted text-label"
+      className="notebook-in-part label mt-2.5 text-ink-muted text-label"
     >
       {children}
     </p>
@@ -261,7 +294,7 @@ export function NotebookAnnotation({ children }: { children: ReactNode }) {
   return (
     <div
       data-entry-part="annotation"
-      className="notebook-in-part mt-4 border-rule border-l pl-3 text-ink-muted text-sm leading-relaxed"
+      className="notebook-in-part mt-4 border-rule border-l pl-3.5 text-ink-muted text-sm leading-relaxed"
     >
       {children}
     </div>
@@ -306,7 +339,7 @@ export function NotebookAction({
         rel="noreferrer noopener"
         aria-label={label}
         className={cn(
-          "notebook-press label inline-flex min-h-9 items-center gap-2 border border-rule bg-card-glass px-3 py-2 text-ink-muted text-micro backdrop-blur-sm transition-colors duration-fast hover:border-ink hover:text-ink",
+          "notebook-press label inline-flex min-h-9 items-center gap-2 border border-rule bg-card-glass px-3.5 py-2 text-ink-muted text-micro backdrop-blur-glass transition-colors duration-fast hover:border-ink hover:text-ink",
           className,
         )}
       >
@@ -326,7 +359,7 @@ export function NotebookTags({ children, label }: NotebookTagsProps) {
     <ul
       data-entry-part="tags"
       aria-label={label}
-      className="notebook-in-part mt-5 flex min-h-5 flex-wrap gap-x-3 gap-y-1.5"
+      className="notebook-in-part mt-5 flex min-h-5 flex-wrap gap-x-3.5 gap-y-1.5"
     >
       {children}
     </ul>
@@ -365,19 +398,27 @@ export function NotebookLabel({
 /** Heading for a named section of record rows, e.g. the CV's Work and Education. */
 export function NotebookSectionHeading({
   children,
+  count,
   delay,
 }: {
   children: ReactNode;
+  /** Record count, stamped after the heading as [04]. */
+  count?: number;
   delay?: number;
 }) {
   return (
-    <h2
+    <div
       style={delay === undefined ? undefined : notebookDelay(delay)}
       data-notebook-section-heading
-      className="notebook-in-part label text-ink-muted text-label"
+      className="notebook-in-part flex items-baseline gap-3.5"
     >
-      {children}
-    </h2>
+      <h2 className="label text-ink-muted text-label">{children}</h2>
+      {count !== undefined && (
+        <span className="num text-ink-muted/55 text-micro">
+          [{String(count).padStart(2, "0")}]
+        </span>
+      )}
+    </div>
   );
 }
 
@@ -391,6 +432,9 @@ type NotebookRecordRowProps = {
 /**
  * One record row: a drawn hairline rule above row content that settles as a
  * unit. Interactive rows lift their rule to ink on hover and focus.
+ *
+ * A row separates rather than bounds, so this rule stays unticked — the ticks
+ * belong to the record and the section.
  */
 export function NotebookRecordRow({
   children,
@@ -466,11 +510,11 @@ export function NotebookRecordRowLink({
   );
 }
 
-/** Real position of a row within its Portfolio Page records, e.g. A–01. */
+/** Real position of a row within its Portfolio Page records, e.g. A-01. */
 export function NotebookRowIndex({ children }: { children: ReactNode }) {
   return (
-    <NotebookLabel as="span" className="w-14 shrink-0 tabular-nums">
+    <span className="code w-15.5 shrink-0 text-annotation tabular-nums">
       {children}
-    </NotebookLabel>
+    </span>
   );
 }

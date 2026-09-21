@@ -4,7 +4,10 @@ import { cn } from "@/lib/utils/cn";
 
 type PortfolioPageProps = {
   title: string;
-  sectionCode: string;
+  /** Absent on the home Portfolio Page, whose title begins with a greeting. */
+  sectionCode?: string;
+  /** Right-aligned sheet stamp, e.g. "Sheet W · 07 records". */
+  sheetMeta?: string;
   greeting?: ReactNode;
   introduction?: ReactNode;
   children?: ReactNode;
@@ -15,15 +18,13 @@ type PortfolioPageProps = {
 /**
  * The shell every Portfolio Page composes.
  *
- * Record groups used to wait on a `pageIdentitySettled` flag that only flipped
- * once the title's Motion animation reported back — a JavaScript callback
- * chain standing between the reader and the page. The sequence is now fixed
- * offsets in CSS (`notebookTiming`), so the shell holds no state and renders
- * on the server.
+ * The sequence is fixed offsets in CSS (`notebookTiming`), so the shell holds
+ * no state and renders on the server.
  */
 export function PortfolioPage({
   title,
   sectionCode,
+  sheetMeta,
   greeting,
   introduction,
   children,
@@ -31,22 +32,23 @@ export function PortfolioPage({
   width,
 }: PortfolioPageProps) {
   return (
-    <div className="flex w-full flex-col gap-10">
+    <div className="flex w-full flex-col gap-11">
       <div
         className={cn(
-          "mx-auto flex w-full flex-col gap-10",
+          "mx-auto flex w-full flex-col gap-11",
           width === "collection" && "max-w-270",
           width === "reading" && "max-w-180",
         )}
       >
         <NotebookPageHeader
           sectionCode={sectionCode}
+          sheetMeta={sheetMeta}
           greeting={greeting}
           title={title}
           introduction={introduction}
           showRule={showHeaderRule}
         />
-        <div className="flex w-full flex-col gap-10">{children}</div>
+        <div className="flex w-full flex-col gap-11">{children}</div>
       </div>
     </div>
   );

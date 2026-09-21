@@ -1,8 +1,12 @@
 /* ═══════════════════════════════════════════════════
  * ENTRANCE CHOREOGRAPHY
  *
+ * Unchanged by the technical revision. Every timing, curve, and stagger below
+ * is the same one the notebook shipped with; see ADR-0004 for why it is CSS
+ * and why the identity mark stays out of it.
+ *
  * The Engineering Notebook registers itself on load: rules draw, parts settle.
- * Two rules govern how, and both come from measurement. See ADR-0004.
+ * Two rules govern how, and both come from measurement.
  *
  * 1. It is CSS, not JavaScript. When the entrance ran through Motion variants,
  *    every part shipped from the server at `opacity: 0` and stayed there until
@@ -10,19 +14,18 @@
  *    The page painted at ~680ms and did not become contentful until ~1500ms.
  *    As CSS, the animation starts at first paint instead.
  *
- * 2. At least one above-the-fold element must be opaque in the server-rendered
- *    HTML. Chrome excludes an element that is transparent or fully clipped
- *    when painted from both First and Largest Contentful Paint, and does not
- *    reconsider it when an animation later reveals it. Fading the whole page
- *    header in from `opacity: 0` did not delay those metrics — it forfeited
- *    them outright: no FCP and no LCP reported on any page, however visible
- *    the text looked a moment later. The Site Header's identity mark is the
- *    element that carries this on every page, and it does so by staying out of
- *    the choreography altogether: it has no entrance class, so it is simply
- *    there, opaque, from the first frame — the notebook's stationery, printed
- *    before the entry is written into it. Everything else above the fold may
- *    fade — once FCP and LCP have been recorded from the mark, an element that
- *    starts transparent is simply never a candidate, which costs nothing.
+ * 2. Nothing that reports a paint metric may be painted at `opacity: 0`.
+ *    Chrome excludes a transparent element from First and Largest Contentful
+ *    Paint and only catches it several frames later, long after the compositor
+ *    has revealed it. Clipping is not the same: a fully clipped element is
+ *    recorded at first paint, at its unclipped size — measured, and the reason
+ *    the page title keeps its wipe (see ADR-0007).
+ *
+ *    That lands on two elements. The Site Header's identity mark stays out of
+ *    the choreography altogether — the notebook's stationery, printed before
+ *    the entry is written into it — and carries FCP on every page. The page
+ *    title is the largest candidate on every sheet, so it carries LCP, and it
+ *    settles on `clip-path` alone for the same reason.
  *
  * Stagger is an absolute `--notebook-delay` per element, rendered into the
  * server HTML. No runtime sequencing, no callback chain.
@@ -30,15 +33,6 @@
 
 :root {
   --notebook-ease: cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes notebook-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
 }
 
 /* The page title wipes open left to right — the notebook's signature move. */
@@ -112,8 +106,7 @@
  *
  * `opacity` under 1 orphans a backdrop the same way, and that one is spec, not
  * a Chrome quirk — which is why `NotebookMedia` hangs this entrance on the
- * glass field itself rather than on a wrapper above it. An element's own fade
- * composites its already-blurred surface; an ancestor's fade empties it. */
+ * glass field itself rather than on a wrapper above it. */
 .notebook-in-part,
 .notebook-in-identity,
 .notebook-in-introduction,
@@ -137,17 +130,23 @@
 
 /* The introduction fades and settles like every other part, only a beat
  * slower: a paragraph reads calmer arriving over 0.5s than a label does over
- * 0.32s. It is invisible until its own entrance begins — which is exactly why
- * it cannot carry the page's paint timing; the static identity mark does (see
- * rule 2 above). */
+ * 0.32s. */
 .notebook-in-introduction {
   animation-name: notebook-part-in;
   animation-duration: 0.5s;
 }
 
+/* The wipe, and only the wipe. The title is the largest paint candidate on
+ * every sheet, so it is the one that reports LCP, and an element painted at
+ * `opacity: 0` is excluded until a later frame catches it — which cost this
+ * heading ~450ms of render delay while the clip was already open. A fully
+ * clipped element is not excluded the same way: Chrome records it at first
+ * paint at its unclipped size. Measured both ways on the production build;
+ * see ADR-0007. So the clip stays and the fade goes, and the move is the same
+ * move — a fade under a wipe was only ever tinting the part already revealed. */
 .notebook-in-heading {
-  animation-name: notebook-heading-clip-in, notebook-fade-in;
-  animation-duration: 0.9s, 0.42s;
+  animation-name: notebook-heading-clip-in;
+  animation-duration: 0.9s;
 }
 
 .notebook-in-rule {
@@ -174,7 +173,8 @@
   }
 
   .notebook-disclosure,
-  .notebook-disclosure-item {
+  .notebook-disclosure-item,
+  .notebook-console {
     transition: none;
   }
 }
@@ -184,8 +184,7 @@
  *
  * Reading order is DOM order, so the index comes from the DOM. A group names
  * its own base offset and step once, inline; every child derives its delay
- * from its position. Nothing is threaded through props, and nothing needs
- * JavaScript to sequence it.
+ * from its position.
  * ═══════════════════════════════════════════════════ */
 
 [data-notebook-stagger] > * {
@@ -302,23 +301,14 @@
  * INTERACTION
  *
  * Hover and press use the independent `translate` and `scale` properties
- * rather than `transform`. The original reason was composition — they used to
- * be the only movers not competing with an entrance that animated `transform`.
- * The entrance now animates `translate` too, so `.notebook-lift` and
- * `notebook-record-in` do share a property on the `<article>`, and that is
- * fine: a running animation outranks a transition, so an entrance in flight
- * simply wins, and the moment it ends (no forwards fill) the hover transition
- * takes the property back. Both keyframes end at `translate: none`, which is
- * the resting value, so nothing jumps at the handover.
+ * rather than `transform`. A running animation outranks a transition, so an
+ * entrance in flight simply wins, and the moment it ends (no forwards fill)
+ * the hover transition takes the property back. Both keyframes end at
+ * `translate: none`, which is the resting value, so nothing jumps.
  *
- * The stronger reason to stay off `transform` is now `backdrop-filter`: any
+ * The stronger reason to stay off `transform` is `backdrop-filter`: any
  * non-`none` `transform` on an ancestor orphans a descendant's backdrop, and
- * the Work page's glass tiles sit under these very elements. `translate` and
- * `scale` leave the backdrop intact — measured, not assumed.
- *
- * `--ease-spring` is the theme's spring curve, so a state change still lands
- * like a spring — and the records that carry these states stay server
- * components.
+ * the Work page's glass tiles sit under these very elements.
  * ═══════════════════════════════════════════════════ */
 
 .notebook-lift {
@@ -369,10 +359,7 @@
  * The Site Header's mobile wayfinding opens on a tap, long after load, so
  * nothing here touches first paint. The panel stays in the DOM and moves
  * between its closed and open states with transitions, so one set of rules
- * carries both the entrance and the exit. `visibility` rides along: it flips
- * to visible the instant the panel opens and holds until the exit has
- * finished, and while hidden the panel is out of the accessibility tree and
- * takes neither focus nor clicks.
+ * carries both the entrance and the exit.
  * ═══════════════════════════════════════════════════ */
 
 .notebook-disclosure {
@@ -397,8 +384,7 @@
 }
 
 /* Items register in reading order once the panel is open, on the DOM-order
- * stagger above; on close they leave with the panel, undelayed, so the next
- * opening starts from a clean sheet. */
+ * stagger above; on close they leave with the panel, undelayed. */
 .notebook-disclosure-item {
   opacity: var(--motion-initial-opacity);
   translate: var(--motion-initial-x) 0;
@@ -411,4 +397,102 @@
   opacity: 1;
   translate: 0 0;
   transition-delay: var(--notebook-delay, 0s);
+}
+
+/* ═══════════════════════════════════════════════════
+ * CONSOLE
+ *
+ * Slides up from the lower edge — or in from the right edge when docked in
+ * the right corner — on the notebook's entrance easing. `translate`, not
+ * `transform`, for the backdrop reason above.
+ *
+ * `visibility` is discrete, so it is timed rather than eased. On close it flips
+ * to hidden only once the fade has finished, so the panel never blinks out
+ * mid-exit. On open it flips at once: the prompt is focused the moment the
+ * state changes, and an element still computing as hidden refuses focus —
+ * which is what left the input unfocused while visibility shared the 300ms.
+ * ═══════════════════════════════════════════════════ */
+
+.notebook-console {
+  visibility: hidden;
+  opacity: 0;
+  translate: 0 var(--console-initial-y);
+  transition-property: visibility, opacity, translate;
+  transition-duration:
+    0s, var(--transition-duration-normal), var(--transition-duration-normal);
+  transition-delay: var(--transition-duration-normal), 0s, 0s;
+  transition-timing-function:
+    linear, var(--notebook-ease), var(--notebook-ease);
+}
+
+.notebook-console[data-dock="side"] {
+  translate: var(--console-initial-x) 0;
+}
+
+.notebook-console[data-open="true"] {
+  visibility: visible;
+  opacity: 1;
+  translate: 0 0;
+  transition-delay: 0s;
+}
+
+/* ═══════════════════════════════════════════════════
+ * CONSOLE BANNER
+ *
+ * The greeting types itself across the window, left to right, the first time
+ * the console opens.
+ *
+ * It is a clip wipe, and `steps()` is what makes it read as typing rather
+ * than as a wipe. Eased, the clip edge slides through the middle of a glyph
+ * and leaves half a block standing for a frame; stepped once per column, the
+ * edge only ever lands on a character cell, so each block arrives whole. The
+ * step count is the art's own column count and comes inline from the
+ * component — it is data about the art, not a timing, which is why it is the
+ * one number here that is not written in this file.
+ *
+ * `backwards` fill holds the banner at its first keyframe, fully clipped,
+ * until the animation starts, so it never prints in full and is then typed
+ * over.
+ *
+ * Like the console itself, this is behind an open and never runs at load.
+ * ═══════════════════════════════════════════════════ */
+
+@keyframes console-banner-type {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0% 0 0);
+  }
+}
+
+.console-banner {
+  /* One sweep across twelve characters. Slower and the reader is waiting on a
+   * greeting; faster and the stepping stops registering as typing at all. */
+  --console-banner-duration: 1.1s;
+}
+
+/* Before the first open the window is hidden, but the banner must already be
+ * clipped: the intro starts from an effect, a frame behind `isOpen`, and an
+ * unclipped banner would print in full for that frame. */
+.console-banner[data-intro="pending"] .console-banner-word {
+  clip-path: inset(0 100% 0 0);
+}
+
+.console-banner[data-intro="typing"] .console-banner-word {
+  animation-name: console-banner-type;
+  animation-duration: var(--console-banner-duration);
+  animation-fill-mode: backwards;
+  animation-timing-function: steps(var(--console-banner-columns, 90));
+}
+
+/* No typing, and no clip either: the banner is simply already printed. The
+ * global reduced-motion reset zeroes the duration through a `*` selector,
+ * which loses to the class above on specificity — say it again where it
+ * lands, as the entrance rules do. */
+@media (prefers-reduced-motion: reduce) {
+  .console-banner[data-intro] .console-banner-word {
+    animation: none;
+    clip-path: none;
+  }
 }

@@ -33,13 +33,25 @@ Constantin's deliberate whole-number assessment of a completed book on an inclus
 _Avoid_: Star score, review score
 
 **Closing Record**:
-The in-flow footer record that ends every Portfolio Page with a hairline rule, the copyright, and one concise identity/status line.
+The in-flow footer record that ends every Portfolio Page with the copyright and one concise identity/status line. It draws no rule of its own; the page's bottom edge already ends the sheet.
 _Avoid_: Footer bar, fixed copyright
 
 **Greeting**:
-The home Portfolio Page's opening line: one warm welcome at a time — each language's equivalent of "good to see you", in its own script — written left to right, erased right to left, and rewritten every five seconds in a new language and a new random color. It occupies the section code's slot, which the home page has none of.
-_Avoid_: Section code, eyebrow, typewriter, hero text, hello
+The home Portfolio Page's opening line: one localized equivalent of "Hello, I'm" at a time, in its own script — written left to right, erased right to left, and rewritten every five seconds in a new language and a new random color. It sits above Constantin's stable name in the title treatment.
+_Avoid_: Section code, eyebrow, typewriter, hero text, welcome
+
+**Specification Block**:
+The home Portfolio Page's four standing fields — Role, Based, Focus, Stack — stated beneath the introduction as labelled data rather than prose. It carries no record indices: the fields are facts about Constantin, not entries in a collection.
+_Avoid_: Stats grid, info cards, hero meta, about box
 
 **Record Row**:
 The shared single-line record anatomy (rule, index, title, metadata, trailing value or action) that CV entries and Contact routes compose while keeping their own semantics.
 _Avoid_: List item, table row
+
+**Site Console**:
+The dark terminal window, mounted once at the root, that answers the same routes the Site Header does through typed commands. It docks in the right corner on desktop or along the bottom edge, opens with `K` or the control in the Closing Record, and is a second way in, never the only way.
+_Avoid_: Terminal, command palette, CLI
+
+**Console Banner**:
+The greeting in block capitals — "Hello there!" — that the Site Console prints above its boot text, typed left to right the first time the window opens. It is the console's motd, not its heading: it welcomes the reader rather than naming the site, and `clear` takes it with the rest of the session.
+_Avoid_: ASCII art, logo, splash screen, hero

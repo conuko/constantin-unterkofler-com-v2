@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 import { portfolioContent } from "@/content/site-content";
 import { expectedRecentReading } from "@/tests/fixtures/recent-reading";
+import packageJson from "../../package.json";
 
 describe("Portfolio Content", () => {
   test("defines every Portfolio Page with a unique route, title, and metadata", () => {
@@ -18,7 +19,7 @@ describe("Portfolio Content", () => {
     ).toEqual([
       {
         route: "/",
-        title: "Constantin Unterkofler",
+        title: "Constantin",
         metadataTitle: "Home",
         hasMetadataDescription: true,
       },
@@ -80,10 +81,13 @@ describe("Portfolio Content", () => {
     ]);
   });
 
-  test("owns the footer closing record copyright", () => {
-    expect(portfolioContent.closingRecord).toEqual({
-      copyrightYear: 2026,
-    });
+  test("owns the footer closing record copyright and build stamp", () => {
+    expect(Object.keys(portfolioContent.closingRecord)).toEqual([
+      "copyrightYear",
+      "buildStamp",
+    ]);
+    expect(portfolioContent.closingRecord.copyrightYear).toBe(2026);
+    expect(portfolioContent.closingRecord.buildStamp).toBe(packageJson.version);
     expect(portfolioContent.identity.name).toBe("Constantin Unterkofler");
   });
 
@@ -106,6 +110,23 @@ describe("Portfolio Content", () => {
       { pageName: "work", sectionCode: "W", width: "collection" },
       { pageName: "read", sectionCode: "R", width: "collection" },
       { pageName: "play", sectionCode: "P", width: "collection" },
+    ]);
+  });
+
+  test("states the home Specification Block fields in reading order", () => {
+    expect(portfolioContent.pages.home.content.specification).toEqual([
+      { label: "Role", value: "Software Engineer, Jung von Matt TECH" },
+      { label: "Based", value: "Berlin · 52.5200° N, 13.4050° E" },
+      {
+        label: "Focus",
+        value:
+          "Full stack engineering · Embedded client partnerships · E-commerce platforms · Making complex software feel simple",
+      },
+      {
+        label: "Stack",
+        value:
+          "TypeScript · React / Next · Vue / Nuxt · Node.js / NestJS · PostgreSQL / Prisma · Redis · Docker · Tailwind CSS · Turborepo · React Native / Expo · Go",
+      },
     ]);
   });
 
@@ -305,6 +326,24 @@ describe("Portfolio Content", () => {
     ]);
   });
 
+  test("derives the console projection from canonical Home and Work content", () => {
+    const homeSpecification = portfolioContent.pages.home.content.specification;
+
+    expect(portfolioContent.console.identity).toEqual({
+      name: portfolioContent.identity.name,
+      role: homeSpecification.find((field) => field.label === "Role")?.value,
+      location: homeSpecification.find((field) => field.label === "Based")
+        ?.value,
+    });
+    expect(portfolioContent.console.records).toEqual(
+      portfolioContent.pages.work.content.entries.map((entry, index) => ({
+        index: `W–${String(index + 1).padStart(2, "0")}`,
+        label: entry.client,
+        meta: entry.primaryMetadata.toLowerCase(),
+      })),
+    );
+  });
+
   test("keeps Work destinations optional and marks draft descriptions for owner review", () => {
     expect(
       portfolioContent.pages.work.content.entries.map((entry) => ({
@@ -385,6 +424,9 @@ describe("Portfolio Content", () => {
         existsSync(join(process.cwd(), "public", mark.src)),
       ),
     ).toBe(true);
+    expect(marks.every((mark) => mark.src.endsWith(`/${mark.filename}`))).toBe(
+      true,
+    );
   });
 
   test("keeps required image sources and descriptions with Portfolio Content", () => {

@@ -12,6 +12,7 @@ export default function WorkPage() {
     <PortfolioPage
       title={work.title}
       sectionCode={work.sectionCode}
+      sheetMeta={work.sheetMeta}
       width={work.width}
       introduction={<p>{work.content.introduction}</p>}
     >

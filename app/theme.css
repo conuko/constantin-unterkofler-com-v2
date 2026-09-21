@@ -2,6 +2,10 @@
  * DESIGN TOKENS
  * Project-scoped theme for a portfolio site.
  * Plain @theme so dark mode can override via CSS variables.
+ *
+ * Engineering Notebook / Technical — see Design.md. Paper, ink, Bebas Neue,
+ * Space Grotesk, and every timing below are unchanged. What is new: a finer
+ * dot pitch, an annotation colour, a monospace face, and a zero radius.
  * ═══════════════════════════════════════════════════ */
 
 @custom-variant dark (&:is(.dark *));
@@ -10,13 +14,26 @@
   --color-paper: #f8f7f2;
   --color-ink: #111111;
   --color-ink-muted: rgba(17, 17, 17, 0.72);
-  --color-rule: rgba(17, 17, 17, 0.18);
-  --color-dot: rgba(17, 17, 17, 0.14);
+
+  /* Moved from 18% to 20%. The hairline now has to hold its own against a
+   * denser dot field; at 18% it dissolved into it. */
+  --color-rule: rgba(17, 17, 17, 0.2);
+
+  /* Two dot layers, 1:5. Every fifth dot is heavier so the eye can count
+   * without a printed line. */
+  --color-dot: rgba(17, 17, 17, 0.085);
+  --color-dot-major: rgba(17, 17, 17, 0.2);
+  --grid-pitch: 8px;
+  --grid-pitch-major: 40px;
+
+  /* Measurement marks, record indices, the console prompt. Never body copy,
+   * never a fill. */
+  --color-annotation: oklch(0.52 0.13 250);
+
   --color-card-stroke: rgba(17, 17, 17, 0.82);
   --color-card-glass: rgba(255, 255, 255, 0.52);
   --color-media-field: rgba(255, 255, 255, 0.72);
   --color-media-field-rule: rgba(17, 17, 17, 0.14);
-  --color-media-field-highlight: rgba(255, 255, 255, 0.9);
 
   --color-background: var(--color-paper);
   --color-foreground: var(--color-ink);
@@ -24,27 +41,88 @@
   --color-brand-spotify: #1db954;
   --color-brand-apple-music: #fa233b;
 
-  /* --font-body / --font-display are set by the Next.js font loader on <html> */
+  /* The console is one dark window in both themes. It is not themed, because a
+   * terminal that repaints itself for light mode stops reading as a terminal. */
+  --color-console-surface: #15141a;
+  --color-console-chrome: rgba(248, 247, 242, 0.05);
+  --color-console-rule: rgba(248, 247, 242, 0.14);
+  --color-console-ink: rgba(248, 247, 242, 0.82);
+  --color-console-ink-muted: rgba(248, 247, 242, 0.45);
+  --color-console-output: rgba(248, 247, 242, 0.55);
+  --color-console-accent: oklch(0.78 0.11 250);
+  --color-console-command: oklch(0.86 0.14 150);
+  --color-console-error: #ff7b72;
+
+  /* The window's three lights, named for what each one does rather than for
+   * its hue — they are quoted from the macOS terminal, not derived from the
+   * notebook's palette, which is why they are raw hex among oklch. */
+  --color-console-light-close: #ff5f57;
+  --color-console-light-minimize: #febc2e;
+  --color-console-light-zoom: #28c840;
+
+  /* Terminal leading: looser than body copy, so a wall of mono output stays
+   * scannable line by line. */
+  --leading-console: 1.8;
+
+  /* Bottom dock: the session grows from this floor and scrolls once it passes
+   * the cap; the viewport cap keeps the window off the page header on short
+   * screens. `--max-height-*` / `--min-height-*` are the namespaces `max-h-*`
+   * and `min-h-*` resolve against — a `--size-*` name generates no CSS at all. */
+  --min-height-console-body: 13rem;
+  --max-height-console-body: min(52vh, 26rem);
+
+  /* Side dock: a fixed column in the right corner, the body filling it. Wide
+   * enough for the `help` grid and the session title without wrapping. */
+  --width-console-side: 45rem;
+  --height-console-side: min(72vh, 40rem);
+
+  /* Command name column in `help` output, wide enough for the longest name
+   * plus its flag. */
+  --grid-template-columns-console-help: 7rem 1fr;
+
+  /* --font-body / --font-display / --font-mono-face are set by the Next.js
+   * font loader on <html>. Space Grotesk was drawn from Space Mono, so the
+   * text face and the data face share proportion and terminals. */
   --font-sans: var(--font-body), sans-serif;
   --font-heading: var(--font-display), serif;
+  --font-mono: var(--font-mono-face), ui-monospace, monospace;
+
+  /* Block art only. Space Mono ships no block or box-drawing glyphs, so a
+   * banner set in it is composed per character by the browser's fallback —
+   * measured here, the Latin glyphs came out at 0.61em and every █ and ╗
+   * beside them at 0.97em, which is not a grid any more. This stack is the
+   * platform's own terminal face, which has the glyphs and sets all of them
+   * on one advance. It is the console banner's face and nothing else's. */
+  --font-mono-block:
+    ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
 
   --text-label: 0.6875rem;
   --text-micro: 0.625rem;
 
-  --radius: 0.625rem;
+  --tracking-code: 0.14em;
+  --tracking-label: 0.12em;
+  --tracking-micro: 0.1em;
 
-  --shadow-media-field: inset 0 1px 0 var(--color-media-field-highlight);
+  /* Square by default. The console window is the one exception and names its
+   * own radius. */
+  --radius: 0rem;
+  --radius-console: 0.625rem;
+
+  --shadow-console: 0 30px 70px -24px rgba(0, 0, 0, 0.6);
 
   /* 1px, and that is not a typo or a placeholder — it is measured.
    *
    * A backdrop blur can only show what is behind it, and behind every glass
-   * surface here is the body's dot grid: 0.9px dots on a 22px pitch. Sampled
-   * against that grid, 1px softens the dots to roughly a third of their
-   * contrast — they stay visible, smeared, which is the thing the eye reads as
-   * glass. At 3px they are almost gone; from 5px up they are erased outright
-   * and the surface collapses into flat tint, indistinguishable from a plain
-   * translucent background. So the conventional 8-12px frost is exactly wrong
-   * on this backdrop: more blur here means less visible glass.
+   * surface here is the body's dot grid. Sampled against that grid, 1px softens
+   * the dots to roughly a third of their contrast — they stay visible, smeared,
+   * which is the thing the eye reads as glass. At 3px they are almost gone;
+   * from 5px up they are erased outright and the surface collapses into flat
+   * tint, indistinguishable from a plain translucent background. So the
+   * conventional 8-12px frost is exactly wrong on this backdrop: more blur here
+   * means less visible glass.
+   *
+   * The grid got finer (22px/0.9px to 8px/0.5px), which does not raise this
+   * number — if anything it lowers it. Do not raise it.
    *
    * The Site Header's own surface uses `backdrop-blur-md` instead, and that is
    * consistent rather than contradictory: it sits over running text, which has
@@ -93,7 +171,8 @@
 
 /* Greeting: the hue is random per language and arrives inline from the
  * component. Lightness and chroma stay theme-owned, so every hue the rotation
- * lands on keeps its contrast against paper. */
+ * lands on keeps its contrast against paper. The annotation colour is separate
+ * and never rotates. */
 :root {
   --greeting-lightness: 0.48;
   --greeting-chroma: 0.15;
@@ -109,13 +188,14 @@
   --color-paper: #1a1917;
   --color-ink: #f8f7f2;
   --color-ink-muted: rgba(248, 247, 242, 0.72);
-  --color-rule: rgba(248, 247, 242, 0.18);
-  --color-dot: rgba(248, 247, 242, 0.14);
+  --color-rule: rgba(248, 247, 242, 0.2);
+  --color-dot: rgba(248, 247, 242, 0.07);
+  --color-dot-major: rgba(248, 247, 242, 0.16);
+  --color-annotation: oklch(0.78 0.11 250);
   --color-card-stroke: rgba(248, 247, 242, 0.82);
-  --color-card-glass: rgba(248, 247, 242, 0.08);
+  --color-card-glass: rgba(248, 247, 242, 0.06);
   --color-media-field: rgba(248, 247, 242, 0.92);
   --color-media-field-rule: rgba(248, 247, 242, 0.28);
-  --color-media-field-highlight: rgba(255, 255, 255, 0.32);
   --greeting-lightness: 0.78;
   --greeting-chroma: 0.13;
   --color-background: var(--color-paper);
