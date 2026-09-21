@@ -24,6 +24,7 @@ function context(overrides: Partial<ConsoleContext> = {}): ConsoleContext {
     routes: consoleRoutes(wayfinding),
     pathname: "/",
     previousPathname: null,
+    soundsEnabled: true,
     repositoryUrl: "https://github.com/conuko",
     records: [],
     ...overrides,
@@ -64,9 +65,38 @@ describe("console routes", () => {
     ]);
   });
 
-  test("help and completion know home and cd", () => {
+  test("help and completion know home, cd, and sound", () => {
     expect(commandNames).toContain("home");
     expect(commandNames).toContain("cd");
+    expect(commandNames).toContain("sound");
+  });
+});
+
+describe("sound", () => {
+  test("reports the reader's persisted sound preference", () => {
+    expect(runCommand("sound", context()).lines[0]).toMatchObject({
+      kind: "muted",
+      text: "console sounds are on",
+    });
+    expect(
+      runCommand("sound", context({ soundsEnabled: false })).lines[0],
+    ).toMatchObject({ text: "console sounds are off" });
+  });
+
+  test("sets sound on or off", () => {
+    expect(runCommand("sound off", context()).effects).toEqual([
+      { type: "sound", enabled: false },
+    ]);
+    expect(
+      runCommand("sound on", context({ soundsEnabled: false })).effects,
+    ).toEqual([{ type: "sound", enabled: true }]);
+  });
+
+  test("rejects an unsupported sound setting", () => {
+    expect(runCommand("sound louder", context()).lines[0]).toMatchObject({
+      kind: "error",
+      text: "sound: expected on or off",
+    });
   });
 });
 

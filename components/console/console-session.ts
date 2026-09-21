@@ -25,6 +25,7 @@ export type ConsoleEffect =
   | { type: "navigate"; href: string }
   | { type: "open"; href: string }
   | { type: "theme" }
+  | { type: "sound"; enabled: boolean }
   | { type: "clear" }
   | { type: "close" };
 
@@ -42,6 +43,7 @@ export type ConsoleContext = {
   /** The route currently on screen and the one before it, for `cd -`. */
   pathname: string;
   previousPathname: string | null;
+  soundsEnabled: boolean;
   repositoryUrl: string;
   records: { index: string; label: string; meta: string }[];
 };
@@ -220,6 +222,34 @@ const commands: CommandSpec[] = [
       lines: [line("muted", "toggling appearance")],
       effects: [{ type: "theme" }],
     }),
+  },
+  {
+    name: "sound",
+    description: "show or set console sound — sound on, sound off",
+    run: (args, context) => {
+      const setting = args[0]?.toLowerCase();
+
+      if (setting === undefined) {
+        return output(
+          line(
+            "muted",
+            `console sounds are ${context.soundsEnabled ? "on" : "off"}`,
+          ),
+        );
+      }
+
+      if (setting !== "on" && setting !== "off") {
+        return output(line("error", "sound: expected on or off"));
+      }
+
+      const enabled = setting === "on";
+      return {
+        lines: [
+          line("muted", enabled ? "console sounds on" : "console sounds off"),
+        ],
+        effects: [{ type: "sound", enabled }],
+      };
+    },
   },
   {
     name: "source",

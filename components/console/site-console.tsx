@@ -163,6 +163,9 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
     toggle,
     dock: preferredDock,
     setDock,
+    soundsEnabled,
+    setSoundsEnabled,
+    playSound,
     panelId,
   } = useSiteConsole();
   const isDesktop = useMediaQuery(desktopQuery);
@@ -307,6 +310,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
     event.preventDefault();
 
     const entered = input;
+    if (entered.trim()) playSound("command");
     const context: ConsoleContext = {
       identityName: content.identity.name,
       identityRole: content.identity.role,
@@ -314,6 +318,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
       routes: consoleRoutes(wayfinding),
       pathname,
       previousPathname: previousPathnameRef.current,
+      soundsEnabled,
       repositoryUrl: content.repositoryUrl,
       records: content.records,
     };
@@ -337,6 +342,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
       if (effect.type === "theme") {
         setTheme(resolvedTheme === "dark" ? "light" : "dark");
       }
+      if (effect.type === "sound") setSoundsEnabled(effect.enabled);
       if (effect.type === "close") {
         window.setTimeout(close, 220);
       }
@@ -397,6 +403,9 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
    * ready to type into, with the prompt in view once the new width has
    * reflowed the session. */
   function moveTo(target: ConsoleDock) {
+    if (target === dock) return;
+
+    playSound(target === "side" ? "dock-side" : "dock-bottom");
     setDock(target);
     inputRef.current?.focus();
     window.requestAnimationFrame(() => followSession(scrollRef.current));
@@ -446,6 +455,17 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
         <p className="mx-auto truncate font-mono text-console-ink-muted text-xs">
           cu@portfolio — ~/constantin-unterkofler.com
         </p>
+        <button
+          type="button"
+          onClick={() => setSoundsEnabled(!soundsEnabled)}
+          aria-label={
+            soundsEnabled ? "Turn console sounds off" : "Turn console sounds on"
+          }
+          aria-pressed={soundsEnabled}
+          className="label -my-2.5 cursor-pointer px-1.5 py-2.5 text-console-ink-muted text-micro"
+        >
+          Sound {soundsEnabled ? "on" : "off"}
+        </button>
         <button
           type="button"
           onClick={close}
