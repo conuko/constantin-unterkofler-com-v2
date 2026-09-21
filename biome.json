@@ -14,12 +14,20 @@
     "indentStyle": "space",
     "indentWidth": 2
   },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
   "linter": {
     "enabled": true,
     "rules": {
       "preset": "recommended",
       "suspicious": {
         "noUnknownAtRules": "off"
+      },
+      "nursery": {
+        "useSortedClasses": "error"
       }
     },
     "domains": {
@@ -27,6 +35,18 @@
       "react": "recommended"
     }
   },
+  "overrides": [
+    {
+      "includes": ["public/marks/*.svg"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noSvgWithoutTitle": "off"
+          }
+        }
+      }
+    }
+  ],
   "assist": {
     "actions": {
       "source": {

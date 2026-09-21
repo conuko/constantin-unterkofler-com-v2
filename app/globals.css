@@ -1,27 +1,40 @@
 @import "tailwindcss";
 @import "./theme.css";
 @import "./utilities.css";
+@import "./motion.css";
 
 :root {
   --motion-initial-opacity: 0;
   --motion-initial-scale: 0.95;
   --motion-initial-x: 8px;
   --motion-initial-y: -8px;
-  --motion-initial-clip: inset(-10% 100% -10% 0);
-  --motion-initial-filter: blur(3px);
+  --motion-initial-clip: inset(0 100% 0 0);
+  --motion-initial-rule-scale: 0;
+  --notebook-hover-y: -2px;
+  --notebook-media-hover-scale: 1.008;
+  --notebook-control-hover-scale: 1.05;
+  --notebook-press-scale: 0.995;
+  --console-initial-y: 24px;
+  --console-initial-x: 24px;
 }
 
 html {
   scroll-padding-top: 2rem;
 }
 
+/* Technical dot paper: a fine minor field with every fifth dot weighted, so
+ * the eye can count intervals without a printed line. See Design.md §2. */
 body {
-  background-image: radial-gradient(
-    circle at 1px 1px,
-    var(--color-dot) 0.9px,
-    transparent 1px
-  );
-  background-size: 22px 22px;
+  background-image:
+    radial-gradient(circle at 1px 1px, var(--color-dot) 0.5px, transparent 1px),
+    radial-gradient(
+      circle at 1px 1px,
+      var(--color-dot-major) 0.9px,
+      transparent 1.4px
+    );
+  background-size:
+    var(--grid-pitch) var(--grid-pitch),
+    var(--grid-pitch-major) var(--grid-pitch-major);
 }
 
 @layer base {
@@ -37,8 +50,14 @@ body {
     --motion-initial-scale: 1;
     --motion-initial-x: 0px;
     --motion-initial-y: 0px;
-    --motion-initial-clip: inset(-10% -10% -10% 0);
-    --motion-initial-filter: blur(0px);
+    --motion-initial-clip: inset(0 0% 0 0);
+    --motion-initial-rule-scale: 1;
+    --notebook-hover-y: 0px;
+    --notebook-media-hover-scale: 1;
+    --notebook-control-hover-scale: 1;
+    --notebook-press-scale: 1;
+    --console-initial-y: 0px;
+    --console-initial-x: 0px;
   }
 
   *,
@@ -53,12 +72,47 @@ body {
 }
 
 ::selection {
-  background: var(--color-dot);
+  background: var(--color-dot-major);
 }
 
 :focus-visible {
   outline: 2px solid var(--color-ink);
   outline-offset: 2px;
+}
+
+/* The console prompt marks focus with its own blinking caret; the ring would
+ * frame the whole line. Unlayered so it outranks the utilities layer, which
+ * is why `outline-none` on the input alone is not enough here. */
+.notebook-console input:focus-visible {
+  outline: none;
+}
+
+/* Below `lg` the console stays the window it is on desktop — docked along the
+ * bottom edge, the page still visible around it — but the software keyboard
+ * would cover it: `position: fixed` resolves against the layout viewport, and
+ * the keyboard only shrinks the visual one. Both variables are measured from
+ * `window.visualViewport` while the window is open. The first lifts it clear
+ * of the keyboard, the second trims it to the screen that is left, so the
+ * prompt stays in view without the window ever taking the whole display. */
+.notebook-console[data-mobile="true"] {
+  --console-edge: max(1.5rem, env(safe-area-inset-bottom));
+  bottom: calc(var(--console-keyboard-inset, 0px) + var(--console-edge));
+  max-height: calc(
+    var(--console-visible-height, 100dvh) -
+    var(--console-edge) -
+    1.5rem
+  );
+}
+
+/* The session gives up its floor as the visible screen runs out, so the window
+ * shrinks to a keyboard-sized viewport instead of overflowing it. Wherever
+ * there is room it keeps the height it has on desktop. */
+.notebook-console[data-mobile="true"] .console-session {
+  min-height: clamp(
+    0px,
+    calc(var(--console-visible-height, 100dvh) - 7rem),
+    var(--min-height-console-body)
+  );
 }
 
 .skip-link {
@@ -68,8 +122,10 @@ body {
   background: var(--color-ink);
   color: var(--color-paper);
   padding: 0.5rem 1rem;
+  font-family: var(--font-mono);
   font-size: 0.75rem;
-  font-weight: 600;
+  /* 400, not 700: the bold mono cut is no longer loaded — see `app/layout.tsx`. */
+  font-weight: 400;
   z-index: 100;
 }
 

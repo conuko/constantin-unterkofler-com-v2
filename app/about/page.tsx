@@ -11,12 +11,12 @@ export default function AboutPage() {
   return (
     <PortfolioPage
       title={about.title}
-      width="narrow"
-      introduction={
-        <p className="text-sm text-ink-muted">{about.content.introduction}</p>
-      }
+      sectionCode={about.sectionCode}
+      sheetMeta={about.sheetMeta}
+      width={about.width}
+      introduction={<p>{about.content.introduction}</p>}
     >
-      <Cv sections={about.content.cvSections} />
+      <Cv sectionCode={about.sectionCode} sections={about.content.cvSections} />
     </PortfolioPage>
   );
 }

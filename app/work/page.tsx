@@ -11,11 +11,10 @@ export default function WorkPage() {
   return (
     <PortfolioPage
       title={work.title}
-      introduction={
-        <p className="max-w-xl text-sm text-ink-muted">
-          {work.content.introduction}
-        </p>
-      }
+      sectionCode={work.sectionCode}
+      sheetMeta={work.sheetMeta}
+      width={work.width}
+      introduction={<p>{work.content.introduction}</p>}
     >
       <WorkPresentation entries={work.content.entries} />
     </PortfolioPage>

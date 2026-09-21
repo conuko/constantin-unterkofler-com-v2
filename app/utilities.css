@@ -1,10 +1,31 @@
-/* Eyebrow / uppercase label — used across nav, cards, section headings */
+/* Eyebrow / uppercase label — used across nav, cards, section headings.
+ * Space Mono now carries it: everywhere the notebook already said "this is a
+ * code, an index, or a measurement", it says it in the face built for that. */
 @utility label {
-  font-size: var(--font-size-xs);
-  line-height: var(--font-size-xs--line-height);
-  font-weight: 600;
-  letter-spacing: var(--tracking-widest);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 400;
+  letter-spacing: var(--tracking-label);
+  line-height: 1.4;
   text-transform: uppercase;
+}
+
+/* Record index — W-01, A-03, C-02. Annotation colour is applied at the call
+ * site, because the same code is muted in some rows and marked in others. */
+@utility code {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-code);
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+/* Any figure a reader might compare against another figure. */
+@utility num {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
 }
 
 /* Animated underline that reveals on hover or [data-active] */
@@ -21,7 +42,7 @@
     background: currentColor;
     scale: 0 1;
     transform-origin: top left;
-    transition: scale var(--duration-normal) var(--ease-spring);
+    transition: scale var(--transition-duration-normal) var(--ease-spring);
   }
 
   &:hover::after,
@@ -43,4 +64,168 @@
     height: 2px;
     background: currentColor;
   }
+}
+
+/* Greeting colour, composed on the element so the inline per-language
+ * `--greeting-hue` substitutes here rather than resolving at :root. */
+@utility greeting-ink {
+  color: oklch(
+    var(--greeting-lightness) var(--greeting-chroma) var(--greeting-hue, 0)
+  );
+}
+
+/* A two-line writing field keeps every script close to the name without
+ * shifting the headline or the content below while the greeting rewrites. */
+@utility greeting-stage {
+  min-block-size: 2lh;
+}
+
+/* The caret shares the greeting's inline formatting context, so its em-sized
+ * body follows the active script's baseline instead of the two-line stage. */
+@utility greeting-caret {
+  display: inline-block;
+  inline-size: 2px;
+  block-size: 0.78em;
+  margin-inline-start: 0.12em;
+  vertical-align: 0.02em;
+  background: currentColor;
+}
+
+/* Factual list marker used by Engineering Notebook metadata tags */
+@utility notebook-tag-marker {
+  &::before {
+    content: "+";
+    margin-inline-end: 0.4em;
+    color: var(--color-rule);
+  }
+}
+
+/* Four corner Ls, 7px long, 5px clear of the frame — the drafting mark that
+ * replaced the card radius.
+ *
+ * One pseudo-element, not four spans: a 1px border box inset by -5px, masked
+ * down to its four 8x8 corners. The mask is the whole trick — without it the
+ * element is an ordinary outline, and with it the arms are exactly as long as
+ * the mask tile. */
+@utility crop-marks {
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    pointer-events: none;
+    border: 1px solid var(--color-rule);
+    --crop-mask: linear-gradient(#000 0 0);
+    mask:
+      var(--crop-mask) 0 0 / 8px 8px no-repeat,
+      var(--crop-mask) 100% 0 / 8px 8px no-repeat,
+      var(--crop-mask) 0 100% / 8px 8px no-repeat,
+      var(--crop-mask) 100% 100% / 8px 8px no-repeat;
+  }
+}
+
+/* A hairline that knows where it stops. Use it wherever the rule bounds a
+ * thing; a plain rule wherever it merely separates two things.
+ * Applies to an already-positioned rule span. */
+@utility rule-ticked {
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    top: -3px;
+    inline-size: 1px;
+    block-size: 7px;
+    background: var(--color-rule);
+  }
+
+  &::before {
+    inset-inline-start: 0;
+  }
+
+  &::after {
+    inset-inline-end: 0;
+  }
+}
+
+/* Annotation only, never structure. One per page at most. */
+@utility dimension-line {
+  position: relative;
+  block-size: 1px;
+  background: var(--color-annotation);
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    top: -4px;
+    inline-size: 1px;
+    block-size: 9px;
+    background: var(--color-annotation);
+  }
+
+  &::before {
+    inset-inline-start: 0;
+  }
+
+  &::after {
+    inset-inline-end: 0;
+  }
+}
+
+/* The console's scrollbar: a thin thumb at the window's rule colour on no
+ * track, so the default (Chrome's grey gutter in particular) never sits inside
+ * the dark window. `scrollbar-color` is the standard and is what Chrome and
+ * Firefox honour; the WebKit pseudo-elements only apply where it is missing,
+ * because a browser that supports the standard property ignores them anyway. */
+@utility console-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-console-rule) transparent;
+
+  @supports not (scrollbar-color: auto) {
+    &::-webkit-scrollbar {
+      inline-size: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--color-console-rule);
+      border: 2px solid var(--color-console-surface);
+    }
+  }
+}
+
+/* The console's login banner — the greeting in block capitals above the boot
+ * text. Two rules make block art behave as art rather than as output.
+ *
+ * Leading. The window runs at 1.8 so a wall of mono output stays scannable;
+ * at 1.8 the banner's ▓ blocks are cut into stripes with paper between them.
+ * The art needs its rows to touch, so it names its own leading and 1.05 is
+ * the most it takes before the seams open.
+ *
+ * Size. The banner is as wide as its widest row and no wider, at whatever
+ * size makes 89 columns fit the window it is docked in — which is two very
+ * different widths, a 45rem column in the corner or the full page along the
+ * bottom edge. A terminal face advances 0.6em per column, so 89 columns need
+ * 53.4em and one column is 1/53.4 = 1.87% of the container; 1.85cqi leaves a
+ * column of slack, and 0.6em is the widest advance the stack can land on —
+ * Consolas is narrower, so it fits with room to spare rather than overflowing.
+ * `overflow: hidden` is the guard for anything stranger than that. The cap is
+ * what keeps the bottom dock from printing the greeting at poster size. */
+@utility console-banner {
+  container-type: inline-size;
+  overflow: hidden;
+  margin-block-end: 0.75rem;
+}
+
+@utility console-banner-word {
+  inline-size: max-content;
+  margin: 0;
+  color: var(--color-console-accent);
+  font-family: var(--font-mono-block);
+  font-size: min(0.75rem, 1.85cqi);
+  line-height: 1;
 }

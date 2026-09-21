@@ -1,90 +1,55 @@
-"use client";
-
-import type { Variants } from "motion/react";
-import * as m from "motion/react-m";
 import type { ReactNode } from "react";
+import { NotebookPageHeader } from "@/components/notebook-primitives";
 import { cn } from "@/lib/utils/cn";
 
 type PortfolioPageProps = {
   title: string;
+  /** Absent on the home Portfolio Page, whose title begins with a greeting. */
+  sectionCode?: string;
+  /** Right-aligned sheet stamp, e.g. "Sheet W · 07 records". */
+  sheetMeta?: string;
+  greeting?: ReactNode;
   introduction?: ReactNode;
   children?: ReactNode;
-  width?: "standard" | "narrow";
+  showHeaderRule?: boolean;
+  width: "collection" | "reading";
 };
 
-const easeOutExpo = [0.16, 1, 0.3, 1] as const;
-
-const headingIn: Variants = {
-  hidden: {
-    opacity: "var(--motion-initial-opacity)",
-    clipPath: "var(--motion-initial-clip)",
-  },
-  visible: {
-    opacity: 1,
-    clipPath: "inset(-10% -10% -10% 0)",
-    transition: {
-      duration: 0.9,
-      ease: easeOutExpo,
-      opacity: { duration: 0.4, ease: "easeOut" },
-    },
-  },
-};
-
-const contentStagger: Variants = {
-  hidden: {},
-  visible: {
-    transition: {
-      delayChildren: 0.6,
-      staggerChildren: 0.12,
-    },
-  },
-};
-
-const introductionIn: Variants = {
-  hidden: {
-    opacity: "var(--motion-initial-opacity)",
-    filter: "var(--motion-initial-filter)",
-  },
-  visible: {
-    opacity: 1,
-    filter: "blur(0px)",
-    transition: {
-      duration: 0.7,
-      ease: easeOutExpo,
-    },
-  },
-};
-
+/**
+ * The shell every Portfolio Page composes.
+ *
+ * The sequence is fixed offsets in CSS (`notebookTiming`), so the shell holds
+ * no state and renders on the server.
+ */
 export function PortfolioPage({
   title,
+  sectionCode,
+  sheetMeta,
+  greeting,
   introduction,
   children,
-  width = "standard",
+  showHeaderRule,
+  width,
 }: PortfolioPageProps) {
   return (
-    <m.div
-      initial="hidden"
-      animate="visible"
-      className="flex flex-col items-center gap-10"
-    >
-      <m.h1
-        variants={headingIn}
-        className="font-heading text-center text-4xl font-semibold leading-none tracking-tight lg:text-6xl"
-      >
-        {title}
-      </m.h1>
-      <m.div
-        variants={contentStagger}
+    <div className="flex w-full flex-col gap-11">
+      <div
         className={cn(
-          "flex w-full flex-col items-center gap-10",
-          width === "narrow" && "mx-auto max-w-xl",
+          "mx-auto flex w-full flex-col gap-11",
+          width === "collection" && "max-w-270",
+          width === "reading" && "max-w-180",
         )}
       >
-        {introduction && (
-          <m.div variants={introductionIn}>{introduction}</m.div>
-        )}
-        {children}
-      </m.div>
-    </m.div>
+        <NotebookPageHeader
+          sectionCode={sectionCode}
+          sheetMeta={sheetMeta}
+          greeting={greeting}
+          title={title}
+          introduction={introduction}
+          showRule={showHeaderRule}
+        />
+        <div className="flex w-full flex-col gap-11">{children}</div>
+      </div>
+    </div>
   );
 }

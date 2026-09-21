@@ -1,121 +1,184 @@
-"use client";
-
-import type { Variants } from "motion/react";
-import * as m from "motion/react-m";
 import Image from "next/image";
-import type { WorkEntry } from "@/content/site-content";
+import {
+  NotebookAnnotation,
+  NotebookCollection,
+  NotebookIndex,
+  NotebookMedia,
+  NotebookMetadata,
+  NotebookRecord,
+  NotebookTag,
+  NotebookTags,
+  NotebookTitle,
+} from "@/components/notebook-primitives";
+import type { WorkEntry, WorkMark } from "@/content/site-content";
+import { cn } from "@/lib/utils/cn";
 
 type WorkPresentationProps = {
   entries: WorkEntry[];
 };
 
-const easeOutExpo = [0.16, 1, 0.3, 1] as const;
+const workGroupStep = 0.08;
+const workRecordPartStep = 0.045;
 
-const collectionIn: Variants = {
-  hidden: {},
-  visible: {
-    transition: {
-      delayChildren: 0.72,
-      staggerChildren: 0.07,
-    },
-  },
+/**
+ * How one mark is drawn inside the media field.
+ *
+ * `sizeClassName` is tuned per mark, because wordmarks of different
+ * proportions only read at the same optical weight at different widths.
+ *
+ * The two optional fields are the mark's answer to the dark theme, and a mark
+ * names at most one of them:
+ *
+ * - `darkClassName` re-inks a single-colour mark with a filter.
+ * - `darkSrc` names a separate cut, for a mark carrying a brand colour a
+ *   filter would destroy — SCAYLE's wordmark has to invert while its green
+ *   accent stays green.
+ *
+ * A mark that survives the inversion as drawn names neither.
+ */
+type MarkRendering = {
+  sizeClassName: string;
+  darkClassName?: string;
+  darkSrc?: WorkMark["src"];
 };
 
-const projectIn: Variants = {
-  hidden: {
-    opacity: "var(--motion-initial-opacity)",
-    scale: "var(--motion-initial-scale)",
+const markRendering: Record<WorkMark["src"], MarkRendering> = {
+  "/marks/levi.svg": { sizeClassName: "w-21/50 max-w-44" },
+  "/marks/harrods.svg": {
+    sizeClassName: "w-11/20 max-w-48",
+    darkClassName: "dark:brightness-0 dark:invert",
   },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: {
-      duration: 0.6,
-      ease: easeOutExpo,
-    },
+  "/marks/fielmann.svg": {
+    sizeClassName: "w-12/25 max-w-44",
+    darkClassName: "dark:brightness-0 dark:invert",
   },
+  "/marks/scayle.svg": {
+    sizeClassName: "w-41/50 max-w-40",
+    darkSrc: "/marks/scayle-dark.svg",
+  },
+  "/marks/about-you.svg": { sizeClassName: "w-41/50 max-w-40" },
+  "/marks/fifa.svg": { sizeClassName: "w-2/5 max-w-40" },
+  "/marks/tennet.svg": { sizeClassName: "w-29/50 max-w-56" },
+  "/marks/fussball-de.svg": { sizeClassName: "w-11/50 max-w-24" },
 };
 
-const projectInteraction = {
-  type: "spring",
-  visualDuration: 0.3,
-  bounce: 0.25,
-} as const;
+/* One mark occupies half a record's media field on the two-column grid, and
+ * the whole of it below that. */
+const markSizes =
+  "(min-width: 1152px) 516px, (min-width: 1024px) calc((100vw - 96px) / 2), (min-width: 768px) calc((100vw - 80px) / 2), calc(100vw - 48px)";
+
+type MarkVariant = {
+  src: WorkMark["src"];
+  className: string | undefined;
+};
+
+/**
+ * The images one mark renders as: one, or — for a mark with its own dark cut —
+ * a light and a dark element of which the theme shows exactly one.
+ *
+ * The pair has to be two elements rather than one swapped `src`: the theme
+ * here is a class on `<html>`, not `prefers-color-scheme`, and an external SVG
+ * loaded through `<img>` can read neither. Both cuts are therefore fetched
+ * (3.5KB each) and CSS hides one.
+ */
+function markVariants({ src }: WorkMark): MarkVariant[] {
+  const { sizeClassName, darkClassName, darkSrc } = markRendering[src];
+
+  if (!darkSrc) return [{ src, className: cn(sizeClassName, darkClassName) }];
+
+  return [
+    { src, className: cn(sizeClassName, "dark:hidden") },
+    { src: darkSrc, className: cn(sizeClassName, "hidden dark:block") },
+  ];
+}
+
+function WorkMarks({
+  marks,
+  loadImmediately,
+}: {
+  marks: WorkMark[];
+  loadImmediately: boolean;
+}) {
+  return (
+    <div
+      className={
+        marks.length > 1
+          ? "grid h-full w-full grid-cols-2 items-center divide-x divide-rule"
+          : "flex h-full w-full items-center justify-center"
+      }
+    >
+      {marks.map((mark) => (
+        <div
+          key={mark.src}
+          className="flex h-full w-full min-w-0 items-center justify-center px-3 sm:px-6"
+        >
+          {markVariants(mark).map((variant) => (
+            <Image
+              key={variant.src}
+              src={variant.src}
+              alt={mark.alt}
+              width={mark.width}
+              height={mark.height}
+              loading={loadImmediately ? "eager" : "lazy"}
+              fetchPriority={loadImmediately ? "high" : undefined}
+              sizes={markSizes}
+              unoptimized
+              className={cn("h-auto object-contain", variant.className)}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function WorkPresentation({ entries }: WorkPresentationProps) {
   return (
-    <m.div
-      initial="hidden"
-      animate="visible"
-      variants={collectionIn}
-      className="grid grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-2"
-    >
+    <NotebookCollection step={workGroupStep}>
       {entries.map((entry, index) => {
-        const loadImmediately = index < 4;
+        const loadImmediately = index < 2;
 
         return (
-          <m.article
-            key={entry.client}
-            variants={projectIn}
-            whileHover={{ y: -4 }}
-            transition={projectInteraction}
-            className="group flex flex-col gap-3"
-          >
-            <a
-              href={entry.url}
-              target="_blank"
-              rel="noreferrer noopener"
-              aria-label={`Visit ${entry.client}`}
+          <NotebookRecord key={entry.client} partStep={workRecordPartStep}>
+            <NotebookIndex
+              filename={entry.marks.map((mark) => mark.filename).join(" + ")}
             >
-              <m.div
-                className="relative overflow-hidden rounded-sm border border-rule"
-                whileHover={{ scale: 1.02 }}
-                transition={projectInteraction}
-              >
-                <Image
-                  src={entry.image.src}
-                  alt={entry.image.alt}
-                  placeholder="blur"
-                  loading={loadImmediately ? "eager" : "lazy"}
-                  fetchPriority={loadImmediately ? "high" : undefined}
-                  sizes="(min-width: 816px) 372px, (min-width: 768px) calc((100vw - 72px) / 2), calc(100vw - 48px)"
-                  quality={85}
-                  className="block w-full"
-                />
-
-                <div
-                  className="absolute inset-0 hidden items-center bg-ink/50 p-5 opacity-0 backdrop-blur-md transition-opacity duration-normal ease-default lg:flex lg:group-hover:opacity-100"
-                  aria-hidden="true"
-                >
-                  <p className="text-sm leading-relaxed text-paper">
-                    {entry.description}
-                  </p>
-                </div>
-              </m.div>
-            </a>
-
-            <div className="flex flex-col gap-1.5">
-              <h2 className="font-heading text-xl leading-tight font-semibold">
-                {entry.client}
-              </h2>
-              <div className="flex flex-wrap gap-1.5">
-                {entry.techStack.map((technology) => (
-                  <span
-                    key={technology}
-                    className="rounded-full border border-rule px-2 py-0.5 text-xs text-ink-muted"
-                  >
-                    {technology}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <p className="text-sm leading-relaxed text-ink-muted lg:hidden">
-              {entry.description}
-            </p>
-          </m.article>
+              {`W–${String(index + 1).padStart(2, "0")}`}
+            </NotebookIndex>
+            <NotebookMedia
+              mediaClassName="border-rule bg-card-glass backdrop-blur-glass"
+              link={
+                entry.url
+                  ? {
+                      href: entry.url,
+                      label: `View ${entry.client} project`,
+                    }
+                  : undefined
+              }
+            >
+              <WorkMarks
+                marks={entry.marks}
+                loadImmediately={loadImmediately}
+              />
+            </NotebookMedia>
+            <NotebookTitle>{entry.client}</NotebookTitle>
+            <NotebookMetadata>{entry.primaryMetadata}</NotebookMetadata>
+            <NotebookAnnotation>
+              <p>{entry.description}</p>
+              {entry.descriptionReview === "owner" && (
+                <p className="label mt-3 inline-flex border border-rule bg-card-glass px-2 py-1 text-ink text-micro backdrop-blur-glass">
+                  Draft description · Owner editorial review
+                </p>
+              )}
+            </NotebookAnnotation>
+            <NotebookTags label={`${entry.client} technologies`}>
+              {entry.techStack.map((technology) => (
+                <NotebookTag key={technology}>{technology}</NotebookTag>
+              ))}
+            </NotebookTags>
+          </NotebookRecord>
         );
       })}
-    </m.div>
+    </NotebookCollection>
   );
 }

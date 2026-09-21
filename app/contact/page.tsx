@@ -9,8 +9,17 @@ export const metadata: Metadata = contact.metadata;
 
 export default function ContactPage() {
   return (
-    <PortfolioPage title={contact.title} width="narrow">
-      <ContactList links={contact.content.entries} />
+    <PortfolioPage
+      title={contact.title}
+      sectionCode={contact.sectionCode}
+      sheetMeta={contact.sheetMeta}
+      width={contact.width}
+      introduction={<p>{contact.content.introduction}</p>}
+    >
+      <ContactList
+        links={contact.content.entries}
+        sectionCode={contact.sectionCode}
+      />
     </PortfolioPage>
   );
 }
