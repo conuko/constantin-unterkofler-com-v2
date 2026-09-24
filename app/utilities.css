@@ -33,6 +33,12 @@
   position: relative;
   padding-block-end: 0.25rem;
 
+  /* A transition runs on the timing of the state it is heading *to*, so each
+   * state names its own. The draw keeps the spring. The retract cannot: the
+   * spring overshoots by ~6.6%, and past zero `scaleX` goes negative — which,
+   * with the origin at the left, mirrors the rule out to the left of the link
+   * for eight frames. It retracts on the entrance curve instead, and faster,
+   * because by then the reader has moved on. */
   &::after {
     content: "";
     position: absolute;
@@ -42,11 +48,12 @@
     background: currentColor;
     scale: 0 1;
     transform-origin: top left;
-    transition: scale var(--transition-duration-normal) var(--ease-spring);
+    transition: scale var(--transition-duration-fast) var(--notebook-ease);
   }
 
   &[data-active="true"]::after {
     scale: 1 1;
+    transition: scale var(--transition-duration-normal) var(--ease-spring);
   }
 
   /* Hover draws the rule only where there is a hover. The active route's
@@ -54,6 +61,7 @@
   @media (hover: hover) {
     &:hover::after {
       scale: 1 1;
+      transition: scale var(--transition-duration-normal) var(--ease-spring);
     }
   }
 }
