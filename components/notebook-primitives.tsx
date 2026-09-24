@@ -339,7 +339,7 @@ export function NotebookAction({
         rel="noreferrer noopener"
         aria-label={label}
         className={cn(
-          "notebook-press label inline-flex min-h-9 items-center gap-2 border border-rule bg-card-glass px-3.5 py-2 text-ink-muted text-micro backdrop-blur-glass transition-colors duration-fast hover:border-ink hover:text-ink",
+          "notebook-press label inline-flex min-h-9 items-center gap-2 border border-rule bg-card-glass px-3.5 py-2 text-ink-muted text-micro backdrop-blur-glass hover:border-ink hover:text-ink",
           className,
         )}
       >
@@ -501,7 +501,7 @@ export function NotebookRecordRowLink({
       rel={external ? "noreferrer noopener" : undefined}
       className={cn(
         recordRowGeometry,
-        "notebook-lift notebook-press origin-left transition-colors duration-fast hover:text-ink focus-visible:text-ink",
+        "notebook-lift notebook-press origin-left hover:text-ink focus-visible:text-ink",
         className,
       )}
     >

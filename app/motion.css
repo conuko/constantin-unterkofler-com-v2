@@ -325,10 +325,17 @@
   }
 }
 
+/* Press owns every transition on the element it lands on, colour included.
+ * This file is unlayered and Tailwind's utilities are layered, so this
+ * shorthand beats a `transition-colors` utility on the same element outright
+ * and would drop its colour fade; say the colour here instead, on the same
+ * 150ms and curve Tailwind's `transition-colors` uses everywhere else. */
 .notebook-press {
   transition:
     translate var(--transition-duration-normal) var(--ease-spring),
-    scale var(--transition-duration-fast) var(--ease-spring);
+    scale var(--transition-duration-fast) var(--ease-spring),
+    color var(--transition-duration-fast) var(--ease-default),
+    border-color var(--transition-duration-fast) var(--ease-default);
 }
 
 .notebook-press:active {
