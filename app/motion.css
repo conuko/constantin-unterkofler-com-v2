@@ -315,8 +315,15 @@
   transition: translate var(--transition-duration-normal) var(--ease-spring);
 }
 
-.notebook-lift:hover {
-  translate: 0 var(--notebook-hover-y);
+/* Hover is gated the way Tailwind v4 gates its own `hover:` variant. A tap on
+ * a touch screen fires `:hover` and leaves it standing until the next tap
+ * elsewhere, which held the menu button enlarged and left a record lifted
+ * after its tile opened a new tab. Press (`:active`) stays ungated: a tap is
+ * a press. */
+@media (hover: hover) {
+  .notebook-lift:hover {
+    translate: 0 var(--notebook-hover-y);
+  }
 }
 
 .notebook-press {
@@ -334,9 +341,11 @@
 }
 
 /* The hover target is the record or link that wraps the field, not the field. */
-.group:hover .notebook-media-field,
-.notebook-media-field:hover {
-  scale: var(--notebook-media-hover-scale);
+@media (hover: hover) {
+  .group:hover .notebook-media-field,
+  .notebook-media-field:hover {
+    scale: var(--notebook-media-hover-scale);
+  }
 }
 
 /* Site Header controls: the same hover-and-press language as records, sized
@@ -345,8 +354,10 @@
   transition: scale var(--transition-duration-normal) var(--ease-spring);
 }
 
-.notebook-control:hover {
-  scale: var(--notebook-control-hover-scale);
+@media (hover: hover) {
+  .notebook-control:hover {
+    scale: var(--notebook-control-hover-scale);
+  }
 }
 
 .notebook-control:active {

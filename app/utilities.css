@@ -45,9 +45,16 @@
     transition: scale var(--transition-duration-normal) var(--ease-spring);
   }
 
-  &:hover::after,
   &[data-active="true"]::after {
     scale: 1 1;
+  }
+
+  /* Hover draws the rule only where there is a hover. The active route's
+   * rule is state, not hover, and stays ungated. */
+  @media (hover: hover) {
+    &:hover::after {
+      scale: 1 1;
+    }
   }
 }
 
