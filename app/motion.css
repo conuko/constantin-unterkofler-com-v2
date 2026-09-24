@@ -173,7 +173,6 @@
   }
 
   .notebook-disclosure,
-  .notebook-disclosure-item,
   .notebook-console {
     transition: none;
   }
@@ -392,22 +391,6 @@
   opacity: 1;
   translate: 0 0;
   scale: 1;
-}
-
-/* Items register in reading order once the panel is open, on the DOM-order
- * stagger above; on close they leave with the panel, undelayed. */
-.notebook-disclosure-item {
-  opacity: var(--motion-initial-opacity);
-  translate: var(--motion-initial-x) 0;
-  transition-property: opacity, translate;
-  transition-duration: 0.24s;
-  transition-timing-function: var(--notebook-ease);
-}
-
-.notebook-disclosure[data-open="true"] .notebook-disclosure-item {
-  opacity: 1;
-  translate: 0 0;
-  transition-delay: var(--notebook-delay, 0s);
 }
 
 /* ═══════════════════════════════════════════════════

@@ -4,13 +4,7 @@ import { Moon, Sun } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
-import {
-  type CSSProperties,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { NavItem } from "@/content/site-content";
 import { notebookDelay, notebookTiming } from "@/lib/notebook-motion";
 import { useScrolled } from "@/lib/use-scrolled";
@@ -209,13 +203,6 @@ type MobileDisclosureProps = {
   pathname: string;
 };
 
-/* The panel's items register in reading order on the same DOM-order stagger
- * the record groups use. */
-const disclosureStagger = {
-  "--notebook-stagger-base": "0.05s",
-  "--notebook-stagger-step": "0.05s",
-} as CSSProperties;
-
 function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
   const [isOpen, setIsOpen] = useState(false);
   const previousPathnameRef = useRef(pathname);
@@ -264,9 +251,9 @@ function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
         data-open={isOpen}
         className="notebook-disclosure absolute top-full right-0 mt-2 min-w-40 origin-top-right border border-rule bg-paper/85 p-4 shadow-lg backdrop-blur-md"
       >
-        <ul data-notebook-stagger style={disclosureStagger}>
+        <ul>
           {items.map((item) => (
-            <li key={item.href} className="notebook-disclosure-item">
+            <li key={item.href}>
               <WayfindingLink
                 item={item}
                 pathname={pathname}
