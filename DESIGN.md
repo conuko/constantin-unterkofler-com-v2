@@ -262,15 +262,15 @@ the data face and left in full ink, with only the labels muted.
 
 ## 7. Controls
 
-| Control            | Treatment                                                                                                                                                  |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Identity mark (CU) | 36px box, unframed, Space Mono 11 / 0.08em. Still has no entrance — it carries FCP/LCP (ADR-0004, ADR-0006).                                               |
-| Theme toggle       | 36px box, unframed, same spring scale-on-hover.                                                                                                            |
-| Disclosure control | 36px box, unframed. Three lines folding into a cross.                                                                                                      |
-| Wayfinding link    | Unchanged: `underline-reveal`, 300ms, `--ease-spring`.                                                                                                     |
-| Action link        | Square, 1px `--color-rule`, glass fill, Space Mono 10 caps. Hover lifts border and text to full ink.                                                       |
-| Console control    | Square, ink-filled, 36px tall. Prompt glyph in annotation colour, `K` in a hairline box. Sits in the Closing Record's right column, above the build stamp. |
-| Disabled           | 1px dashed `--color-rule`, text at 40% ink.                                                                                                                |
+| Control            | Treatment                                                                                                                                                                                                                        |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Identity mark (CU) | 36px box, unframed, Space Mono 11 / 0.08em. Still has no entrance — it carries FCP/LCP (ADR-0004, ADR-0006).                                                                                                                     |
+| Theme toggle       | 36px box, unframed, same spring scale-on-hover.                                                                                                                                                                                  |
+| Disclosure control | 36px box, unframed. Three lines folding into a cross.                                                                                                                                                                            |
+| Wayfinding link    | Unchanged: `underline-reveal`, 300ms, `--ease-spring`.                                                                                                                                                                           |
+| Action link        | Square, 1px `--color-rule`, glass fill, Space Mono 10 caps. Hover lifts border and text to full ink.                                                                                                                             |
+| Console control    | Square, ink-filled, 36px tall. Prompt glyph in annotation colour, `K` in a hairline box. Sits in the Closing Record's right column, above the build stamp. Hovers at 2% (`notebook-control-framed`), not the glyph controls' 5%. |
+| Disabled           | 1px dashed `--color-rule`, text at 40% ink.                                                                                                                                                                                      |
 
 Hit targets stay at or above 36px, and every interactive element keeps
 `notebook-control` / `notebook-press` / `notebook-lift`.

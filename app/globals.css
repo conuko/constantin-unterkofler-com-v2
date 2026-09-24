@@ -13,6 +13,7 @@
   --notebook-hover-y: -2px;
   --notebook-media-hover-scale: 1.008;
   --notebook-control-hover-scale: 1.05;
+  --notebook-framed-control-hover-scale: 1.02;
   --notebook-press-scale: 0.995;
   --console-initial-y: 24px;
   --console-initial-x: 24px;
@@ -55,6 +56,7 @@ body {
     --notebook-hover-y: 0px;
     --notebook-media-hover-scale: 1;
     --notebook-control-hover-scale: 1;
+    --notebook-framed-control-hover-scale: 1;
     --notebook-press-scale: 1;
     --console-initial-y: 0px;
     --console-initial-x: 0px;
