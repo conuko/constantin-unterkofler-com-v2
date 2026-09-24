@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import {
   NotebookLabel,
   NotebookRecordGroup,
@@ -9,6 +10,49 @@ import { notebookSectionSequence } from "@/lib/notebook-motion";
 type SpecificationBlockProps = {
   fields: SpecificationField[];
 };
+
+const stackGroupLabels = new Set([
+  "Frontend and Backend",
+  "DBs",
+  "Infrastructure",
+]);
+
+function renderStackValue(value: string) {
+  return value.split(" · ").map((segment, index) => {
+    const separator = index === 0 ? null : " · ";
+    const delimiterIndex = segment.indexOf(": ");
+
+    if (delimiterIndex === -1) {
+      return (
+        <Fragment key={segment}>
+          {separator}
+          {segment}
+        </Fragment>
+      );
+    }
+
+    const label = segment.slice(0, delimiterIndex);
+
+    if (!stackGroupLabels.has(label)) {
+      return (
+        <Fragment key={segment}>
+          {separator}
+          {segment}
+        </Fragment>
+      );
+    }
+
+    return (
+      <Fragment key={segment}>
+        {index === 0 ? null : <br />}
+        <NotebookLabel as="span" className="text-annotation">
+          {label}:
+        </NotebookLabel>{" "}
+        {segment.slice(delimiterIndex + 2)}
+      </Fragment>
+    );
+  });
+}
 
 /**
  * The home sheet's Specification Block: the four standing facts — role,
@@ -33,7 +77,11 @@ export function SpecificationBlock({ fields }: SpecificationBlockProps) {
       {fields.map((field) => (
         <NotebookRecordRow key={field.label} className="pt-3.5">
           <NotebookLabel>{field.label}</NotebookLabel>
-          <p className="mt-2.5 font-mono text-sm">{field.value}</p>
+          <p className="mt-2.5 font-mono text-sm">
+            {field.label === "Stack"
+              ? renderStackValue(field.value)
+              : field.value}
+          </p>
         </NotebookRecordRow>
       ))}
     </NotebookRecordGroup>

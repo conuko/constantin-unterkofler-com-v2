@@ -125,7 +125,7 @@ describe("Portfolio Content", () => {
       {
         label: "Stack",
         value:
-          "TypeScript · React / Next · Vue / Nuxt · Node.js / NestJS · PostgreSQL / Prisma · Redis · Docker · Tailwind CSS · Turborepo · React Native / Expo · Go",
+          "Frontend and Backend: TypeScript · React · Next.js · Vue · Nuxt · Node.js · NestJS · Tailwind CSS · React Native · Expo · Python · DBs: PostgreSQL · Prisma · Redis · Infrastructure: Docker · Turborepo · AWS Services · GitHub Actions · Datadog",
       },
     ]);
   });
