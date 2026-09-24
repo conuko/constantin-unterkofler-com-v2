@@ -412,38 +412,216 @@
 /* ═══════════════════════════════════════════════════
  * CONSOLE
  *
- * Slides up from the lower edge — or in from the right edge when docked in
- * the right corner — on the notebook's entrance easing. `translate`, not
- * `transform`, for the backdrop reason above.
+ * A window opening out of the corner it docks to, and folding back into it.
+ * It grows from just under full size with a short lift, rather than sliding a
+ * full panel's width: nothing on a desktop arrives from off-screen, and at
+ * 45rem wide even 24px of travel read as the page moving, not the window.
+ * `translate` and `scale`, not `transform`, for the backdrop reason above.
+ *
+ * The two directions are timed apart. Opening is the one the reader watches,
+ * so it gets the steep sheet curve and the room to settle; closing is a
+ * decision already made, so it is shorter and simply gets out of the way.
+ * Opacity always finishes ahead of the movement — a window that is still
+ * half transparent while it grows reads as a ghost, not a surface. Every
+ * value is a transition, so a close that interrupts an open reverses from
+ * wherever the window is instead of snapping back to the start.
+ *
+ * Transitions take their timing from the state being entered, so the closed
+ * rule carries the exit and the open rule carries the entrance.
  *
  * `visibility` is discrete, so it is timed rather than eased. On close it flips
- * to hidden only once the fade has finished, so the panel never blinks out
+ * to hidden only once the exit has finished, so the panel never blinks out
  * mid-exit. On open it flips at once: the prompt is focused the moment the
- * state changes, and an element still computing as hidden refuses focus —
- * which is what left the input unfocused while visibility shared the 300ms.
+ * state changes, and an element still computing as hidden refuses focus.
  * ═══════════════════════════════════════════════════ */
 
 .notebook-console {
+  --console-ease-open: cubic-bezier(0.32, 0.72, 0, 1);
+  --console-ease-close: cubic-bezier(0.23, 1, 0.32, 1);
+  --console-open-duration: 380ms;
+  --console-close-duration: 180ms;
+
   visibility: hidden;
   opacity: 0;
   translate: 0 var(--console-initial-y);
-  transition-property: visibility, opacity, translate;
+  scale: var(--console-initial-scale);
+  /* Along the bottom edge the window rises out of that edge. */
+  transform-origin: 50% 100%;
+  transition-property: visibility, opacity, translate, scale;
   transition-duration:
-    0s, var(--transition-duration-normal), var(--transition-duration-normal);
-  transition-delay: var(--transition-duration-normal), 0s, 0s;
+    0s, calc(var(--console-close-duration) * 0.8),
+    var(--console-close-duration), var(--console-close-duration);
+  transition-delay: var(--console-close-duration), 0s, 0s, 0s;
   transition-timing-function:
-    linear, var(--notebook-ease), var(--notebook-ease);
+    linear, ease, var(--console-ease-close), var(--console-ease-close);
 }
 
+/* In the right corner it opens out of that corner, toward the page. */
 .notebook-console[data-dock="side"] {
-  translate: var(--console-initial-x) 0;
+  transform-origin: 100% 100%;
 }
 
 .notebook-console[data-open="true"] {
   visibility: visible;
   opacity: 1;
   translate: 0 0;
+  scale: 1;
+  transition-duration:
+    0s, calc(var(--console-open-duration) * 0.5), var(--console-open-duration),
+    var(--console-open-duration);
   transition-delay: 0s;
+  transition-timing-function:
+    linear, var(--ease-out), var(--console-ease-open), var(--console-ease-open);
+}
+
+/* ═══════════════════════════════════════════════════
+ * CONSOLE DOCK
+ *
+ * The amber and green lights move the window between the right corner and
+ * the bottom edge, and it changes size on the way — 45rem wide there, the
+ * full width here. Animating that box directly would re-lay out the session
+ * every frame, so the move is a view transition (`moveTo` in
+ * `site-console.tsx`): the browser photographs the window in both docks and
+ * morphs the photographs on the compositor.
+ *
+ * `data-console-redock` is on the root only while a move runs. It takes the
+ * page out of the transition — the page is not photographed, so it stays
+ * live under the window — and names the parts of the window that are, so no
+ * other state change on the site ever becomes a view transition.
+ *
+ * One photograph stretched from a tall column into a wide strip would smear
+ * the text, so the window is taken apart:
+ *
+ * - The frame and the title bar are flat surfaces, so the morphing boxes
+ *   draw them themselves — fill, rule, radius, shadow — and their photographs
+ *   are hidden. A photographed bar is only as wide as the dock it came from,
+ *   and its tint ended in a visible seam partway along the wider one.
+ * - The lights, the title, and the two controls are photographed on their
+ *   own. Each is the same at both widths, so each glides to its new place
+ *   and stays solid the whole way.
+ * - The session is the one part that differs between docks: the text wraps
+ *   at a new width, and a short session sits at the top of the tall column
+ *   but scrolls to its prompt in the strip. The two photographs never line
+ *   up, so they do not crossfade — laid over each other they read as two
+ *   sessions. The old one leaves first, the new one follows, and a 2px blur
+ *   through the handoff makes it read as one session re-flowing. Both are
+ *   cropped by the box, never scaled, and each is pinned to the edge its
+ *   own text sits against — the top for a short session, the bottom for one
+ *   scrolled to its prompt — measured by `moveTo` as it takes each photo.
+ *
+ * The window is moving across a screen it is already on, so this is the one
+ * console motion on an ease-in-out. It is not interruptible: a second move
+ * skips the first to its end state and starts from there.
+ * ═══════════════════════════════════════════════════ */
+
+@keyframes console-dock-session-out {
+  to {
+    opacity: 0;
+    filter: blur(2px);
+  }
+}
+
+@keyframes console-dock-session-in {
+  from {
+    opacity: 0;
+    filter: blur(2px);
+  }
+}
+
+:root[data-console-redock] {
+  --console-dock-duration: 400ms;
+  --console-ease-dock: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+  view-transition-name: none;
+}
+
+:root[data-console-redock] .notebook-console {
+  view-transition-name: site-console;
+}
+
+:root[data-console-redock] .console-chrome {
+  view-transition-name: site-console-chrome;
+}
+
+:root[data-console-redock] .console-lights {
+  view-transition-name: site-console-lights;
+}
+
+:root[data-console-redock] .console-title {
+  view-transition-name: site-console-title;
+}
+
+:root[data-console-redock] .console-sound {
+  view-transition-name: site-console-sound;
+}
+
+:root[data-console-redock] .console-esc {
+  view-transition-name: site-console-esc;
+}
+
+:root[data-console-redock] .console-session {
+  view-transition-name: site-console-session;
+}
+
+:root[data-console-redock]::view-transition-group(*),
+:root[data-console-redock]::view-transition-old(*),
+:root[data-console-redock]::view-transition-new(*) {
+  animation-duration: var(--console-dock-duration);
+  animation-timing-function: var(--console-ease-dock);
+}
+
+:root[data-console-redock]::view-transition-group(site-console) {
+  border-radius: var(--radius-console);
+  background-color: var(--color-console-surface);
+  box-shadow:
+    inset 0 0 0 1px var(--color-console-rule),
+    var(--shadow-console);
+}
+
+:root[data-console-redock]::view-transition-group(site-console-chrome) {
+  /* The bar sits inside the window's 1px rule, so its corners are one
+   * pixel tighter than the window's. */
+  border-top-left-radius: calc(var(--radius-console) - 1px);
+  border-top-right-radius: calc(var(--radius-console) - 1px);
+  background-color: var(--color-console-chrome);
+  box-shadow: inset 0 -1px 0 var(--color-console-rule);
+}
+
+:root[data-console-redock]::view-transition-old(site-console),
+:root[data-console-redock]::view-transition-new(site-console),
+:root[data-console-redock]::view-transition-old(site-console-chrome),
+:root[data-console-redock]::view-transition-new(site-console-chrome) {
+  animation: none;
+  opacity: 0;
+}
+
+:root[data-console-redock]::view-transition-group(site-console-session) {
+  overflow: clip;
+}
+
+:root[data-console-redock]::view-transition-old(site-console-session),
+:root[data-console-redock]::view-transition-new(site-console-session) {
+  height: 100%;
+  object-fit: none;
+}
+
+/* Out over the first 40%, in over 25–85%: a short overlap, so the session is
+ * never empty, and settled before the box is. */
+:root[data-console-redock]::view-transition-old(site-console-session) {
+  object-position: left var(--console-dock-old-anchor, bottom);
+  animation-name: console-dock-session-out;
+  animation-duration: calc(var(--console-dock-duration) * 0.4);
+  animation-timing-function: ease;
+  animation-fill-mode: both;
+}
+
+:root[data-console-redock]::view-transition-new(site-console-session) {
+  object-position: left var(--console-dock-new-anchor, bottom);
+  animation-name: console-dock-session-in;
+  animation-duration: calc(var(--console-dock-duration) * 0.6);
+  animation-delay: calc(var(--console-dock-duration) * 0.25);
+  animation-timing-function: ease;
+  animation-fill-mode: both;
 }
 
 /* ═══════════════════════════════════════════════════

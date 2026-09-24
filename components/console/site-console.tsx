@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { type ReactNode, useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import {
   ConsoleBanner,
   type ConsoleBannerIntro,
@@ -58,6 +59,16 @@ function isEditableTarget(target: EventTarget | null): boolean {
 /* Keep the newest line — and the prompt below it — in view. */
 function followSession(scroller: HTMLDivElement | null) {
   if (scroller) scroller.scrollTop = scroller.scrollHeight;
+}
+
+/* Which edge the session's text sits against: a short session starts at the
+ * top of the window, a long one is scrolled down to its prompt. A dock move
+ * pins each photograph of the session to its own edge, so the text holds
+ * still in the window while the window changes size around it. */
+function sessionAnchor(scroller: HTMLDivElement | null): "top" | "bottom" {
+  return scroller && scroller.scrollHeight > scroller.clientHeight
+    ? "bottom"
+    : "top";
 }
 
 type TrafficLightTone = "close" | "minimize" | "zoom";
@@ -187,6 +198,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
   const panelRef = useRef<HTMLElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const sessionOpenedAtRef = useRef<Date | null>(null);
+  const redockRef = useRef<ViewTransition | null>(null);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -401,14 +413,56 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
 
   /* Clicking a light moves focus onto it; a docked window should still be
    * ready to type into, with the prompt in view once the new width has
-   * reflowed the session. */
+   * reflowed the session.
+   *
+   * The move itself is a view transition: the browser photographs the window
+   * in both docks and morphs one into the other, so the size change never
+   * animates layout. The new dock is committed synchronously inside the
+   * update, and the session is scrolled before the second photograph is
+   * taken, so the morph lands on the prompt instead of jumping to it after.
+   * `data-console-redock` scopes the transition to the console — see
+   * `app/motion.css`. */
   function moveTo(target: ConsoleDock) {
     if (target === dock) return;
 
     playSound(target === "side" ? "dock-side" : "dock-bottom");
-    setDock(target);
+
+    const redock = () => {
+      flushSync(() => setDock(target));
+      followSession(scrollRef.current);
+    };
+
+    if (prefersReducedMotion || !document.startViewTransition) {
+      redock();
+    } else {
+      const root = document.documentElement;
+      root.dataset.consoleRedock = "";
+      root.style.setProperty(
+        "--console-dock-old-anchor",
+        sessionAnchor(scrollRef.current),
+      );
+
+      const transition = document.startViewTransition(() => {
+        redock();
+        root.style.setProperty(
+          "--console-dock-new-anchor",
+          sessionAnchor(scrollRef.current),
+        );
+      });
+      redockRef.current = transition;
+
+      /* A second move skips the first transition, which settles its promise
+       * while the second still needs the names in place. */
+      transition.finished.finally(() => {
+        if (redockRef.current !== transition) return;
+        redockRef.current = null;
+        delete root.dataset.consoleRedock;
+        root.style.removeProperty("--console-dock-old-anchor");
+        root.style.removeProperty("--console-dock-new-anchor");
+      });
+    }
+
     inputRef.current?.focus();
-    window.requestAnimationFrame(() => followSession(scrollRef.current));
   }
 
   /* The block caret is drawn, not native: `caret-transparent` hides the
@@ -434,8 +488,8 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
           : "inset-x-6 bottom-6",
       )}
     >
-      <div className="flex shrink-0 items-center gap-3 border-console-rule border-b bg-console-chrome px-3.5 py-2.5">
-        <div className="group/lights -ml-1 flex">
+      <div className="console-chrome flex shrink-0 items-center gap-3 border-console-rule border-b bg-console-chrome px-3.5 py-2.5">
+        <div className="console-lights group/lights -ml-1 flex">
           <TrafficLight tone="close" label="Close console" onClick={close} />
           <TrafficLight
             tone="minimize"
@@ -452,7 +506,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
             onClick={() => moveTo("side")}
           />
         </div>
-        <p className="mx-auto truncate font-mono text-console-ink-muted text-xs">
+        <p className="console-title mx-auto truncate font-mono text-console-ink-muted text-xs">
           cu@portfolio — ~/constantin-unterkofler.com
         </p>
         <button
@@ -462,14 +516,14 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
             soundsEnabled ? "Turn console sounds off" : "Turn console sounds on"
           }
           aria-pressed={soundsEnabled}
-          className="label -my-2.5 cursor-pointer px-1.5 py-2.5 text-console-ink-muted text-micro"
+          className="console-sound label -my-2.5 cursor-pointer px-1.5 py-2.5 text-console-ink-muted text-micro"
         >
           Sound {soundsEnabled ? "on" : "off"}
         </button>
         <button
           type="button"
           onClick={close}
-          className="label -my-2.5 -mr-1.5 cursor-pointer px-1.5 py-2.5 text-console-ink-muted text-micro"
+          className="console-esc label -my-2.5 -mr-1.5 cursor-pointer px-1.5 py-2.5 text-console-ink-muted text-micro"
         >
           Esc
         </button>

@@ -15,8 +15,8 @@
   --notebook-control-hover-scale: 1.05;
   --notebook-framed-control-hover-scale: 1.02;
   --notebook-press-scale: 0.995;
-  --console-initial-y: 24px;
-  --console-initial-x: 24px;
+  --console-initial-y: 10px;
+  --console-initial-scale: 0.96;
 }
 
 html {
@@ -59,7 +59,7 @@ body {
     --notebook-framed-control-hover-scale: 1;
     --notebook-press-scale: 1;
     --console-initial-y: 0px;
-    --console-initial-x: 0px;
+    --console-initial-scale: 1;
   }
 
   *,
