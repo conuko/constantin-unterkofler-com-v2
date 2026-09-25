@@ -480,6 +480,52 @@
 }
 
 /* ═══════════════════════════════════════════════════
+ * CONSOLE DRAG
+ *
+ * On desktop the title bar drags the window (`onChromePointerDown` in
+ * `site-console.tsx`). The offset is written straight onto `transform`, which
+ * the open and close transitions above never list, so while the pointer is
+ * down the window follows it 1:1 — nothing eases a tracked element.
+ *
+ * `transform` only transitions for the two settles, named on `data-drag`:
+ *
+ * - `release` — a window pulled past an edge (it gives a fifth of the travel
+ *   there) settles back inside on the spring. A drag applied force, so this
+ *   is the one console motion that bounces, and it is quick.
+ * - `home` — the amber or green light brings a dragged window back to the
+ *   dock it already belongs to. A press applies none, so no bounce: it glides
+ *   on the dock move's own curve and duration, so both lights read the same.
+ *
+ * Both are transitions, not keyframes, so grabbing the window mid-settle
+ * picks it up from where it was caught. Under reduced motion neither plays:
+ * the window is simply where it belongs.
+ * ═══════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: no-preference) {
+  .notebook-console[data-open="true"][data-drag="release"] {
+    --console-settle-duration: var(--transition-duration-normal);
+    --console-ease-settle: var(--ease-spring);
+  }
+
+  .notebook-console[data-open="true"][data-drag="home"] {
+    --console-settle-duration: 400ms;
+    --console-ease-settle: cubic-bezier(0.645, 0.045, 0.355, 1);
+  }
+
+  .notebook-console[data-open="true"][data-drag="release"],
+  .notebook-console[data-open="true"][data-drag="home"] {
+    transition-property: visibility, opacity, translate, scale, transform;
+    transition-duration:
+      0s, calc(var(--console-open-duration) * 0.5),
+      var(--console-open-duration), var(--console-open-duration),
+      var(--console-settle-duration);
+    transition-timing-function:
+      linear, var(--ease-out), var(--console-ease-open),
+      var(--console-ease-open), var(--console-ease-settle);
+  }
+}
+
+/* ═══════════════════════════════════════════════════
  * CONSOLE DOCK
  *
  * The amber and green lights move the window between the right corner and

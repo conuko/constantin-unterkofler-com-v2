@@ -2,12 +2,27 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import {
+  type ReactNode,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { flushSync } from "react-dom";
 import {
   ConsoleBanner,
   type ConsoleBannerIntro,
 } from "@/components/console/console-banner";
+import {
+  type ConsoleDragBounds,
+  type ConsoleDragOffset,
+  clampConsoleOffset,
+  consoleDockedOffset,
+  consoleDragBounds,
+  isConsoleDocked,
+  trackConsoleOffset,
+} from "@/components/console/console-drag";
 import {
   type ConsoleDock,
   useSiteConsole,
@@ -69,6 +84,70 @@ function sessionAnchor(scroller: HTMLDivElement | null): "top" | "bottom" {
   return scroller && scroller.scrollHeight > scroller.clientHeight
     ? "bottom"
     : "top";
+}
+
+/* How the dragged window is moving right now, mirrored onto `data-drag` for
+ * the stylesheet. Absent while it rests. */
+type ConsoleDragPhase = "tracking" | "release" | "home";
+
+type ConsoleDragGesture = {
+  pointerId: number;
+  startX: number;
+  startY: number;
+  origin: ConsoleDragOffset;
+  bounds: ConsoleDragBounds;
+};
+
+type ConsoleDragState = {
+  /** Where the window is headed: under the pointer, or where it will settle. */
+  offset: ConsoleDragOffset;
+  /** The pointer that holds the title bar, while one does. */
+  gesture: ConsoleDragGesture | null;
+};
+
+/* The drag offset rides `transform`, which the open and close transitions
+ * leave alone — they move the window with the individual `translate` and
+ * `scale` properties, and the two compose. */
+function writeDragOffset(panel: HTMLElement, offset: ConsoleDragOffset) {
+  panel.style.transform = isConsoleDocked(offset)
+    ? ""
+    : `translate3d(${offset.x}px, ${offset.y}px, 0)`;
+}
+
+function setDragPhase(panel: HTMLElement, phase: ConsoleDragPhase | null) {
+  if (phase) panel.dataset.drag = phase;
+  else delete panel.dataset.drag;
+}
+
+/* Straight back to the dock, with no motion of its own — for when the window
+ * is hidden, or when a view transition is carrying the move. */
+function dropDrag(panel: HTMLElement | null, drag: ConsoleDragState) {
+  drag.gesture = null;
+  drag.offset = consoleDockedOffset;
+  if (!panel) return;
+
+  setDragPhase(panel, null);
+  writeDragOffset(panel, consoleDockedOffset);
+}
+
+/* The window's bounds from its dock, measured on screen with the drag offset
+ * taken back out. */
+function dragBoundsFor(
+  panel: HTMLElement,
+  offset: ConsoleDragOffset,
+): ConsoleDragBounds {
+  const rect = panel.getBoundingClientRect();
+  const root = document.documentElement;
+
+  return consoleDragBounds(
+    {
+      left: rect.left - offset.x,
+      top: rect.top - offset.y,
+      right: rect.right - offset.x,
+      bottom: rect.bottom - offset.y,
+    },
+    { width: root.clientWidth, height: root.clientHeight },
+  );
 }
 
 type TrafficLightTone = "close" | "minimize" | "zoom";
@@ -162,6 +241,10 @@ function TrafficLight({
  * the green light to the right — the same two lights that minimise and zoom a
  * window on the platform the chrome is quoted from.
  *
+ * On desktop the title bar also drags the window anywhere on screen. It stays
+ * where it was put until it closes, or until the amber or green light sends
+ * it back to a dock.
+ *
  * Motion lives in `app/motion.css` (`.notebook-console`): the panel stays in
  * the DOM and transitions between its closed and open states, which gives the
  * exit the same choreography as the entrance without anything watching for
@@ -199,6 +282,12 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const sessionOpenedAtRef = useRef<Date | null>(null);
   const redockRef = useRef<ViewTransition | null>(null);
+  /* The drag never goes through React state: a render per pointer move would
+   * drop frames, so the offset is written straight onto the window. */
+  const dragRef = useRef<ConsoleDragState>({
+    offset: consoleDockedOffset,
+    gesture: null,
+  });
 
   const router = useRouter();
   const pathname = usePathname();
@@ -281,6 +370,42 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
         panel.style.removeProperty(name);
       }
     };
+  }, [isDesktop, isOpen]);
+
+  /* A window dragged away comes back to its dock the next time it opens.
+   * Resetting as it opens rather than as it closes lets the exit play where
+   * the window was, and it lands before paint, so the entrance starts home. */
+  useLayoutEffect(() => {
+    if (isOpen) dropDrag(panelRef.current, dragRef.current);
+  }, [isOpen]);
+
+  /* Keep a dragged window on screen as the viewport changes under it. Below
+   * `lg` there is no dragging, so the window goes home. */
+  useEffect(() => {
+    const panel = panelRef.current;
+    const drag = dragRef.current;
+
+    if (!isOpen || !panel) return;
+
+    if (!isDesktop) {
+      dropDrag(panel, drag);
+      return;
+    }
+
+    const keepOnScreen = () => {
+      if (isConsoleDocked(drag.offset) || drag.gesture) return;
+
+      const settled = clampConsoleOffset(
+        drag.offset,
+        dragBoundsFor(panel, drag.offset),
+      );
+      drag.offset = settled;
+      setDragPhase(panel, null);
+      writeDragOffset(panel, settled);
+    };
+
+    window.addEventListener("resize", keepOnScreen);
+    return () => window.removeEventListener("resize", keepOnScreen);
   }, [isDesktop, isOpen]);
 
   useEffect(() => {
@@ -411,6 +536,101 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
     }
   }
 
+  /* Where the window is on screen right now. Mid-settle that is somewhere
+   * along the transition, not where it is headed, so a window caught in
+   * flight is picked up from where it was caught. */
+  function currentDragOffset(panel: HTMLElement): ConsoleDragOffset {
+    if (panel.dataset.drag !== "release" && panel.dataset.drag !== "home") {
+      return dragRef.current.offset;
+    }
+
+    const transform = getComputedStyle(panel).transform;
+    if (transform === "none") return consoleDockedOffset;
+
+    const matrix = new DOMMatrixReadOnly(transform);
+    return { x: matrix.m41, y: matrix.m42 };
+  }
+
+  /* The title bar is the handle, as on the platform the chrome is quoted
+   * from. The lights and controls inside it stay buttons. */
+  function onChromePointerDown(event: React.PointerEvent<HTMLDivElement>) {
+    const panel = panelRef.current;
+
+    if (!panel || !isDesktop || !event.isPrimary || event.button !== 0) return;
+    if (event.target instanceof Element && event.target.closest("button")) {
+      return;
+    }
+
+    /* No text selection in the title, and the prompt keeps focus. */
+    event.preventDefault();
+
+    const drag = dragRef.current;
+    const origin = currentDragOffset(panel);
+    drag.offset = origin;
+    setDragPhase(panel, "tracking");
+    writeDragOffset(panel, origin);
+
+    drag.gesture = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      origin,
+      bounds: dragBoundsFor(panel, origin),
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  /* While the pointer is down the window is the pointer: no easing, no
+   * transition, one write per move. */
+  function onChromePointerMove(event: React.PointerEvent<HTMLDivElement>) {
+    const panel = panelRef.current;
+    const drag = dragRef.current;
+    const gesture = drag.gesture;
+
+    if (!panel || gesture?.pointerId !== event.pointerId) return;
+
+    const offset = trackConsoleOffset(
+      {
+        x: gesture.origin.x + event.clientX - gesture.startX,
+        y: gesture.origin.y + event.clientY - gesture.startY,
+      },
+      gesture.bounds,
+    );
+    drag.offset = offset;
+    writeDragOffset(panel, offset);
+  }
+
+  /* On release the window stays where it was let go. Only a window pulled
+   * past an edge moves again, settling back inside on the spring — the one
+   * console motion with a bounce, because only a drag applied any force. */
+  function onChromePointerUp(event: React.PointerEvent<HTMLDivElement>) {
+    const panel = panelRef.current;
+    const drag = dragRef.current;
+    const gesture = drag.gesture;
+
+    if (!panel || gesture?.pointerId !== event.pointerId) return;
+
+    const offset = drag.offset;
+    const settled = clampConsoleOffset(offset, gesture.bounds);
+    const overshot = settled.x !== offset.x || settled.y !== offset.y;
+
+    drag.gesture = null;
+    drag.offset = settled;
+    setDragPhase(panel, overshot ? "release" : null);
+    writeDragOffset(panel, settled);
+    inputRef.current?.focus();
+  }
+
+  function onPanelTransitionEnd(event: React.TransitionEvent<HTMLElement>) {
+    if (event.target !== event.currentTarget) return;
+    if (event.propertyName !== "transform") return;
+
+    const phase = event.currentTarget.dataset.drag;
+    if (phase === "release" || phase === "home") {
+      setDragPhase(event.currentTarget, null);
+    }
+  }
+
   /* Clicking a light moves focus onto it; a docked window should still be
    * ready to type into, with the prompt in view once the new width has
    * reflowed the session.
@@ -423,12 +643,33 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
    * `data-console-redock` scopes the transition to the console — see
    * `app/motion.css`. */
   function moveTo(target: ConsoleDock) {
-    if (target === dock) return;
+    const panel = panelRef.current;
+    const drag = dragRef.current;
+    const isAway = !isConsoleDocked(drag.offset);
+
+    if (target === dock && !isAway) return;
 
     playSound(target === "side" ? "dock-side" : "dock-bottom");
 
+    /* The light for the dock the window already belongs to brings a dragged
+     * window home. Pressed, not thrown, so it glides back without a bounce;
+     * the stylesheet drops the glide for a reader who asks for less motion. */
+    if (target === dock) {
+      if (panel) {
+        drag.offset = consoleDockedOffset;
+        setDragPhase(panel, "home");
+        writeDragOffset(panel, consoleDockedOffset);
+      }
+      inputRef.current?.focus();
+      return;
+    }
+
+    /* A dragged window leaves for the other dock from where it was dragged
+     * to: the offset is dropped inside the update, so the old photograph is
+     * taken where the window is and the morph starts there. */
     const redock = () => {
       flushSync(() => setDock(target));
+      dropDrag(panelRef.current, drag);
       followSession(scrollRef.current);
     };
 
@@ -481,6 +722,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
       data-dock={dock}
       data-mobile={!isDesktop}
       aria-label="Site console"
+      onTransitionEnd={onPanelTransitionEnd}
       className={cn(
         "notebook-console fixed z-50 flex flex-col overflow-hidden rounded-console border border-console-rule bg-console-surface shadow-console",
         dock === "side"
@@ -488,7 +730,13 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
           : "inset-x-6 bottom-6",
       )}
     >
-      <div className="console-chrome flex shrink-0 items-center gap-3 border-console-rule border-b bg-console-chrome px-3.5 py-2.5">
+      <div
+        onPointerDown={onChromePointerDown}
+        onPointerMove={onChromePointerMove}
+        onPointerUp={onChromePointerUp}
+        onPointerCancel={onChromePointerUp}
+        className="console-chrome flex shrink-0 select-none items-center gap-3 border-console-rule border-b bg-console-chrome px-3.5 py-2.5 lg:cursor-grab lg:in-data-[drag=tracking]:cursor-grabbing lg:touch-none"
+      >
         <div className="console-lights group/lights -ml-1 flex">
           <TrafficLight tone="close" label="Close console" onClick={close} />
           <TrafficLight

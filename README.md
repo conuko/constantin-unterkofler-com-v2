@@ -1,6 +1,6 @@
 # constantin-unterkofler.com
 
-Personal portfolio of Constantin Unterkofler — Software Engineer based in Berlin, building thoughtful digital products and scalable web experiences.
+My personal portfolio website.
 
 ## Stack
 
@@ -34,11 +34,7 @@ Open [localhost:3000](http://localhost:3000) to view the site.
 
 ## Testing approach
 
-This personal portfolio deliberately has no browser-automation suite. Playwright,
-its browser download, configuration, and acceptance tests were removed because
-their runtime and maintenance cost outweighed their value for this project.
-
-`pnpm test` runs the remaining fast in-process checks. Use the development
+`pnpm test` runs the fast in-process checks. Use the development
 server for focused visual and interaction checks when changing the UI.
 
 ## Structure

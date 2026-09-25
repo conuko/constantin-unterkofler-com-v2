@@ -49,7 +49,7 @@ The shared single-line record anatomy (rule, index, title, metadata, trailing va
 _Avoid_: List item, table row
 
 **Site Console**:
-The dark terminal window, mounted once at the root, that answers the same routes the Site Header does through typed commands. It docks in the right corner on desktop or along the bottom edge, opens with `K` or the control in the Closing Record, and is a second way in, never the only way.
+The dark terminal window, mounted once at the root, that answers the same routes the Site Header does through typed commands. It docks in the right corner on desktop or along the bottom edge — on desktop its title bar also drags it anywhere on screen until it closes or a light sends it back to a dock — opens with `K` or the control in the Closing Record, and is a second way in, never the only way.
 _Avoid_: Terminal, command palette, CLI
 
 **Console Banner**:
