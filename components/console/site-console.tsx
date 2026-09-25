@@ -10,10 +10,11 @@ import {
   useState,
 } from "react";
 import { flushSync } from "react-dom";
+import { ConsoleBanner } from "@/components/console/console-banner";
 import {
-  ConsoleBanner,
   type ConsoleBannerIntro,
-} from "@/components/console/console-banner";
+  nextBannerIntro,
+} from "@/components/console/console-banner-typing";
 import {
   type ConsoleDragBounds,
   type ConsoleDragOffset,
@@ -260,6 +261,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
     soundsEnabled,
     setSoundsEnabled,
     playSound,
+    playTimedSound,
     panelId,
   } = useSiteConsole();
   const isDesktop = useMediaQuery(desktopQuery);
@@ -422,14 +424,10 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
     setLines(bootLines(openedAt));
   }, [isOpen]);
 
-  /* The intro runs on the first open and only there. It cannot run at load —
-   * the window is hidden then, and the banner would have finished typing
-   * before anyone had seen it start. */
   useEffect(() => {
-    if (!isOpen) return;
-
-    const opening = prefersReducedMotion ? "done" : "typing";
-    setIntro((current) => (current === "pending" ? opening : current));
+    setIntro((current) =>
+      nextBannerIntro(current, { isOpen, prefersReducedMotion }),
+    );
   }, [isOpen, prefersReducedMotion]);
 
   /* Follow the session to its newest line, and once more on open, since a
@@ -461,8 +459,8 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
     };
     const result = runCommand(entered, context);
 
-    /* Typing outranks the intro. Whatever the banner has printed by now is
-     * what it keeps, and the session goes back to following its prompt. */
+    /* Typing outranks the intro. The banner prints the rest at once, its
+     * keystrokes stop, and the session goes back to following its prompt. */
     setIntro("done");
     setHistory((current) => [...current, entered]);
     setHistoryCursor(null);
@@ -788,7 +786,11 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
       >
         <div role="log" aria-live="polite" aria-relevant="additions text">
           {hasBanner ? (
-            <ConsoleBanner intro={intro} onIntroEnd={() => setIntro("done")} />
+            <ConsoleBanner
+              intro={intro}
+              onIntroEnd={() => setIntro("done")}
+              onKeystroke={() => playTimedSound("keystroke")}
+            />
           ) : null}
 
           {lines.map((entry) =>

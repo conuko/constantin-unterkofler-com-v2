@@ -3,7 +3,8 @@ export type ConsoleSound =
   | "close"
   | "command"
   | "dock-side"
-  | "dock-bottom";
+  | "dock-bottom"
+  | "keystroke";
 
 /** One vibrating mode of a struck body: its pitch relative to the note, its
  * level relative to the note's, and how long it takes to fall silent. */
@@ -147,6 +148,7 @@ const pitch = {
   e4: 329.63,
   a4: 440,
   e5: 659.25,
+  e6: 1318.51,
 };
 
 /* One key strike, shared by every cue: a few milliseconds of bright contact
@@ -217,7 +219,9 @@ function beep(
  * speaker answers with two soft tones rising a fifth; closing is its mirror,
  * the tones falling before the key lets go. A dock change is a carriage
  * gliding towards where the window lands, ending in a short beep and a
- * strike at the new position. */
+ * strike at the new position. A keystroke, one per character the banner
+ * types, is the same strike on a smaller key, with the few cycles of speaker
+ * click an early terminal gave every key. */
 export const consoleSoundCues: Record<ConsoleSound, ConsoleSoundCue> = {
   open: {
     room: 0.09,
@@ -252,6 +256,21 @@ export const consoleSoundCues: Record<ConsoleSound, ConsoleSoundCue> = {
         startFrequency: 3400,
         endFrequency: 2900,
         q: 1.6,
+      },
+    ],
+  },
+  keystroke: {
+    room: 0.03,
+    variation: { cents: 50, gain: 0.2, timing: 0 },
+    voices: [
+      ...strike(0, pitch.a4, { level: 0.55, decay: 0.022 }),
+      {
+        kind: "tone",
+        at: 0,
+        frequency: pitch.e6,
+        gain: 0.024,
+        attack: 0.0008,
+        partials: speaker(0.011),
       },
     ],
   },
@@ -563,13 +582,35 @@ export class ConsoleSoundEngine {
         void context.resume().catch(() => undefined);
       }
 
-      this.graph ??= buildGraph(context, this.random);
-      scheduleCue(context, this.graph, consoleSoundCues[sound], this.random);
-
-      return true;
+      return this.schedule(context, sound);
     } catch {
       return false;
     }
+  }
+
+  /**
+   * For cues a timer schedules after an interaction, like the banner's
+   * keystrokes: plays only on a context that interaction already started,
+   * and never creates or resumes one, since a timer is not a gesture. A
+   * suspended context would hold such cues and release them together on the
+   * next gesture, so they are dropped instead.
+   */
+  playIfStarted(sound: ConsoleSound): boolean {
+    const context = this.context;
+    if (context?.state !== "running") return false;
+
+    try {
+      return this.schedule(context, sound);
+    } catch {
+      return false;
+    }
+  }
+
+  private schedule(context: ConsoleSoundContext, sound: ConsoleSound) {
+    this.graph ??= buildGraph(context, this.random);
+    scheduleCue(context, this.graph, consoleSoundCues[sound], this.random);
+
+    return true;
   }
 }
 
@@ -578,6 +619,25 @@ const browserSoundEngine = new ConsoleSoundEngine(browserAudioContext);
 /** Plays a cue when Web Audio is available. Interaction code may ignore failure. */
 export function playConsoleSound(sound: ConsoleSound): boolean {
   return browserSoundEngine.play(sound);
+}
+
+export type ConsoleSoundPlayer = {
+  /** Answers a direct interaction; the first one starts the audio. */
+  play: (sound: ConsoleSound) => boolean;
+  /** Follows one from a timer, only on audio an interaction started. */
+  playTimed: (sound: ConsoleSound) => boolean;
+};
+
+/** The reader's preference in front of an engine: while sounds are off,
+ * nothing plays, and no interaction starts the audio either. */
+export function consoleSoundPlayer(
+  enabled: boolean,
+  engine: ConsoleSoundEngine = browserSoundEngine,
+): ConsoleSoundPlayer {
+  return {
+    play: (sound) => enabled && engine.play(sound),
+    playTimed: (sound) => enabled && engine.playIfStarted(sound),
+  };
 }
 
 /** Missing, blocked, or malformed stored values all keep the default enabled. */

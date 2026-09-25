@@ -320,7 +320,12 @@ disabled.
   the platform's own terminal stack instead, which has the glyphs and sets all
   of them on one advance. It carries `role="img"` and the greeting as its
   label, because the greeting is the one thing the boot text does not also
-  say. `clear` takes it with the rest of the session.
+  say. On the first open it types itself a character at a time, 80ms apart
+  after a 260ms lead-in, and every visible character lands with the console's
+  keystroke — the command's key strike on a smaller key — in the same
+  animation frame. Closing the window or typing a command prints the rest at
+  once; reduced motion prints it whole from the start, silently. `clear`
+  takes it with the rest of the session.
 - **Size** — bottom dock: the body grows from a 13rem floor to
   `min(52vh, 26rem)`, then scrolls. Side dock: a fixed column, 45rem wide and
   `min(72vh, 40rem)` tall, the body filling it.

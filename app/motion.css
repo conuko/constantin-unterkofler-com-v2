@@ -678,38 +678,20 @@
 /* ═══════════════════════════════════════════════════
  * CONSOLE BANNER
  *
- * The greeting types itself across the window, left to right, the first time
- * the console opens.
+ * The greeting types itself across the window, a character at a time, the
+ * first time the console opens, each character with a keystroke.
  *
- * It is a clip wipe, and `steps()` is what makes it read as typing rather
- * than as a wipe. Eased, the clip edge slides through the middle of a glyph
- * and leaves half a block standing for a frame; stepped once per column, the
- * edge only ever lands on a character cell, so each block arrives whole. The
- * step count is the art's own column count and comes inline from the
- * component — it is data about the art, not a timing, which is why it is the
- * one number here that is not written in this file.
- *
- * `backwards` fill holds the banner at its first keyframe, fully clipped,
- * until the animation starts, so it never prints in full and is then typed
- * over.
+ * It is a clip, and nothing here animates it. The clip's right edge sits on
+ * the last column typed so far, which the typing writes onto the element as
+ * `--console-banner-typed` in the same animation frame that plays the
+ * character's keystroke (`console-banner-typing.ts`). A CSS clock would run
+ * beside the audio's and drift from it; one clock cannot. The edge only ever
+ * lands between glyphs, so each character arrives whole. Both column counts
+ * are data about the art, not timings, which is why they come from the
+ * component rather than being written in this file.
  *
  * Like the console itself, this is behind an open and never runs at load.
  * ═══════════════════════════════════════════════════ */
-
-@keyframes console-banner-type {
-  from {
-    clip-path: inset(0 100% 0 0);
-  }
-  to {
-    clip-path: inset(0 0% 0 0);
-  }
-}
-
-.console-banner {
-  /* One sweep across twelve characters. Slower and the reader is waiting on a
-   * greeting; faster and the stepping stops registering as typing at all. */
-  --console-banner-duration: 1.1s;
-}
 
 /* Before the first open the window is hidden, but the banner must already be
  * clipped: the intro starts from an effect, a frame behind `isOpen`, and an
@@ -719,19 +701,23 @@
 }
 
 .console-banner[data-intro="typing"] .console-banner-word {
-  animation-name: console-banner-type;
-  animation-duration: var(--console-banner-duration);
-  animation-fill-mode: backwards;
-  animation-timing-function: steps(var(--console-banner-columns, 90));
+  clip-path: inset(
+    0
+      calc(
+        100% -
+        100% *
+        var(--console-banner-typed, 0) /
+        var(--console-banner-columns)
+      )
+      0 0
+  );
 }
 
 /* No typing, and no clip either: the banner is simply already printed. The
- * global reduced-motion reset zeroes the duration through a `*` selector,
- * which loses to the class above on specificity — say it again where it
- * lands, as the entrance rules do. */
+ * intro never starts typing for a reader who asks for less motion; this is
+ * the guard for a preference that changes while it types. */
 @media (prefers-reduced-motion: reduce) {
   .console-banner[data-intro] .console-banner-word {
-    animation: none;
     clip-path: none;
   }
 }

@@ -6,6 +6,7 @@ import {
   type ConsoleSoundNoise,
   type ConsoleSoundTone,
   consoleSoundCues,
+  consoleSoundPlayer,
   consoleSoundPreferenceKey,
   consoleSoundsEnabled,
   persistConsoleSoundsEnabled,
@@ -203,6 +204,22 @@ describe("Console sound", () => {
     expect(lastStop([...oscillators, ...bursts]) - 4).toBeLessThanOrEqual(0.15);
   });
 
+  test("keeps a keystroke shorter and quieter than a command", () => {
+    const play = (sound: ConsoleSound) => {
+      const { context, noises: bursts, oscillators } = mockContext();
+      new ConsoleSoundEngine(
+        () => context,
+        () => 1,
+      ).play(sound);
+      return lastStop([...oscillators, ...bursts]) - 4;
+    };
+    const loudest = (sound: ConsoleSound) =>
+      Math.max(...consoleSoundCues[sound].voices.map((voice) => voice.gain));
+
+    expect(play("keystroke")).toBeLessThan(play("command"));
+    expect(loudest("keystroke")).toBeLessThan(loudest("command"));
+  });
+
   test("lets no cue ring on for longer than a second", () => {
     for (const sound of sounds) {
       const { context, noises: bursts, oscillators } = mockContext();
@@ -260,26 +277,29 @@ describe("Console sound", () => {
     expect(sideAir.panTo).toBeGreaterThan(sideAir.pan ?? 0);
   });
 
-  test("varies each play within the cue's narrow range", () => {
-    const frequencyAt = (random: number) => {
-      const { context, oscillators } = mockContext();
-      new ConsoleSoundEngine(
-        () => context,
-        () => random,
-      ).play("command");
-      return firstFrequency(oscillators[0]);
-    };
+  test.each(["command", "keystroke"] as const)(
+    "varies each %s within the cue's narrow range",
+    (sound) => {
+      const frequencyAt = (random: number) => {
+        const { context, oscillators } = mockContext();
+        new ConsoleSoundEngine(
+          () => context,
+          () => random,
+        ).play(sound);
+        return firstFrequency(oscillators[0]);
+      };
 
-    const { cents } = consoleSoundCues.command.variation;
-    const low = frequencyAt(0);
-    const centre = frequencyAt(0.5);
-    const high = frequencyAt(1);
+      const { cents } = consoleSoundCues[sound].variation;
+      const low = frequencyAt(0);
+      const centre = frequencyAt(0.5);
+      const high = frequencyAt(1);
 
-    expect(low).toBeLessThan(centre);
-    expect(high).toBeGreaterThan(centre);
-    expect(1200 * Math.log2(high / centre)).toBeCloseTo(cents);
-    expect(1200 * Math.log2(centre / low)).toBeCloseTo(cents);
-  });
+      expect(low).toBeLessThan(centre);
+      expect(high).toBeGreaterThan(centre);
+      expect(1200 * Math.log2(high / centre)).toBeCloseTo(cents);
+      expect(1200 * Math.log2(centre / low)).toBeCloseTo(cents);
+    },
+  );
 
   test("plays centred where the browser has no stereo panner", () => {
     const { context, oscillators, panners } = mockContext("running", {
@@ -313,6 +333,69 @@ describe("Console sound", () => {
 
     expect(engine.play("command")).toBe(true);
     expect(context.resume).toHaveBeenCalledOnce();
+  });
+
+  test("never starts audio from a timed cue", () => {
+    const { context } = mockContext();
+    const createContext = vi.fn(() => context);
+    const engine = new ConsoleSoundEngine(createContext);
+
+    expect(engine.playIfStarted("keystroke")).toBe(false);
+    expect(createContext).not.toHaveBeenCalled();
+  });
+
+  test("plays a timed cue on the audio an interaction started", () => {
+    const { context, oscillators } = mockContext();
+    const createContext = vi.fn(() => context);
+    const engine = new ConsoleSoundEngine(createContext, () => 0.5);
+
+    engine.play("open");
+    const opened = oscillators.length;
+
+    expect(engine.playIfStarted("keystroke")).toBe(true);
+    expect(createContext).toHaveBeenCalledOnce();
+    expect(oscillators.length - opened).toBe(
+      tones("keystroke").flatMap((tone) => tone.partials).length,
+    );
+  });
+
+  test("drops a timed cue rather than banking it on suspended audio", () => {
+    const { context, oscillators } = mockContext("suspended");
+    const engine = new ConsoleSoundEngine(() => context);
+
+    engine.play("open");
+    const opened = oscillators.length;
+
+    expect(engine.playIfStarted("keystroke")).toBe(false);
+    expect(oscillators).toHaveLength(opened);
+    expect(context.resume).toHaveBeenCalledOnce();
+  });
+
+  test("plays nothing, and starts no audio, while sounds are off", () => {
+    const { context } = mockContext();
+    const createContext = vi.fn(() => context);
+    const muted = consoleSoundPlayer(
+      false,
+      new ConsoleSoundEngine(createContext),
+    );
+
+    expect(muted.play("open")).toBe(false);
+    expect(muted.playTimed("keystroke")).toBe(false);
+    expect(createContext).not.toHaveBeenCalled();
+  });
+
+  test("silences keystrokes as soon as sounds are turned off", () => {
+    const { context, oscillators } = mockContext();
+    const engine = new ConsoleSoundEngine(() => context);
+
+    expect(consoleSoundPlayer(true, engine).play("open")).toBe(true);
+    expect(consoleSoundPlayer(true, engine).playTimed("keystroke")).toBe(true);
+    const typed = oscillators.length;
+
+    expect(consoleSoundPlayer(false, engine).playTimed("keystroke")).toBe(
+      false,
+    );
+    expect(oscillators).toHaveLength(typed);
   });
 
   test("rebuilds the room for a new context once the old one has closed", () => {

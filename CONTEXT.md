@@ -53,5 +53,5 @@ The dark terminal window, mounted once at the root, that answers the same routes
 _Avoid_: Terminal, command palette, CLI
 
 **Console Banner**:
-The greeting in block capitals — "Hello there!" — that the Site Console prints above its boot text, typed left to right the first time the window opens. It is the console's motd, not its heading: it welcomes the reader rather than naming the site, and `clear` takes it with the rest of the session.
+The greeting in block capitals — "Hello there!" — that the Site Console prints above its boot text, typed a character at a time, each with a keystroke, the first time the window opens. It is the console's motd, not its heading: it welcomes the reader rather than naming the site, and `clear` takes it with the rest of the session.
 _Avoid_: ASCII art, logo, splash screen, hero
