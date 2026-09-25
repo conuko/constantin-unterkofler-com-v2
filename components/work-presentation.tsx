@@ -56,7 +56,10 @@ const markRendering: Record<WorkMark["src"], MarkRendering> = {
   "/marks/about-you.svg": { sizeClassName: "w-41/50 max-w-40" },
   "/marks/fifa.svg": { sizeClassName: "w-2/5 max-w-40" },
   "/marks/tennet.svg": { sizeClassName: "w-29/50 max-w-56" },
-  "/marks/fussball-de.svg": { sizeClassName: "w-11/50 max-w-24" },
+  "/marks/sb-migrate.svg": {
+    sizeClassName: "w-1/5 max-w-24",
+    darkClassName: "dark:brightness-0 dark:invert",
+  },
 };
 
 /* One mark occupies half a record's media field on the two-column grid, and

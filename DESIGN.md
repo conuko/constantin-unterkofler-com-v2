@@ -217,8 +217,8 @@ which:
 
 | Answer       | For                                                                           | How                                                                        |
 | ------------ | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| Nothing      | Marks legible on either ground — Levi's, FIFA, TenneT, fussball.de, ABOUT YOU | One image, no dark handling.                                               |
-| A filter     | Single-colour wordmarks — Harrods, Fielmann                                   | `dark:brightness-0 dark:invert` re-inks the whole mark.                    |
+| Nothing      | Marks legible on either ground — Levi's, FIFA, TenneT, ABOUT YOU              | One image, no dark handling.                                               |
+| A filter     | Single-colour marks — Harrods, Fielmann, SB Migrate                           | `dark:brightness-0 dark:invert` re-inks the whole mark.                    |
 | A second cut | Marks with a brand accent — SCAYLE                                            | `darkSrc` names a file whose wordmark is inverted and whose accent is not. |
 
 The third case exists because a filter is all-or-nothing: inverting SCAYLE's

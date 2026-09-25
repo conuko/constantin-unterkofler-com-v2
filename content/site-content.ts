@@ -306,11 +306,35 @@ const bookEntries: BookEntry[] = [
 
 const workEntries: WorkEntry[] = [
   {
+    client: "Fielmann",
+    url: "https://www.fielmann.de/",
+    primaryMetadata: "Commerce platform",
+    description:
+      "Set up Fielmann's e-commerce platform for Germany, Austria and Switzerland and kept it running in production for more than a year and a half as part of their engineering team, with one goal: bring the in-store experience of glasses, contact lenses and prescriptions into a software product. Later helped launch it in a new market with Fielmann Italy.",
+    techStack: [
+      "Vue 3",
+      "Nuxt 3",
+      "TypeScript",
+      "Storyblok",
+      "SCAYLE Commerce Engine",
+      "Storefront SDK",
+    ],
+    marks: [
+      {
+        src: "/marks/fielmann.svg",
+        filename: "fielmann.svg",
+        alt: "Fielmann black wordmark",
+        width: 115,
+        height: 56,
+      },
+    ],
+  },
+  {
     client: "Levi's",
     url: "https://www.scayle.com/customers/levi-strauss/",
     primaryMetadata: "Commerce migration",
     description:
-      "Currently working within SCAYLE and Levi's engineering teams to migrate the legacy Vue 2 / Hybris architecture into a modern Vue 3 / Nuxt 4 e-commerce application powered by the SCAYLE Commerce Engine.",
+      "Moving Levi's storefront off a legacy Vue 2 / Hybris stack onto Vue 3 / Nuxt 4 and the SCAYLE Commerce Engine, working inside SCAYLE's and Levi's engineering teams. A migration only succeeds if shoppers never notice it, so the work is as much about sequencing and feature parity as it is about new code.",
     techStack: [
       "Vue 3",
       "Nuxt 4",
@@ -331,11 +355,60 @@ const workEntries: WorkEntry[] = [
     ],
   },
   {
+    client: "SB Migrate",
+    url: "https://github.com/jungvonmatt/storyblok-migrations",
+    primaryMetadata: "Open-source CLI",
+    description:
+      "Built SB Migrate for Fielmann: a CLI that extends Storyblok's own with type-safe, version-controlled migrations for schemas and content, including automatic rollbacks. Fielmann used it to move the huge schema library of its DACH shop to the new Fielmann Italy shop. It was later released as an open-source npm package.",
+    techStack: [
+      "TypeScript",
+      "Node.js",
+      "Commander.js",
+      "Inquirer.js",
+      "Storyblok CLI",
+      "Storyblok API",
+      "Vitest",
+    ],
+    marks: [
+      {
+        src: "/marks/sb-migrate.svg",
+        filename: "sb-migrate.svg",
+        alt: "SB Migrate terminal prompt mark",
+        width: 240,
+        height: 160,
+      },
+    ],
+  },
+  {
+    client: "TenneT",
+    url: "https://www.tennet.eu/",
+    primaryMetadata: "Web platform",
+    description:
+      "Worked across the stack on TenneT's corporate website and its Transparency Data API: a Turborepo monorepo for the site, and a NestJS service on PostgreSQL with a Swagger / OpenAPI specification as the contract for everyone consuming the data.",
+    techStack: [
+      "Next.js",
+      "TypeScript",
+      "Turborepo",
+      "NestJS",
+      "PostgreSQL",
+      "Swagger / OpenAPI",
+    ],
+    marks: [
+      {
+        src: "/marks/tennet.svg",
+        filename: "tennet.svg",
+        alt: "TenneT blue-and-green wordmark",
+        width: 154,
+        height: 29,
+      },
+    ],
+  },
+  {
     client: "Harrods",
     url: "https://www.scayle.com/customers/harrods/",
     primaryMetadata: "Commerce delivery",
     description:
-      "Worked within the SCAYLE and Harrods engineering teams to deliver complex new features, help with shaping the software architecture, and prepare a full client handover — including technical workshops, architectural documentation, and knowledge transfer.",
+      "Built complex new features with SCAYLE's and Harrods' engineering teams and helped shape the storefront's architecture. Then made sure Harrods' own team could run it without us: technical workshops, architecture documentation and a full knowledge transfer.",
     techStack: [
       "Vue 3",
       "Nuxt 3",
@@ -356,35 +429,11 @@ const workEntries: WorkEntry[] = [
     ],
   },
   {
-    client: "Fielmann",
-    url: "https://www.scayle.com/case-studies/fielmann/",
-    primaryMetadata: "Commerce platform",
-    description:
-      "Set up and maintained the e-commerce platform across DACH, embedded in the client engineering team for over 1.5 years. Also supported the launch of the Fielmann Italy shop.",
-    techStack: [
-      "Vue 3",
-      "Nuxt 3",
-      "TypeScript",
-      "Storyblok",
-      "SCAYLE Commerce Engine",
-      "Storefront SDK",
-    ],
-    marks: [
-      {
-        src: "/marks/fielmann.svg",
-        filename: "fielmann.svg",
-        alt: "Fielmann black wordmark",
-        width: 115,
-        height: 56,
-      },
-    ],
-  },
-  {
     client: "SCAYLE / ABOUT YOU",
     url: "https://www.scayle.com/",
     primaryMetadata: "Commerce platform",
     description:
-      "Built and maintained commerce storefronts on the SCAYLE Commerce Engine across multiple client projects, contributing reusable component patterns, CMS integrations, and shared tooling used across delivery teams.",
+      "Built and maintained storefronts on the SCAYLE Commerce Engine across several client projects. Helped turn the problems that kept coming back into reusable component patterns, CMS integrations and shared tooling, so other delivery teams could start from solved problems instead of rebuilding them.",
     techStack: [
       "Vue 3",
       "Nuxt 3",
@@ -415,7 +464,7 @@ const workEntries: WorkEntry[] = [
     url: "https://publications.fifa.com/en/talent-development/",
     primaryMetadata: "Web platform",
     description:
-      "Contributed to the FIFA Publications platform — a multilingual content hub delivering global reports and studies, with performance-optimized AMP pages and a Contentful-powered content pipeline.",
+      "Contributed to FIFA Publications, a multilingual hub for FIFA's global reports and studies: performance-optimized AMP pages that get readers to the content fast, fed by a Contentful pipeline that editors publish through.",
     techStack: ["JavaScript", "AMP", "Contentful", "Python"],
     marks: [
       {
@@ -424,53 +473,6 @@ const workEntries: WorkEntry[] = [
         alt: "FIFA blue wordmark",
         width: 677,
         height: 223,
-      },
-    ],
-  },
-  {
-    client: "TenneT",
-    url: "https://www.tennet.eu/",
-    primaryMetadata: "Web platform",
-    description:
-      "Turborepo-based monorepo powering TenneT's corporate website, together with a NestJS powered Transparency Data API, a PostgreSQL database, and a Swagger / OpenAPI specification for the API.",
-    techStack: [
-      "Next.js",
-      "TypeScript",
-      "Turborepo",
-      "NestJS",
-      "PostgreSQL",
-      "Swagger / OpenAPI",
-    ],
-    marks: [
-      {
-        src: "/marks/tennet.svg",
-        filename: "tennet.svg",
-        alt: "TenneT blue-and-green wordmark",
-        width: 154,
-        height: 29,
-      },
-    ],
-  },
-  {
-    client: "fussball.de",
-    url: "https://next.fussball.de/",
-    primaryMetadata: "Platform migration",
-    description:
-      "Migrating a legacy platform into a modern Next.js application within a monorepo architecture using Turborepo for the shared code and the site code for the Fussball.de and BFV.de sites.",
-    techStack: [
-      "Next.js",
-      "TypeScript",
-      "Turborepo",
-      "CSS Modules",
-      "Storybook",
-    ],
-    marks: [
-      {
-        src: "/marks/fussball-de.svg",
-        filename: "fussball-de.svg",
-        alt: "fussball.de green field mark",
-        width: 545,
-        height: 360,
       },
     ],
   },
@@ -591,7 +593,7 @@ const portfolioPages = {
     },
     content: {
       introduction:
-        "At Jung von Matt, I work embedded in client engineering teams to build and scale digital products and solve complex commerce and platform challenges. My role often spans the early technical work, architecture, implementation, and handover. Below are a few projects I have contributed to for international brands including BMW, FIFA, Harrods, Levi's, SCAYLE / ABOUT YOU, Fielmann, and the DFB.",
+        "At Jung von Matt, I join client engineering teams and work on their product as if it were our own. My part usually spans the first technical decisions and architecture, building across the stack, and keeping it running in production until the client team takes over. I build for what makes people come back: speed, reliability and a clear interface. Below are projects for international brands including BMW, FIFA, Harrods, Levi's, SCAYLE / ABOUT YOU, Fielmann and the DFB.",
       entries: workEntries,
     },
   },
