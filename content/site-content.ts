@@ -100,7 +100,7 @@ const identity = {
   name: "Constantin Unterkofler",
   shortName: "CU",
   description:
-    "Personal portfolio of Constantin Unterkofler, a software engineer in Berlin building products end to end with a designer's eye for detail.",
+    "Personal portfolio of Constantin Unterkofler, a Senior Software Engineer in Berlin building products end to end with a designer's eye for detail.",
 };
 
 const closingRecord = {
@@ -109,7 +109,7 @@ const closingRecord = {
 };
 
 const aboutIntroduction = [
-  "I’m a software engineer who works best close to the people using what I build. At Jung von Matt, I partner closely with client teams from early discovery and technical direction through hands-on delivery and production handover, turning complex requirements into clear product decisions and scalable digital products.",
+  "I’m a Senior Software Engineer who works best close to the people using what I build. At Jung von Matt, I partner closely with client teams from early discovery and technical direction through hands-on delivery and production handover, turning complex requirements into clear product decisions and scalable digital products.",
   "I care about the details that decide whether software feels right: how fast it responds, how it moves, and whether everyone can use it.",
   "Italian-German, I grew up in Bolzano and studied Philosophy and Cultural Studies before Software Engineering. That path still shapes how I ask questions, connect perspectives and turn an unclear problem into a clear decision.",
 ];
@@ -511,14 +511,17 @@ const portfolioPages = {
     content: {
       greetings,
       introduction: {
-        role: "Software Engineer",
+        role: "Senior Software Engineer",
         organization: {
           name: "Jung von Matt",
           url: "https://www.jvm.com/",
         },
       },
       specification: [
-        { label: "Role", value: "Software Engineer, Jung von Matt TECH" },
+        {
+          label: "Role",
+          value: "Senior Software Engineer, Jung von Matt TECH",
+        },
         { label: "Based", value: "Berlin · 52.5200° N, 13.4050° E" },
         {
           label: "Focus",
@@ -543,7 +546,7 @@ const portfolioPages = {
     metadata: {
       title: "About me",
       description:
-        "Biography and CV for Constantin Unterkofler, Software Engineer based in Berlin.",
+        "Biography and CV for Constantin Unterkofler, Senior Software Engineer based in Berlin.",
     },
     primaryWayfinding: {
       label: "About me",
@@ -593,7 +596,7 @@ const portfolioPages = {
     },
     content: {
       introduction:
-        "At Jung von Matt, I join client engineering teams and work on their product as if it were our own. My part usually spans the first technical decisions and architecture, building across the stack, and keeping it running in production until the client team takes over. I build for what makes people come back: speed, reliability and a clear interface. Below are projects for international brands including BMW, FIFA, Harrods, Levi's, SCAYLE / ABOUT YOU, Fielmann and the DFB.",
+        "At Jung von Matt, I join client engineering teams and work on their product as if it were our own. My part usually spans the first technical decisions and architecture, building across the stack, and keeping it running in production until the client team takes over. I build for what makes people come back: speed, reliability and a clear interface. Below are projects for international brands including FIFA, Harrods, Levi's, SCAYLE / ABOUT YOU and Fielmann.",
       entries: workEntries,
     },
   },

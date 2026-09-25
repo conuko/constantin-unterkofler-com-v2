@@ -115,7 +115,7 @@ describe("Portfolio Content", () => {
 
   test("states the home Specification Block fields in reading order", () => {
     expect(portfolioContent.pages.home.content.specification).toEqual([
-      { label: "Role", value: "Software Engineer, Jung von Matt TECH" },
+      { label: "Role", value: "Senior Software Engineer, Jung von Matt TECH" },
       { label: "Based", value: "Berlin · 52.5200° N, 13.4050° E" },
       {
         label: "Focus",
@@ -164,7 +164,7 @@ describe("Portfolio Content", () => {
     const { home, about, contact, play } = portfolioContent.pages;
 
     expect(home.content.introduction).toEqual({
-      role: "Software Engineer",
+      role: "Senior Software Engineer",
       organization: {
         name: "Jung von Matt",
         url: "https://www.jvm.com/",
