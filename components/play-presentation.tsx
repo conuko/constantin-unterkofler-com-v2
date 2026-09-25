@@ -17,20 +17,14 @@ type PlayPresentationProps = {
   entries: TrackEntry[];
 };
 
-const playGroupStep = 0.07;
-const playRecordPartStep = 0.04;
-
 export function PlayPresentation({ entries }: PlayPresentationProps) {
   return (
-    <NotebookCollection step={playGroupStep}>
+    <NotebookCollection>
       {entries.map((entry, index) => {
         const loadImmediately = index < 2;
 
         return (
-          <NotebookRecord
-            key={`${entry.title}-${entry.artist}`}
-            partStep={playRecordPartStep}
-          >
+          <NotebookRecord key={`${entry.title}-${entry.artist}`}>
             <NotebookIndex>{`P–${String(index + 1).padStart(2, "0")}`}</NotebookIndex>
             <NotebookMedia mediaClassName="aspect-square p-0 sm:p-0">
               <Image

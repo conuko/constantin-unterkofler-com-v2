@@ -4,13 +4,7 @@ import { Moon, Sun } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
-import {
-  type CSSProperties,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { NavItem } from "@/content/site-content";
 import { notebookDelay, notebookTiming } from "@/lib/notebook-motion";
 import { useScrolled } from "@/lib/use-scrolled";
@@ -125,6 +119,9 @@ type DesktopWayfindingProps = {
   pathname: string;
 };
 
+/* The links land in step with the page header on the first load: the first
+ * with the page title, the next with the introduction, the last with the
+ * header rule. */
 function DesktopWayfinding({ items, pathname }: DesktopWayfindingProps) {
   return (
     <nav aria-label="Primary">
@@ -209,13 +206,6 @@ type MobileDisclosureProps = {
   pathname: string;
 };
 
-/* The panel's items register in reading order on the same DOM-order stagger
- * the record groups use. */
-const disclosureStagger = {
-  "--notebook-stagger-base": "0.05s",
-  "--notebook-stagger-step": "0.05s",
-} as CSSProperties;
-
 function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
   const [isOpen, setIsOpen] = useState(false);
   const previousPathnameRef = useRef(pathname);
@@ -264,9 +254,9 @@ function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
         data-open={isOpen}
         className="notebook-disclosure absolute top-full right-0 mt-2 min-w-40 origin-top-right border border-rule bg-paper/85 p-4 shadow-lg backdrop-blur-md"
       >
-        <ul data-notebook-stagger style={disclosureStagger}>
+        <ul>
           {items.map((item) => (
-            <li key={item.href} className="notebook-disclosure-item">
+            <li key={item.href}>
               <WayfindingLink
                 item={item}
                 pathname={pathname}
@@ -321,11 +311,17 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
           <IdentityMark shortName={identity.shortName} />
         </div>
 
-        <div
-          style={notebookDelay(notebookTiming.siteHeaderControls)}
-          className="notebook-in-part hidden flex-col items-end gap-2.5 lg:flex"
-        >
-          <AppearanceControl />
+        {/* The column itself has no entrance; the toggle and each link take
+         * their own. When the column settled too, every link inside it rode
+         * two entrances at once — twice the travel, faded twice over — and
+         * arrived on a different footing from everything else on the sheet. */}
+        <div className="hidden flex-col items-end gap-2.5 lg:flex">
+          <div
+            style={notebookDelay(notebookTiming.siteHeaderControls)}
+            className="notebook-in-part"
+          >
+            <AppearanceControl />
+          </div>
           <DesktopWayfinding items={primaryWayfinding} pathname={pathname} />
         </div>
 

@@ -22,9 +22,10 @@ language rendered with drafting tools.
    is a window rather than a page element.
 4. **One annotation colour.** Blue marks measurement. It never carries body
    copy, never fills a surface, and never appears twice in the same role as ink.
-5. **Motion is unchanged.** Every timing, easing curve, and stagger from
-   `app/motion.css` and `app/theme.css` survives this change verbatim. See
-   ADR-0004 for why the choreography is CSS.
+5. **Motion keeps its curves.** Every easing curve and duration in
+   `app/motion.css` and `app/theme.css` survived this change verbatim. Entrance
+   offsets have since moved onto one 40ms beat (ADR-0008). See ADR-0004 for why
+   the choreography is CSS.
 
 ---
 
@@ -216,8 +217,8 @@ which:
 
 | Answer       | For                                                                           | How                                                                        |
 | ------------ | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| Nothing      | Marks legible on either ground — Levi's, FIFA, TenneT, fussball.de, ABOUT YOU | One image, no dark handling.                                               |
-| A filter     | Single-colour wordmarks — Harrods, Fielmann                                   | `dark:brightness-0 dark:invert` re-inks the whole mark.                    |
+| Nothing      | Marks legible on either ground — Levi's, FIFA, TenneT, ABOUT YOU              | One image, no dark handling.                                               |
+| A filter     | Single-colour marks — Harrods, Fielmann, SB Migrate                           | `dark:brightness-0 dark:invert` re-inks the whole mark.                    |
 | A second cut | Marks with a brand accent — SCAYLE                                            | `darkSrc` names a file whose wordmark is inverted and whose accent is not. |
 
 The third case exists because a filter is all-or-nothing: inverting SCAYLE's
@@ -262,15 +263,15 @@ the data face and left in full ink, with only the labels muted.
 
 ## 7. Controls
 
-| Control            | Treatment                                                                                                                                                  |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Identity mark (CU) | 36px box, unframed, Space Mono 11 / 0.08em. Still has no entrance — it carries FCP/LCP (ADR-0004, ADR-0006).                                               |
-| Theme toggle       | 36px box, unframed, same spring scale-on-hover.                                                                                                            |
-| Disclosure control | 36px box, unframed. Three lines folding into a cross.                                                                                                      |
-| Wayfinding link    | Unchanged: `underline-reveal`, 300ms, `--ease-spring`.                                                                                                     |
-| Action link        | Square, 1px `--color-rule`, glass fill, Space Mono 10 caps. Hover lifts border and text to full ink.                                                       |
-| Console control    | Square, ink-filled, 36px tall. Prompt glyph in annotation colour, `K` in a hairline box. Sits in the Closing Record's right column, above the build stamp. |
-| Disabled           | 1px dashed `--color-rule`, text at 40% ink.                                                                                                                |
+| Control            | Treatment                                                                                                                                                                                                                        |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Identity mark (CU) | 36px box, unframed, Space Mono 11 / 0.08em. Still has no entrance — it carries FCP/LCP (ADR-0004, ADR-0006).                                                                                                                     |
+| Theme toggle       | 36px box, unframed, same spring scale-on-hover.                                                                                                                                                                                  |
+| Disclosure control | 36px box, unframed. Three lines folding into a cross.                                                                                                                                                                            |
+| Wayfinding link    | Unchanged: `underline-reveal`, 300ms, `--ease-spring`.                                                                                                                                                                           |
+| Action link        | Square, 1px `--color-rule`, glass fill, Space Mono 10 caps. Hover lifts border and text to full ink.                                                                                                                             |
+| Console control    | Square, ink-filled, 36px tall. Prompt glyph in annotation colour, `K` in a hairline box. Sits in the Closing Record's right column, above the build stamp. Hovers at 2% (`notebook-control-framed`), not the glyph controls' 5%. |
+| Disabled           | 1px dashed `--color-rule`, text at 40% ink.                                                                                                                                                                                      |
 
 Hit targets stay at or above 36px, and every interactive element keeps
 `notebook-control` / `notebook-press` / `notebook-lift`.
@@ -319,7 +320,14 @@ disabled.
   the platform's own terminal stack instead, which has the glyphs and sets all
   of them on one advance. It carries `role="img"` and the greeting as its
   label, because the greeting is the one thing the boot text does not also
-  say. `clear` takes it with the rest of the session.
+  say. On the first open it types itself a character at a time, 80ms apart
+  after a 260ms lead-in, and every visible character lands with the console's
+  keystroke — the command's key strike on a smaller key — in the same
+  animation frame. Closing the window or starting to type prints the rest at
+  once; reduced motion prints it whole from the start, silently. The reader's
+  own typing uses the same keystroke: one per key that prints or erases a
+  character, none for a held key's repeats, shortcuts, or navigation keys. `clear`
+  takes it with the rest of the session.
 - **Size** — bottom dock: the body grows from a 13rem floor to
   `min(52vh, 26rem)`, then scrolls. Side dock: a fixed column, 45rem wide and
   `min(72vh, 40rem)` tall, the body filling it.
@@ -370,12 +378,19 @@ one command rather than a reopen each time.
 
 ---
 
-## 9. Motion — unchanged
+## 9. Motion
 
 Restated so it is not lost in the migration:
 
 - Entrance is CSS, keyed off an absolute `--notebook-delay`, rendered into the
   server HTML. No hydration in the critical path.
+- Every offset is a whole number of 40ms beats (`notebookBeat`). The page
+  header takes one row per beat and the Site Header's column ticks with it;
+  rows and record parts stagger one beat, records two, and a new group waits
+  three (ADR-0008).
+- Each element has one entrance. Rules draw where they stay and never travel;
+  parts settle 8px and nothing around them settles too. A media field's crop
+  marks arrive with the field.
 - The identity mark has no entrance and stays opaque at first paint, so FCP and
   LCP remain reportable.
 - `animation-fill-mode: backwards`, never `both`.

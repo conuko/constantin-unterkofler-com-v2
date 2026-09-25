@@ -120,7 +120,7 @@ describe("Portfolio Content", () => {
       {
         label: "Focus",
         value:
-          "Full stack engineering · Embedded client partnerships · E-commerce platforms · Making complex software feel simple",
+          "Building products end to end, from the user problem to production, with a designer's eye for detail: interfaces that are fast, accessible and coherent.",
       },
       {
         label: "Stack",
@@ -170,7 +170,10 @@ describe("Portfolio Content", () => {
         url: "https://www.jvm.com/",
       },
     });
-    expect(about.content.introduction.trim().length).toBeGreaterThan(0);
+    expect(about.content.introduction).toHaveLength(3);
+    for (const paragraph of about.content.introduction) {
+      expect(paragraph.trim().length).toBeGreaterThan(0);
+    }
     expect(contact.content.entries.map((entry) => entry.label)).toEqual([
       "Email",
       "GitHub",
@@ -300,13 +303,13 @@ describe("Portfolio Content", () => {
     expect(
       portfolioContent.pages.work.content.entries.map((entry) => entry.client),
     ).toEqual([
-      "Levi's",
-      "Harrods",
       "Fielmann",
+      "Levi's",
+      "SB Migrate",
+      "TenneT",
+      "Harrods",
       "SCAYLE / ABOUT YOU",
       "FIFA",
-      "TenneT",
-      "fussball.de",
     ]);
   });
 
@@ -316,13 +319,13 @@ describe("Portfolio Content", () => {
         (entry) => entry.primaryMetadata,
       ),
     ).toEqual([
+      "Commerce platform",
       "Commerce migration",
+      "Open-source CLI",
+      "Web platform",
       "Commerce delivery",
       "Commerce platform",
-      "Commerce platform",
       "Web platform",
-      "Web platform",
-      "Platform migration",
     ]);
   });
 
@@ -354,18 +357,28 @@ describe("Portfolio Content", () => {
       })),
     ).toEqual([
       {
+        client: "Fielmann",
+        url: "https://www.fielmann.de/",
+        descriptionReview: undefined,
+      },
+      {
         client: "Levi's",
         url: "https://www.scayle.com/customers/levi-strauss/",
         descriptionReview: undefined,
       },
       {
-        client: "Harrods",
-        url: "https://www.scayle.com/customers/harrods/",
+        client: "SB Migrate",
+        url: "https://github.com/jungvonmatt/storyblok-migrations",
         descriptionReview: undefined,
       },
       {
-        client: "Fielmann",
-        url: "https://www.scayle.com/case-studies/fielmann/",
+        client: "TenneT",
+        url: "https://www.tennet.eu/",
+        descriptionReview: undefined,
+      },
+      {
+        client: "Harrods",
+        url: "https://www.scayle.com/customers/harrods/",
         descriptionReview: undefined,
       },
       {
@@ -378,16 +391,6 @@ describe("Portfolio Content", () => {
         url: "https://publications.fifa.com/en/talent-development/",
         descriptionReview: undefined,
       },
-      {
-        client: "TenneT",
-        url: "https://www.tennet.eu/",
-        descriptionReview: undefined,
-      },
-      {
-        client: "fussball.de",
-        url: "https://next.fussball.de/",
-        descriptionReview: undefined,
-      },
     ]);
   });
 
@@ -397,9 +400,17 @@ describe("Portfolio Content", () => {
     );
 
     expect(marks.map((mark) => ({ src: mark.src, alt: mark.alt }))).toEqual([
-      { src: "/marks/levi.svg", alt: "Levi's red Batwing mark" },
-      { src: "/marks/harrods.svg", alt: "Harrods green wordmark" },
       { src: "/marks/fielmann.svg", alt: "Fielmann black wordmark" },
+      { src: "/marks/levi.svg", alt: "Levi's red Batwing mark" },
+      {
+        src: "/marks/sb-migrate.svg",
+        alt: "SB Migrate terminal prompt mark",
+      },
+      {
+        src: "/marks/tennet.svg",
+        alt: "TenneT blue-and-green wordmark",
+      },
+      { src: "/marks/harrods.svg", alt: "Harrods green wordmark" },
       {
         src: "/marks/scayle.svg",
         alt: "SCAYLE wordmark with green directional accents",
@@ -409,14 +420,6 @@ describe("Portfolio Content", () => {
         alt: "ABOUT YOU black-and-white wordmark",
       },
       { src: "/marks/fifa.svg", alt: "FIFA blue wordmark" },
-      {
-        src: "/marks/tennet.svg",
-        alt: "TenneT blue-and-green wordmark",
-      },
-      {
-        src: "/marks/fussball-de.svg",
-        alt: "fussball.de green field mark",
-      },
     ]);
     expect(new Set(marks.map((mark) => mark.alt)).size).toBe(marks.length);
     expect(

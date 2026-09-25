@@ -8,14 +8,15 @@ import {
   useContext,
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
 } from "react";
 import {
   type ConsoleSound,
+  consoleSoundPlayer,
   consoleSoundsEnabled,
   persistConsoleSoundsEnabled,
-  playConsoleSound,
 } from "@/lib/console-sound";
 
 /** Where the open window sits: a column in the right corner, or along the bottom edge. */
@@ -32,6 +33,9 @@ type SiteConsoleState = {
   setSoundsEnabled: (enabled: boolean) => void;
   /** Non-essential interaction feedback; unavailable audio leaves controls intact. */
   playSound: (sound: ConsoleSound) => void;
+  /** Feedback a timer schedules after an interaction, such as the banner's
+   * keystrokes. It never starts audio itself; an interaction has to have. */
+  playTimedSound: (sound: ConsoleSound) => void;
   panelId: string;
   /** The control that opened the window; focus returns here on close. */
   controlRef: RefObject<HTMLButtonElement | null>;
@@ -67,12 +71,11 @@ export function SiteConsoleProvider({ children }: { children: ReactNode }) {
     setSoundsEnabledState(consoleSoundsEnabled(soundStorage()));
   }, []);
 
-  const playSound = useCallback(
-    (sound: ConsoleSound) => {
-      if (soundsEnabled) playConsoleSound(sound);
-    },
+  const sounds = useMemo(
+    () => consoleSoundPlayer(soundsEnabled),
     [soundsEnabled],
   );
+  const playSound = sounds.play;
 
   const setSoundsEnabled = useCallback((enabled: boolean) => {
     setSoundsEnabledState(enabled);
@@ -101,6 +104,7 @@ export function SiteConsoleProvider({ children }: { children: ReactNode }) {
         soundsEnabled,
         setSoundsEnabled,
         playSound,
+        playTimedSound: sounds.playTimed,
         panelId,
         controlRef,
       }}

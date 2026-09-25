@@ -5,7 +5,6 @@ import {
   NotebookRecordRow,
 } from "@/components/notebook-primitives";
 import type { SpecificationField } from "@/content/site-content";
-import { notebookSectionSequence } from "@/lib/notebook-motion";
 
 type SpecificationBlockProps = {
   fields: SpecificationField[];
@@ -71,7 +70,6 @@ export function SpecificationBlock({ fields }: SpecificationBlockProps) {
     <NotebookRecordGroup
       as="ul"
       label="Profile"
-      step={notebookSectionSequence.entryStagger}
       className="grid w-full grid-cols-1 gap-x-10 gap-y-5 sm:grid-cols-2"
     >
       {fields.map((field) => (

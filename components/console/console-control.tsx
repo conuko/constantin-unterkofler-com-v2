@@ -30,7 +30,7 @@ export function SiteConsoleControl({
       aria-keyshortcuts="K"
       style={style}
       className={cn(
-        "notebook-control label pointer-events-auto inline-flex min-h-9 cursor-pointer items-center gap-2.5 border border-ink bg-ink px-3.5 py-2.5 text-micro text-paper",
+        "notebook-control notebook-control-framed label pointer-events-auto inline-flex min-h-9 cursor-pointer items-center gap-2.5 border border-ink bg-ink px-3.5 py-2.5 text-micro text-paper",
         className,
       )}
     >

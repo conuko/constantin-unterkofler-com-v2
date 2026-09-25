@@ -14,7 +14,7 @@ export default function NotFound() {
       >
         <a
           href="/"
-          className="notebook-press label inline-flex min-h-9 items-center border border-rule bg-card-glass px-3.5 py-2 text-ink-muted text-micro backdrop-blur-glass transition-colors duration-fast hover:border-ink hover:text-ink"
+          className="notebook-press label inline-flex min-h-9 items-center border border-rule bg-card-glass px-3.5 py-2 text-ink-muted text-micro backdrop-blur-glass hover:border-ink hover:text-ink"
         >
           This is the way
         </a>

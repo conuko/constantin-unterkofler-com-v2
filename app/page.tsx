@@ -23,7 +23,7 @@ export default function Home() {
       introduction={
         <div className="space-y-2">
           <p>
-            I build things for the www at{" "}
+            I build software products, currently at{" "}
             <a
               href={home.content.introduction.organization.url}
               target="_blank"

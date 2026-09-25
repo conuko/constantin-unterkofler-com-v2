@@ -17,9 +17,6 @@ type WorkPresentationProps = {
   entries: WorkEntry[];
 };
 
-const workGroupStep = 0.08;
-const workRecordPartStep = 0.045;
-
 /**
  * How one mark is drawn inside the media field.
  *
@@ -59,7 +56,10 @@ const markRendering: Record<WorkMark["src"], MarkRendering> = {
   "/marks/about-you.svg": { sizeClassName: "w-41/50 max-w-40" },
   "/marks/fifa.svg": { sizeClassName: "w-2/5 max-w-40" },
   "/marks/tennet.svg": { sizeClassName: "w-29/50 max-w-56" },
-  "/marks/fussball-de.svg": { sizeClassName: "w-11/50 max-w-24" },
+  "/marks/sb-migrate.svg": {
+    sizeClassName: "w-1/5 max-w-24",
+    darkClassName: "dark:brightness-0 dark:invert",
+  },
 };
 
 /* One mark occupies half a record's media field on the two-column grid, and
@@ -134,12 +134,12 @@ function WorkMarks({
 
 export function WorkPresentation({ entries }: WorkPresentationProps) {
   return (
-    <NotebookCollection step={workGroupStep}>
+    <NotebookCollection>
       {entries.map((entry, index) => {
         const loadImmediately = index < 2;
 
         return (
-          <NotebookRecord key={entry.client} partStep={workRecordPartStep}>
+          <NotebookRecord key={entry.client}>
             <NotebookIndex
               filename={entry.marks.map((mark) => mark.filename).join(" + ")}
             >

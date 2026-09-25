@@ -6,7 +6,6 @@ import {
   NotebookRowIndex,
 } from "@/components/notebook-primitives";
 import type { ContactLink } from "@/content/site-content";
-import { notebookSectionSequence } from "@/lib/notebook-motion";
 
 type ContactListProps = {
   links: ContactLink[];
@@ -25,11 +24,7 @@ function isSameTabAction(href: string) {
  */
 export function ContactList({ links, sectionCode }: ContactListProps) {
   return (
-    <NotebookRecordGroup
-      as="ul"
-      step={notebookSectionSequence.entryStagger}
-      className="w-full"
-    >
+    <NotebookRecordGroup as="ul" className="w-full">
       {links.map((link, index) => {
         const external = !isSameTabAction(link.href);
         const ActionMark = external ? ArrowUpRight : ArrowRight;
