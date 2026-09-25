@@ -44,6 +44,7 @@ function mockContext(
   const oscillators: (MockSource & { type: OscillatorType })[] = [];
   const noises: (MockSource & { buffer: unknown })[] = [];
   const panners: MockParam[] = [];
+  const gains: MockParam[] = [];
   const buffers: Float32Array[] = [];
   const convolvers: unknown[] = [];
 
@@ -72,7 +73,11 @@ function mockContext(
       convolvers.push(convolver);
       return convolver;
     },
-    createGain: () => ({ ...mockNode(), gain: mockParam() }),
+    createGain: () => {
+      const gain = mockParam();
+      gains.push(gain);
+      return { ...mockNode(), gain };
+    },
     createOscillator: () => {
       const oscillator = { ...mockSource(), type: "square" as OscillatorType };
       oscillators.push(oscillator);
@@ -96,6 +101,7 @@ function mockContext(
     context,
     buffers,
     convolvers,
+    gains,
     noises,
     oscillators,
     panners,
@@ -217,6 +223,28 @@ describe("Console sound", () => {
 
     expect(landing("open").frequency).toBe(Math.max(...pitches("open")));
     expect(landing("close").frequency).toBe(Math.min(...pitches("close")));
+  });
+
+  test("holds a beep at full level before it decays", () => {
+    const { context, gains } = mockContext();
+    new ConsoleSoundEngine(
+      () => context,
+      () => 0.5,
+    ).play("open");
+
+    const beep = tones("open").find((tone) => tone.hold);
+    if (!beep?.hold) throw new Error("open has no held tone");
+    const envelope = gains.find(
+      (gain) => gain.linearRampToValueAtTime.mock.calls[0]?.[0] === beep.gain,
+    );
+    if (!envelope) throw new Error("no envelope reaches the beep's level");
+
+    const [, peakAt] = envelope.linearRampToValueAtTime.mock.calls[0];
+    const [held, releaseAt] = envelope.setValueAtTime.mock.calls[1];
+    const [, silentAt] = envelope.exponentialRampToValueAtTime.mock.calls[0];
+    expect(held).toBe(beep.gain);
+    expect(releaseAt - peakAt).toBeCloseTo(beep.hold);
+    expect(silentAt - releaseAt).toBeCloseTo(beep.partials[0].decay);
   });
 
   test("gives dock changes opposite directions and landings", () => {

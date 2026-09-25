@@ -23,16 +23,18 @@ type ConsoleSoundPlacement = {
   panTo?: number;
 };
 
-/** A struck, pitched body: glass, a tuned bar, or a plain sine. */
+/** A pitched voice: a small speaker's beep, or the body a key lands on. */
 export type ConsoleSoundTone = ConsoleSoundPlacement & {
   kind: "tone";
   frequency: number;
   partials: ConsoleSoundPartial[];
   /** The note starts at `from` times its frequency and settles within `time`. */
   glide?: { from: number; time: number };
+  /** Seconds the note stays at full level before its partials begin to decay. */
+  hold?: number;
 };
 
-/** Filtered air: the touch of a fingertip, or a window moving through the room. */
+/** Filtered noise: a key making contact, or a carriage gliding. */
 export type ConsoleSoundNoise = ConsoleSoundPlacement & {
   kind: "noise";
   duration: number;
@@ -120,188 +122,179 @@ const roomPreDelay = 0.009;
  * lifted back up; a cue's `room` then reads as the wet level it gets. */
 const roomLevel = 4;
 
-/* A pure fundamental, a slightly stretched octave, and an inharmonic ping
- * that is gone almost at once: the ear hears a struck glass, not a beep. */
-const glass = (decay: number): ConsoleSoundPartial[] => [
+/* A small speaker driven by a square wave: odd harmonics only, rolled off
+ * between a square's 1/n and a triangle's 1/n², the highest fading first.
+ * The ear hears an early computer's beep, with the edge taken off. */
+const speaker = (decay: number): ConsoleSoundPartial[] => [
   { ratio: 1, gain: 1, decay },
-  { ratio: 2.005, gain: 0.16, decay: decay * 0.45 },
-  { ratio: 5.43, gain: 0.05, decay: decay * 0.1 },
+  { ratio: 3, gain: 0.2, decay: decay * 0.8 },
+  { ratio: 5, gain: 0.09, decay: decay * 0.55 },
+  { ratio: 7, gain: 0.045, decay: decay * 0.35 },
 ];
 
-/* A tuned bar, like a marimba key: the fourth and tenth overtones are the
- * knock of the mallet, and they die first. */
-const wood = (decay: number): ConsoleSoundPartial[] => [
+/* The body a key lands on: a damped thump whose overtones follow a struck
+ * steel bar (2.756 and 5.404 times the fundamental), gone within milliseconds. */
+const platen = (decay: number): ConsoleSoundPartial[] => [
   { ratio: 1, gain: 1, decay },
-  { ratio: 3.98, gain: 0.22, decay: decay * 0.35 },
-  { ratio: 9.85, gain: 0.05, decay: decay * 0.12 },
+  { ratio: 2.756, gain: 0.34, decay: decay * 0.4 },
+  { ratio: 5.404, gain: 0.12, decay: decay * 0.2 },
 ];
 
-/* A soft mallet on a tuned bar, voiced like a notification chime: every
- * overtone is a whole-number harmonic, so nothing rings like a bell, and the
- * upper ones are gone within a few tens of milliseconds. Each note is crisp
- * as it starts and a clean, round tone by the time it rings. */
-const mallet = (decay: number): ConsoleSoundPartial[] => [
-  { ratio: 1, gain: 1, decay },
-  { ratio: 2, gain: 0.3, decay: decay * 0.22 },
-  { ratio: 3, gain: 0.1, decay: decay * 0.12 },
-  { ratio: 4, gain: 0.08, decay: decay * 0.07 },
-];
-
-/* Every pitch comes from one A major pentatonic set, so cues that overlap,
- * like a command that closes the window, still land in the same chord. */
+/* Every pitch is an A or an E, the root and fifth of one chord, so cues that
+ * overlap, like a command that closes the window, never clash. */
 const pitch = {
+  a3: 220,
+  e4: 329.63,
+  a4: 440,
   e5: 659.25,
-  fSharp5: 739.99,
-  a5: 880,
-  cSharp6: 1108.73,
-  e6: 1318.51,
 };
 
-/* Each cue is built from tuned sine partials (the material), with filtered
- * noise wherever a touch or moving air belongs, and sends a little of itself
- * into a small room. Opening is a quick rising arpeggio of mallet notes, the
- * shape of a notification arriving; closing is its outer notes falling,
- * shorter and quieter. A command is a single short knock, and a dock change is
- * air moving towards where the window lands, ending in a soft snap at the new
- * position. */
+/* One key strike, shared by every cue: a few milliseconds of bright contact
+ * noise over the body it lands on, which drops slightly in pitch so it
+ * knocks rather than rings. */
+function strike(
+  at: number,
+  frequency: number,
+  {
+    level = 1,
+    decay = 0.045,
+    pan,
+  }: { level?: number; decay?: number; pan?: number } = {},
+): ConsoleSoundVoice[] {
+  return [
+    {
+      kind: "noise",
+      at,
+      duration: 0.005,
+      attack: 0.0006,
+      gain: 0.09 * level,
+      filter: "bandpass",
+      startFrequency: 4200,
+      endFrequency: 3000,
+      q: 1.1,
+      pan,
+    },
+    {
+      kind: "tone",
+      at,
+      frequency,
+      gain: 0.17 * level,
+      attack: 0.0012,
+      partials: platen(decay),
+      glide: { from: 1.18, time: 0.012 },
+      pan,
+    },
+  ];
+}
+
+/* The speaker's voice: held briefly at full level, then let go. A held note
+ * reads as a machine; one that only decays would read as a chime. */
+function beep(
+  at: number,
+  frequency: number,
+  {
+    gain,
+    hold,
+    decay,
+    pan,
+  }: { gain: number; hold: number; decay: number; pan?: number },
+): ConsoleSoundTone {
+  return {
+    kind: "tone",
+    at,
+    frequency,
+    gain,
+    attack: 0.003,
+    hold,
+    partials: speaker(decay),
+    pan,
+  };
+}
+
+/* One machine throughout: a mechanical key and a small computer speaker,
+ * sending a little of both into a small room. A command is a single compact
+ * strike and the key coming back up. Opening engages the key, then the
+ * speaker answers with two soft tones rising a fifth; closing is its mirror,
+ * the tones falling before the key lets go. A dock change is a carriage
+ * gliding towards where the window lands, ending in a short beep and a
+ * strike at the new position. */
 export const consoleSoundCues: Record<ConsoleSound, ConsoleSoundCue> = {
   open: {
-    room: 0.14,
-    variation: { cents: 6, gain: 0.06, timing: 0.003 },
+    room: 0.09,
+    variation: { cents: 5, gain: 0.06, timing: 0.003 },
     voices: [
-      {
-        kind: "tone",
-        at: 0,
-        frequency: pitch.a5,
-        gain: 0.12,
-        attack: 0.002,
-        partials: mallet(0.2),
-        glide: { from: 1.012, time: 0.015 },
-      },
-      {
-        kind: "tone",
-        at: 0.06,
-        frequency: pitch.cSharp6,
-        gain: 0.11,
-        attack: 0.002,
-        partials: mallet(0.22),
-        glide: { from: 1.012, time: 0.015 },
-      },
-      {
-        kind: "tone",
-        at: 0.12,
-        frequency: pitch.e6,
-        gain: 0.12,
-        attack: 0.002,
-        partials: mallet(0.4),
-        glide: { from: 1.012, time: 0.015 },
-      },
+      ...strike(0, pitch.a3, { level: 0.6, decay: 0.05 }),
+      beep(0.05, pitch.a4, { gain: 0.072, hold: 0.04, decay: 0.05 }),
+      beep(0.12, pitch.e5, { gain: 0.066, hold: 0.05, decay: 0.12 }),
     ],
   },
   close: {
-    room: 0.12,
-    variation: { cents: 6, gain: 0.06, timing: 0.003 },
+    room: 0.08,
+    variation: { cents: 5, gain: 0.06, timing: 0.003 },
     voices: [
-      {
-        kind: "tone",
-        at: 0,
-        frequency: pitch.e6,
-        gain: 0.09,
-        attack: 0.002,
-        partials: mallet(0.16),
-        glide: { from: 1.012, time: 0.015 },
-      },
-      {
-        kind: "tone",
-        at: 0.07,
-        frequency: pitch.a5,
-        gain: 0.105,
-        attack: 0.002,
-        partials: mallet(0.3),
-        glide: { from: 1.012, time: 0.015 },
-      },
+      beep(0, pitch.e5, { gain: 0.058, hold: 0.035, decay: 0.045 }),
+      beep(0.065, pitch.a4, { gain: 0.064, hold: 0.04, decay: 0.07 }),
+      ...strike(0.14, pitch.a3, { level: 0.55, decay: 0.05 }),
     ],
   },
   command: {
-    room: 0.08,
-    variation: { cents: 30, gain: 0.14, timing: 0 },
+    room: 0.05,
+    variation: { cents: 35, gain: 0.15, timing: 0.002 },
     voices: [
+      ...strike(0, pitch.e4, { level: 0.9 }),
       {
         kind: "noise",
-        at: 0,
-        duration: 0.008,
-        attack: 0.0008,
-        gain: 0.07,
+        at: 0.032,
+        duration: 0.004,
+        attack: 0.0005,
+        gain: 0.025,
         filter: "bandpass",
-        startFrequency: 3000,
-        endFrequency: 2200,
-        q: 1.4,
-      },
-      {
-        kind: "tone",
-        at: 0,
-        frequency: pitch.e5,
-        gain: 0.13,
-        attack: 0.0015,
-        partials: wood(0.085),
-        glide: { from: 1.06, time: 0.014 },
+        startFrequency: 3400,
+        endFrequency: 2900,
+        q: 1.6,
       },
     ],
   },
   "dock-side": {
-    room: 0.16,
-    variation: { cents: 12, gain: 0.1, timing: 0.006 },
+    room: 0.1,
+    variation: { cents: 10, gain: 0.1, timing: 0.005 },
     voices: [
       {
         kind: "noise",
         at: 0,
-        duration: 0.19,
-        attack: 0.085,
-        gain: 0.12,
+        duration: 0.17,
+        attack: 0.075,
+        gain: 0.085,
         filter: "bandpass",
-        startFrequency: 650,
-        endFrequency: 2400,
-        q: 2.6,
+        startFrequency: 550,
+        endFrequency: 1900,
+        q: 1.3,
         pan: -0.05,
         panTo: 0.4,
       },
-      {
-        kind: "tone",
-        at: 0.15,
-        frequency: pitch.cSharp6,
-        gain: 0.085,
-        attack: 0.003,
-        partials: glass(0.26),
-        pan: 0.4,
-      },
+      beep(0.15, pitch.e5, { gain: 0.05, hold: 0.02, decay: 0.07, pan: 0.4 }),
+      ...strike(0.15, pitch.e4, { level: 0.7, pan: 0.4 }),
     ],
   },
   "dock-bottom": {
-    room: 0.16,
-    variation: { cents: 12, gain: 0.1, timing: 0.006 },
+    room: 0.1,
+    variation: { cents: 10, gain: 0.1, timing: 0.005 },
     voices: [
       {
         kind: "noise",
         at: 0,
-        duration: 0.19,
-        attack: 0.085,
-        gain: 0.12,
+        duration: 0.17,
+        attack: 0.075,
+        gain: 0.085,
         filter: "bandpass",
-        startFrequency: 2400,
-        endFrequency: 650,
-        q: 2.6,
+        startFrequency: 1900,
+        endFrequency: 550,
+        q: 1.3,
         pan: 0.4,
         panTo: 0,
       },
-      {
-        kind: "tone",
-        at: 0.15,
-        frequency: pitch.fSharp5,
-        gain: 0.1,
-        attack: 0.003,
-        partials: glass(0.3),
-        pan: 0,
-      },
+      beep(0.15, pitch.a4, { gain: 0.056, hold: 0.02, decay: 0.08, pan: 0 }),
+      ...strike(0.15, pitch.a3, { level: 0.7, pan: 0 }),
     ],
   },
 };
@@ -332,9 +325,9 @@ function browserAudioContext(): ConsoleSoundContext | null {
   }
 }
 
-/* Pink rather than white: equal energy per octave is what moving air and
- * skin on glass sound like, where white noise reads as hiss. Paul Kellet's
- * three-pole approximation, peak-normalised. */
+/* Pink rather than white: equal energy per octave is what a gliding carriage
+ * and a key's contact sound like, where white noise reads as hiss. Paul
+ * Kellet's three-pole approximation, peak-normalised. */
 function pinkNoise(context: ConsoleSoundContext, random: () => number) {
   const length = Math.round(context.sampleRate * noiseSeconds);
   const noise = context.createBuffer(1, length, context.sampleRate);
@@ -426,20 +419,16 @@ function scheduleTone(
   detune: number,
   level: number,
 ) {
+  const release = start + tone.attack + (tone.hold ?? 0);
   const ringing = Math.max(...tone.partials.map((partial) => partial.decay));
-  const output = place(
-    context,
-    destination,
-    tone,
-    start,
-    start + tone.attack + ringing,
-  );
+  const output = place(context, destination, tone, start, release + ringing);
 
   for (const partial of tone.partials) {
     const oscillator = context.createOscillator();
     const envelope = context.createGain();
     const frequency = tone.frequency * partial.ratio * detune;
-    const end = start + tone.attack + partial.decay;
+    const peak = tone.gain * partial.gain * level;
+    const end = release + partial.decay;
 
     oscillator.type = "sine";
     if (tone.glide) {
@@ -453,10 +442,9 @@ function scheduleTone(
     }
 
     envelope.gain.setValueAtTime(quietGain, start);
-    envelope.gain.linearRampToValueAtTime(
-      tone.gain * partial.gain * level,
-      start + tone.attack,
-    );
+    envelope.gain.linearRampToValueAtTime(peak, start + tone.attack);
+    // Anchors the decay at the end of the hold rather than the attack.
+    if (tone.hold) envelope.gain.setValueAtTime(peak, release);
     envelope.gain.exponentialRampToValueAtTime(quietGain, end);
 
     oscillator.connect(envelope);
