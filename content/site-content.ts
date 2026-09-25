@@ -100,7 +100,7 @@ const identity = {
   name: "Constantin Unterkofler",
   shortName: "CU",
   description:
-    "Personal portfolio of Constantin Unterkofler, a Software Engineer building thoughtful digital products and scalable web experiences.",
+    "Personal portfolio of Constantin Unterkofler, a software engineer in Berlin building products end to end with a designer's eye for detail.",
 };
 
 const closingRecord = {
@@ -108,8 +108,11 @@ const closingRecord = {
   buildStamp: packageJson.version,
 };
 
-const aboutIntroduction =
-  "I’m a Software Engineer working where client needs, product thinking and engineering meet. At Jung von Matt, I partner closely with client teams from early discovery and technical direction through hands-on delivery and production handover, turning complex requirements into clear product decisions and scalable digital products. Italian-German, I grew up in Bolzano and studied Philosophy and Cultural Studies before earning a degree in Software Engineering. That path still shapes how I ask questions, connect perspectives and make technology understandable.";
+const aboutIntroduction = [
+  "I’m a software engineer who works best close to the people using what I build. At Jung von Matt, I partner closely with client teams from early discovery and technical direction through hands-on delivery and production handover, turning complex requirements into clear product decisions and scalable digital products.",
+  "I care about the details that decide whether software feels right: how fast it responds, how it moves, and whether everyone can use it.",
+  "Italian-German, I grew up in Bolzano and studied Philosophy and Cultural Studies before Software Engineering. That path still shapes how I ask questions, connect perspectives and turn an unclear problem into a clear decision.",
+];
 
 const cvSections: CvSection[] = [
   {
@@ -518,7 +521,7 @@ const portfolioPages = {
         {
           label: "Focus",
           value:
-            "Full stack engineering · Embedded client partnerships · E-commerce platforms · Making complex software feel simple",
+            "Building products end to end, from the user problem to production, with a designer's eye for detail: interfaces that are fast, accessible and coherent.",
         },
         {
           label: "Stack",

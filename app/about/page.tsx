@@ -14,7 +14,13 @@ export default function AboutPage() {
       sectionCode={about.sectionCode}
       sheetMeta={about.sheetMeta}
       width={about.width}
-      introduction={<p>{about.content.introduction}</p>}
+      introduction={
+        <div className="space-y-2">
+          {about.content.introduction.map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
+        </div>
+      }
     >
       <Cv sectionCode={about.sectionCode} sections={about.content.cvSections} />
     </PortfolioPage>

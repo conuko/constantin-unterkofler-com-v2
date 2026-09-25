@@ -120,7 +120,7 @@ describe("Portfolio Content", () => {
       {
         label: "Focus",
         value:
-          "Full stack engineering · Embedded client partnerships · E-commerce platforms · Making complex software feel simple",
+          "Building products end to end, from the user problem to production, with a designer's eye for detail: interfaces that are fast, accessible and coherent.",
       },
       {
         label: "Stack",
@@ -170,7 +170,10 @@ describe("Portfolio Content", () => {
         url: "https://www.jvm.com/",
       },
     });
-    expect(about.content.introduction.trim().length).toBeGreaterThan(0);
+    expect(about.content.introduction).toHaveLength(3);
+    for (const paragraph of about.content.introduction) {
+      expect(paragraph.trim().length).toBeGreaterThan(0);
+    }
     expect(contact.content.entries.map((entry) => entry.label)).toEqual([
       "Email",
       "GitHub",
