@@ -335,6 +335,18 @@ describe("Console sound", () => {
     expect(context.resume).toHaveBeenCalledOnce();
   });
 
+  test("lets a keystroke the reader types start the audio, as a gesture", () => {
+    const { context } = mockContext();
+    const createContext = vi.fn(() => context);
+    const player = consoleSoundPlayer(
+      true,
+      new ConsoleSoundEngine(createContext),
+    );
+
+    expect(player.play("keystroke")).toBe(true);
+    expect(createContext).toHaveBeenCalledOnce();
+  });
+
   test("never starts audio from a timed cue", () => {
     const { context } = mockContext();
     const createContext = vi.fn(() => context);

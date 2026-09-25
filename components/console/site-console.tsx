@@ -24,6 +24,7 @@ import {
   isConsoleDocked,
   trackConsoleOffset,
 } from "@/components/console/console-drag";
+import { isTypingKeystroke } from "@/components/console/console-keystroke";
 import {
   type ConsoleDock,
   useSiteConsole,
@@ -502,6 +503,14 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
   }
 
   function onInputKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    /* A key press is a gesture, so the reader's own keystrokes may start the
+     * audio. The reader has the keyboard from the first one: the banner
+     * prints the rest at once rather than typing over them. */
+    if (isTypingKeystroke(event.nativeEvent)) {
+      playSound("keystroke");
+      setIntro("done");
+    }
+
     if (event.key === "Tab" && !event.shiftKey) {
       event.preventDefault();
       recall(completeCommand(input));

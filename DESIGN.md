@@ -323,8 +323,10 @@ disabled.
   say. On the first open it types itself a character at a time, 80ms apart
   after a 260ms lead-in, and every visible character lands with the console's
   keystroke — the command's key strike on a smaller key — in the same
-  animation frame. Closing the window or typing a command prints the rest at
-  once; reduced motion prints it whole from the start, silently. `clear`
+  animation frame. Closing the window or starting to type prints the rest at
+  once; reduced motion prints it whole from the start, silently. The reader's
+  own typing uses the same keystroke: one per key that prints or erases a
+  character, none for a held key's repeats, shortcuts, or navigation keys. `clear`
   takes it with the rest of the session.
 - **Size** — bottom dock: the body grows from a 13rem floor to
   `min(52vh, 26rem)`, then scrolls. Side dock: a fixed column, 45rem wide and
