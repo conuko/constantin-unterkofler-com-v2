@@ -293,7 +293,8 @@ column in the right corner (the default on desktop) or along the bottom edge.
 The amber light docks it to the bottom, the green light to the right — the
 same two lights that minimise and zoom a window on the platform the chrome is
 quoted from. Below `lg` it always docks to the bottom and the two lights are
-disabled.
+disabled — dimmed to 40%, without the dashed frame §7 gives other disabled
+controls: a square drawn around a round light reads as a glitch, not a state.
 
 - **Surface** — one dark surface in both themes: `#15141a`, 1px border at
   ink / 14%, `border-radius: 10px`, a long soft drop shadow. The traffic lights
@@ -346,10 +347,14 @@ disabled.
   only then: one sweep left to right over 1.1s. It is a clip wipe stepped once
   per column — eased, the edge slides through the middle of a glyph and leaves
   half a block standing; on `steps()` it only ever lands on a character cell,
-  which is what reads as typing rather than as a wipe. The session holds at
-  the top of the window while it runs and settles onto the prompt when the
-  greeting lands; typing a command ends it early. Reduced motion prints the
-  banner and skips straight to the prompt.
+  which is what reads as typing rather than as a wipe. Typing ends it early;
+  reduced motion prints the banner whole, with the prompt ready at once.
+- **First open** — the session rests on the greeting: it holds the top of the
+  window while the banner types and after it lands, until the reader takes it
+  over — a key at the prompt, a command, a touch or wheel on the session, a
+  dock move — and follows the prompt from then on. On a phone the keyboard
+  rises as the window opens and would otherwise carry the session down to the
+  focused prompt, leaving the greeting to type out of sight.
 - **Open** — click the control, or press `K` anywhere outside a text field.
   **Close** — `Esc`, the red light, the `ESC` label, or the control again.
 

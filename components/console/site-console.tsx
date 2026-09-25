@@ -78,6 +78,17 @@ function followSession(scroller: HTMLDivElement | null) {
   if (scroller) scroller.scrollTop = scroller.scrollHeight;
 }
 
+/* Where the session sits: on its newest line, or on its top while the first
+ * open still rests on the greeting. */
+function settleSession(
+  scroller: HTMLDivElement | null,
+  restsOnGreeting: boolean,
+) {
+  if (!scroller) return;
+  if (restsOnGreeting) scroller.scrollTop = 0;
+  else followSession(scroller);
+}
+
 /* Which edge the session's text sits against: a short session starts at the
  * top of the window, a long one is scrolled down to its prompt. A dock move
  * pins each photograph of the session to its own edge, so the text holds
@@ -195,7 +206,8 @@ type TrafficLightProps = {
 
 /* An 11px light inside a 20px hit box, opened to 24px on touch so the target
  * clears the minimum. Hovering any light reveals the glyphs on all three, as
- * the platform does. */
+ * the platform does. A disabled light is only dimmed: the dashed frame other
+ * disabled controls wear would draw a square around a round light. */
 function TrafficLight({
   tone,
   label,
@@ -210,7 +222,7 @@ function TrafficLight({
       aria-label={label}
       aria-pressed={pressed}
       disabled={disabled}
-      className="flex size-6 cursor-pointer items-center justify-center disabled:cursor-default disabled:border disabled:border-console-rule disabled:border-dashed disabled:opacity-40 lg:size-5"
+      className="flex size-6 cursor-pointer items-center justify-center disabled:cursor-default disabled:opacity-40 lg:size-5"
     >
       <span
         className={cn(
@@ -285,6 +297,16 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const sessionOpenedAtRef = useRef<Date | null>(null);
   const redockRef = useRef<ViewTransition | null>(null);
+  /* The first open rests on the greeting: the session stays on its top, where
+   * the banner types, until the reader takes it over — a key or a command at
+   * the prompt, a touch or a wheel on the session, a move to the other dock —
+   * and follows the prompt from then on.
+   *
+   * On a phone the software keyboard rises as the window opens, and on its way
+   * up both this component and the browser would carry the session down to
+   * the focused prompt, so the greeting was heard typing out of sight. While
+   * the session rests, a scroll the reader did not make is put back. */
+  const restsOnGreetingRef = useRef(true);
   /* The drag never goes through React state: a render per pointer move would
    * drop frames, so the offset is written straight onto the window. */
   const dragRef = useRef<ConsoleDragState>({
@@ -356,7 +378,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
         panel.style.setProperty(name, value);
       }
 
-      followSession(scrollRef.current);
+      settleSession(scrollRef.current, restsOnGreetingRef.current);
     };
 
     syncViewport();
@@ -432,15 +454,27 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
   }, [isOpen, prefersReducedMotion]);
 
   /* Follow the session to its newest line, and once more on open, since a
-   * hidden scroller cannot be scrolled.
-   *
-   * The banner is the exception: while it types, the top of the session is
-   * the thing to look at, so the prompt waits its turn and the session
-   * settles onto it the moment the last word lands. */
+   * hidden scroller cannot be scrolled. A session resting on the greeting
+   * holds its top instead, through the banner's typing and after it, so on a
+   * window too short for the whole boot text the prompt waits below until
+   * the reader reaches for it. */
   useEffect(() => {
-    if (!isOpen || intro === "typing" || lines.length === 0) return;
-    followSession(scrollRef.current);
-  }, [lines, isOpen, intro]);
+    if (!isOpen || lines.length === 0) return;
+    settleSession(scrollRef.current, restsOnGreetingRef.current);
+  }, [lines, isOpen]);
+
+  /* The reader has taken the session over. At the prompt it follows them
+   * there; a touch or a wheel on the session is theirs to scroll. */
+  function releaseGreeting({ follow }: { follow: boolean }) {
+    if (!restsOnGreetingRef.current) return;
+
+    restsOnGreetingRef.current = false;
+    if (follow) followSession(scrollRef.current);
+  }
+
+  function holdGreeting(event: React.UIEvent<HTMLDivElement>) {
+    if (restsOnGreetingRef.current) event.currentTarget.scrollTop = 0;
+  }
 
   function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -463,6 +497,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
     /* Typing outranks the intro. The banner prints the rest at once, its
      * keystrokes stop, and the session goes back to following its prompt. */
     setIntro("done");
+    releaseGreeting({ follow: false });
     setHistory((current) => [...current, entered]);
     setHistoryCursor(null);
     setInput("");
@@ -503,6 +538,8 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
   }
 
   function onInputKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    releaseGreeting({ follow: true });
+
     /* A key press is a gesture, so the reader's own keystrokes may start the
      * audio. The reader has the keyboard from the first one: the banner
      * prints the rest at once rather than typing over them. */
@@ -656,6 +693,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
 
     if (target === dock && !isAway) return;
 
+    releaseGreeting({ follow: false });
     playSound(target === "side" ? "dock-side" : "dock-bottom");
 
     /* The light for the dock the window already belongs to brings a dragged
@@ -786,6 +824,9 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
 
       <div
         ref={scrollRef}
+        onScroll={holdGreeting}
+        onPointerDown={() => releaseGreeting({ follow: false })}
+        onWheel={() => releaseGreeting({ follow: false })}
         className={cn(
           "console-scroll console-session overflow-y-auto overscroll-contain px-5.5 py-4.5 font-mono text-console-ink text-sm leading-console lg:overscroll-auto",
           dock === "side"
@@ -845,6 +886,9 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
               ref={inputRef}
               value={input}
               onChange={(event) => {
+                /* A software keyboard's keys can arrive without a keydown to
+                 * name them, but every one still changes the line. */
+                releaseGreeting({ follow: true });
                 setInput(event.target.value);
                 syncCaret(event);
               }}
