@@ -22,9 +22,10 @@ language rendered with drafting tools.
    is a window rather than a page element.
 4. **One annotation colour.** Blue marks measurement. It never carries body
    copy, never fills a surface, and never appears twice in the same role as ink.
-5. **Motion is unchanged.** Every timing, easing curve, and stagger from
-   `app/motion.css` and `app/theme.css` survives this change verbatim. See
-   ADR-0004 for why the choreography is CSS.
+5. **Motion keeps its curves.** Every easing curve and duration in
+   `app/motion.css` and `app/theme.css` survived this change verbatim. Entrance
+   offsets have since moved onto one 40ms beat (ADR-0008). See ADR-0004 for why
+   the choreography is CSS.
 
 ---
 
@@ -370,12 +371,19 @@ one command rather than a reopen each time.
 
 ---
 
-## 9. Motion — unchanged
+## 9. Motion
 
 Restated so it is not lost in the migration:
 
 - Entrance is CSS, keyed off an absolute `--notebook-delay`, rendered into the
   server HTML. No hydration in the critical path.
+- Every offset is a whole number of 40ms beats (`notebookBeat`). The page
+  header takes one row per beat and the Site Header's column ticks with it;
+  rows and record parts stagger one beat, records two, and a new group waits
+  three (ADR-0008).
+- Each element has one entrance. Rules draw where they stay and never travel;
+  parts settle 8px and nothing around them settles too. A media field's crop
+  marks arrive with the field.
 - The identity mark has no entrance and stays opaque at first paint, so FCP and
   LCP remain reportable.
 - `animation-fill-mode: backwards`, never `both`.

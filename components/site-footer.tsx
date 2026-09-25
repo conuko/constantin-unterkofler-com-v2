@@ -1,5 +1,9 @@
 import { SiteConsoleControl } from "@/components/console/console-control";
-import { notebookDelay, notebookTiming } from "@/lib/notebook-motion";
+import {
+  notebookBeats,
+  notebookDelay,
+  notebookTiming,
+} from "@/lib/notebook-motion";
 
 type SiteFooterProps = {
   closingRecord: {
@@ -25,18 +29,18 @@ export function SiteFooter({ closingRecord }: SiteFooterProps) {
       className="mx-auto mt-auto flex w-full items-end justify-between gap-6 pt-3.5 pb-1 lg:pointer-events-none lg:fixed lg:inset-x-0 lg:bottom-8 lg:px-6"
     >
       <p
-        style={notebookDelay(notebookTiming.closingRecord + 0.08)}
+        style={notebookDelay(notebookTiming.closingRecord + notebookBeats(1))}
         className="notebook-in-part label text-ink-muted text-micro"
       >
         © {closingRecord.copyrightYear}
       </p>
       <div className="flex flex-col items-end gap-3">
         <SiteConsoleControl
-          style={notebookDelay(notebookTiming.closingRecord + 0.04)}
+          style={notebookDelay(notebookTiming.closingRecord)}
           className="notebook-in-part"
         />
         <p
-          style={notebookDelay(notebookTiming.closingRecord + 0.12)}
+          style={notebookDelay(notebookTiming.closingRecord + notebookBeats(2))}
           className="notebook-in-part label text-ink-muted/60 text-micro"
         >
           Build {closingRecord.buildStamp}

@@ -17,9 +17,6 @@ type WorkPresentationProps = {
   entries: WorkEntry[];
 };
 
-const workGroupStep = 0.08;
-const workRecordPartStep = 0.045;
-
 /**
  * How one mark is drawn inside the media field.
  *
@@ -134,12 +131,12 @@ function WorkMarks({
 
 export function WorkPresentation({ entries }: WorkPresentationProps) {
   return (
-    <NotebookCollection step={workGroupStep}>
+    <NotebookCollection>
       {entries.map((entry, index) => {
         const loadImmediately = index < 2;
 
         return (
-          <NotebookRecord key={entry.client} partStep={workRecordPartStep}>
+          <NotebookRecord key={entry.client}>
             <NotebookIndex
               filename={entry.marks.map((mark) => mark.filename).join(" + ")}
             >

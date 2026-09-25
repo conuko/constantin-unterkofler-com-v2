@@ -1,5 +1,10 @@
 import type { CSSProperties, ReactNode } from "react";
-import { notebookDelay, notebookTiming } from "@/lib/notebook-motion";
+import {
+  notebookDelay,
+  notebookSeconds,
+  notebookStagger,
+  notebookTiming,
+} from "@/lib/notebook-motion";
 import { cn } from "@/lib/utils/cn";
 
 /**
@@ -112,7 +117,7 @@ export function NotebookRecordGroup({
   className,
   label,
   base = notebookTiming.content,
-  step = 0.06,
+  step = notebookStagger.row,
 }: NotebookRecordGroupProps) {
   return (
     <Group
@@ -121,8 +126,8 @@ export function NotebookRecordGroup({
       data-notebook-stagger
       style={
         {
-          "--notebook-stagger-base": `${base}s`,
-          "--notebook-stagger-step": `${step}s`,
+          "--notebook-stagger-base": notebookSeconds(base),
+          "--notebook-stagger-step": notebookSeconds(step),
         } as CSSProperties
       }
       className={className}
@@ -139,11 +144,13 @@ type NotebookCollectionProps = {
   step?: number;
 };
 
+/** A grid of records. Records are several parts tall, so they stagger on the
+ * record step rather than a list's row step. */
 export function NotebookCollection({
   children,
   className,
   base,
-  step,
+  step = notebookStagger.record,
 }: NotebookCollectionProps) {
   return (
     <NotebookRecordGroup
@@ -166,17 +173,24 @@ type NotebookRecordProps = {
   partStep?: number;
 };
 
+/**
+ * The record itself has no entrance. Its rule draws in place and each part
+ * settles on its own, so every part travels the same 8px once — a record that
+ * also moved would carry its first parts twice as far as its last.
+ */
 export function NotebookRecord({
   children,
   className,
-  partStep = 0.045,
+  partStep = notebookStagger.part,
 }: NotebookRecordProps) {
   return (
     <article
       data-notebook-record
-      style={{ "--notebook-part-step": `${partStep}s` } as CSSProperties}
+      style={
+        { "--notebook-part-step": notebookSeconds(partStep) } as CSSProperties
+      }
       className={cn(
-        "notebook-in-record notebook-lift group relative flex min-w-0 flex-col pt-3",
+        "notebook-lift group relative flex min-w-0 flex-col pt-3",
         className,
       )}
     >
@@ -248,9 +262,14 @@ export function NotebookMedia({
   );
 
   /* Crop marks sit on the wrapper, not the field: they are drawn 5px outside
-   * the frame, and the field clips its own overflow. */
+   * the frame, and the field clips its own overflow. Being outside the field
+   * puts them outside its entrance too, so they take their own on the same
+   * delay (`notebook-in-marks`) rather than printing before the field. */
   return (
-    <div data-entry-part="media" className="crop-marks mb-5.5">
+    <div
+      data-entry-part="media"
+      className="notebook-in-marks crop-marks mb-5.5"
+    >
       {link ? (
         <a
           href={link.href}
@@ -430,8 +449,13 @@ type NotebookRecordRowProps = {
 };
 
 /**
- * One record row: a drawn hairline rule above row content that settles as a
- * unit. Interactive rows lift their rule to ink on hover and focus.
+ * One record row: a hairline rule drawn above row content that settles
+ * beneath it. Interactive rows lift their rule to ink on hover and focus.
+ *
+ * The rule draws in place and only the content settles, the way the page
+ * header's rule and every record's rule do. When the whole row settled, its
+ * rule dropped 8px while it drew and faded twice over — once on its own and
+ * once with the row around it.
  *
  * A row separates rather than bounds, so this rule stays unticked — the ticks
  * belong to the record and the section.
@@ -446,10 +470,7 @@ export function NotebookRecordRow({
     <li
       style={delay === undefined ? undefined : notebookDelay(delay)}
       data-notebook-record-row
-      className={cn(
-        "notebook-in-part group relative flex min-w-0 flex-col",
-        className,
-      )}
+      className={cn("group relative flex min-w-0 flex-col", className)}
     >
       <span
         aria-hidden="true"
@@ -459,7 +480,7 @@ export function NotebookRecordRow({
           interactive && "group-focus-within:bg-ink group-hover:bg-ink",
         )}
       />
-      {children}
+      <div className="notebook-in-part flex min-w-0 flex-col">{children}</div>
     </li>
   );
 }

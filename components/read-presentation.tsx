@@ -15,9 +15,6 @@ type ReadPresentationProps = {
   entries: BookEntry[];
 };
 
-const readGroupStep = 0.075;
-const readRecordPartStep = 0.042;
-
 const ratingPositions = [1, 2, 3, 4, 5] as const;
 
 function formatCompletionMonth(completedAt: BookEntry["completedAt"]) {
@@ -27,12 +24,12 @@ function formatCompletionMonth(completedAt: BookEntry["completedAt"]) {
 
 export function ReadPresentation({ entries }: ReadPresentationProps) {
   return (
-    <NotebookCollection step={readGroupStep} className="mx-auto max-w-4xl">
+    <NotebookCollection className="mx-auto max-w-4xl">
       {entries.map((entry, index) => {
         const loadImmediately = index < 2;
 
         return (
-          <NotebookRecord key={entry.title} partStep={readRecordPartStep}>
+          <NotebookRecord key={entry.title}>
             <NotebookIndex>{`R–${String(index + 1).padStart(2, "0")}`}</NotebookIndex>
             <NotebookMedia mediaClassName="aspect-2/3 p-0 sm:p-0">
               <Image

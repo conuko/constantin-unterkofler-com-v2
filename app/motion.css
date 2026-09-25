@@ -1,11 +1,15 @@
 /* ═══════════════════════════════════════════════════
  * ENTRANCE CHOREOGRAPHY
  *
- * Unchanged by the technical revision. Every timing, curve, and stagger below
- * is the same one the notebook shipped with; see ADR-0004 for why it is CSS
- * and why the identity mark stays out of it.
+ * See ADR-0004 for why it is CSS and why the identity mark stays out of it,
+ * and ADR-0008 for the beat every offset is counted in.
  *
  * The Engineering Notebook registers itself on load: rules draw, parts settle.
+ * Each does it once. A rule draws where it will stay and never travels; a part
+ * settles its 8px and nothing around it moves too, so no entrance is ever
+ * carried by an ancestor's — two entrances stacked on one element land it
+ * twice as far and fade it twice over.
+ *
  * Two rules govern how, and both come from measurement.
  *
  * 1. It is CSS, not JavaScript. When the entrance ran through Motion variants,
@@ -28,7 +32,8 @@
  *    settles on `clip-path` alone for the same reason.
  *
  * Stagger is an absolute `--notebook-delay` per element, rendered into the
- * server HTML. No runtime sequencing, no callback chain.
+ * server HTML and counted in whole beats of 40ms (`notebookBeat` in
+ * `lib/notebook-motion.ts`). No runtime sequencing, no callback chain.
  * ═══════════════════════════════════════════════════ */
 
 :root {
@@ -74,17 +79,6 @@
   }
 }
 
-/* Same reason as `notebook-part-in`: the record's `<article>` is an ancestor
- * of the Work page's glass tiles, so its entrance may not touch `transform`. */
-@keyframes notebook-record-in {
-  from {
-    translate: 0 var(--motion-initial-y);
-  }
-  to {
-    translate: none;
-  }
-}
-
 /* `backwards`, not `both`, and the difference is load-bearing.
  *
  * The backwards half is what the stagger needs: it holds each element at its
@@ -108,17 +102,29 @@
  * a Chrome quirk — which is why `NotebookMedia` hangs this entrance on the
  * glass field itself rather than on a wrapper above it. */
 .notebook-in-part,
+.notebook-in-marks::before,
 .notebook-in-identity,
 .notebook-in-introduction,
 .notebook-in-rule,
-.notebook-in-heading,
-.notebook-in-record {
+.notebook-in-heading {
   animation-delay: var(--notebook-delay, 0s);
   animation-fill-mode: backwards;
   animation-timing-function: var(--notebook-ease);
 }
 
 .notebook-in-part {
+  animation-name: notebook-part-in;
+  animation-duration: 0.32s;
+}
+
+/* A media field's crop marks are its wrapper's `::before`, drawn 5px outside
+ * the field and so outside the field's own entrance. Left alone they printed
+ * at first paint: on every Work load, four corners per record floated on an
+ * empty sheet for up to a second before the tile arrived inside them. They
+ * take the field's entrance instead, on the delay the wrapper already hands
+ * down, so the frame and its marks settle as one drawing. A pseudo-element is
+ * not an ancestor of the glass, so fading it costs the backdrop nothing. */
+.notebook-in-marks::before {
   animation-name: notebook-part-in;
   animation-duration: 0.32s;
 }
@@ -154,21 +160,16 @@
   animation-duration: 0.36s;
 }
 
-.notebook-in-record {
-  animation-name: notebook-record-in;
-  animation-duration: 0.42s;
-}
-
 /* The global reduced-motion reset zeroes durations through a `*` selector,
  * which loses to these classes on specificity. Say it again where it lands:
  * no entrance at all, content already in place. */
 @media (prefers-reduced-motion: reduce) {
   .notebook-in-part,
+  .notebook-in-marks::before,
   .notebook-in-identity,
   .notebook-in-introduction,
   .notebook-in-rule,
-  .notebook-in-heading,
-  .notebook-in-record {
+  .notebook-in-heading {
     animation: none;
   }
 
@@ -183,14 +184,15 @@
  *
  * Reading order is DOM order, so the index comes from the DOM. A group names
  * its own base offset and step once, inline; every child derives its delay
- * from its position.
+ * from its position. The fallbacks are one beat; the components always name
+ * their step, so they only matter to markup that forgets to.
  * ═══════════════════════════════════════════════════ */
 
 [data-notebook-stagger] > * {
   --notebook-delay: calc(
     var(--notebook-stagger-base, 0s) +
     var(--notebook-stagger-index, 0) *
-    var(--notebook-stagger-step, 0.06s)
+    var(--notebook-stagger-step, 0.04s)
   );
   /* Handed down so a record's own parts continue from where it started. */
   --notebook-part-base: var(--notebook-delay);
@@ -261,7 +263,7 @@
   --notebook-delay: calc(
     var(--notebook-part-base, 0s) +
     var(--notebook-part-index, 0) *
-    var(--notebook-part-step, 0.045s)
+    var(--notebook-part-step, 0.04s)
   );
 }
 
@@ -300,10 +302,13 @@
  * INTERACTION
  *
  * Hover and press use the independent `translate` and `scale` properties
- * rather than `transform`. A running animation outranks a transition, so an
- * entrance in flight simply wins, and the moment it ends (no forwards fill)
- * the hover transition takes the property back. Both keyframes end at
- * `translate: none`, which is the resting value, so nothing jumps.
+ * rather than `transform`. The lift sits on the record or the row link and
+ * the entrance on the parts inside it, never on the same element, so a hover
+ * that lands mid-entrance lifts the record while its parts are still
+ * settling, and neither motion interrupts the other. Where a control does
+ * carry both, a running animation outranks a transition, so the entrance
+ * wins, and the moment it ends (no forwards fill) the hover transition takes
+ * the property back from the same resting value, so nothing jumps.
  *
  * The stronger reason to stay off `transform` is `backdrop-filter`: any
  * non-`none` `transform` on an ancestor orphans a descendant's backdrop, and

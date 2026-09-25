@@ -119,6 +119,9 @@ type DesktopWayfindingProps = {
   pathname: string;
 };
 
+/* The links land in step with the page header on the first load: the first
+ * with the page title, the next with the introduction, the last with the
+ * header rule. */
 function DesktopWayfinding({ items, pathname }: DesktopWayfindingProps) {
   return (
     <nav aria-label="Primary">
@@ -308,11 +311,17 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
           <IdentityMark shortName={identity.shortName} />
         </div>
 
-        <div
-          style={notebookDelay(notebookTiming.siteHeaderControls)}
-          className="notebook-in-part hidden flex-col items-end gap-2.5 lg:flex"
-        >
-          <AppearanceControl />
+        {/* The column itself has no entrance; the toggle and each link take
+         * their own. When the column settled too, every link inside it rode
+         * two entrances at once — twice the travel, faded twice over — and
+         * arrived on a different footing from everything else on the sheet. */}
+        <div className="hidden flex-col items-end gap-2.5 lg:flex">
+          <div
+            style={notebookDelay(notebookTiming.siteHeaderControls)}
+            className="notebook-in-part"
+          >
+            <AppearanceControl />
+          </div>
           <DesktopWayfinding items={primaryWayfinding} pathname={pathname} />
         </div>
 
