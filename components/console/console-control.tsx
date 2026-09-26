@@ -34,7 +34,7 @@ export function SiteConsoleControl({
         className,
       )}
     >
-      <span aria-hidden className="text-console-accent">
+      <span aria-hidden className="text-annotation-on-ink">
         &gt;_
       </span>
       <span>Console</span>

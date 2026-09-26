@@ -19,6 +19,8 @@ colors:
   dot-dark: "rgba(248, 247, 242, 0.07)"
   dot-major-dark: "rgba(248, 247, 242, 0.16)"
   annotation-dark: "oklch(0.78 0.11 250)"
+  annotation-on-ink: "oklch(0.78 0.11 250)"
+  annotation-on-ink-dark: "oklch(0.52 0.13 250)"
   card-glass-dark: "rgba(248, 247, 242, 0.06)"
   media-field-dark: "rgba(248, 247, 242, 0.92)"
   media-field-rule-dark: "rgba(248, 247, 242, 0.28)"
@@ -38,19 +40,19 @@ typography:
   display:
     fontFamily: "Bebas Neue, serif"
     fontSize: "3rem"
-    fontWeight: 400
+    fontWeight: 600
     lineHeight: 1
     letterSpacing: "-0.025em"
   headline:
     fontFamily: "Bebas Neue, serif"
     fontSize: "1.875rem"
-    fontWeight: 400
+    fontWeight: 600
     lineHeight: 1.25
     letterSpacing: "-0.025em"
   title:
     fontFamily: "Bebas Neue, serif"
     fontSize: "1.5rem"
-    fontWeight: 400
+    fontWeight: 600
     lineHeight: 1
     letterSpacing: "-0.025em"
   body:
@@ -192,6 +194,11 @@ annotation blue, plus a separate, unthemed console palette.
   lines, stack group labels in the Specification Block, and the console prompt
   path. It never carries body copy, never fills a surface, and never stands in
   for ink.
+- **Annotation on Ink** (`annotation-on-ink`; `annotation-on-ink-dark` in the
+  dark theme): the same pen on an ink-filled surface, which is only the `>_`
+  glyph on the console control. Ink inverts with the theme, so this token takes
+  the other theme's annotation value: the light blue on dark ink (9.5:1), the
+  deep blue on light ink (5.1:1).
 
 ### Neutral
 
@@ -224,9 +231,9 @@ for light mode stops reading as a terminal.
 - **Terminal Ink** (`console-ink` 82%, `console-output` 55%,
   `console-ink-muted` 45% of paper): typed input, command output, chrome
   labels.
-- **Prompt Blue** (`console-accent`): the working-directory path, the banner,
-  and the `>_` glyph on the console control. It is the dark theme's
-  annotation value.
+- **Prompt Blue** (`console-accent`): the working-directory path and the
+  banner. It is the dark theme's annotation value, fixed because the window
+  never changes theme.
 - **Command Green** (`console-command`): command names and the block caret.
 - **Error Coral** (`console-error`): error output.
 - **Traffic Lights** (`console-light-close`, `-minimize`, `-zoom`): quoted from
@@ -253,7 +260,7 @@ Annotation Blue.
 
 ## Typography
 
-**Display Font:** Bebas Neue (fallback: serif), regular only
+**Display Font:** Bebas Neue (fallback: serif), one cut (400), set at semibold
 **Body Font:** Space Grotesk (fallback: sans-serif)
 **Data Font:** Space Mono (fallback: ui-monospace, monospace), regular only
 **Console Banner Font:** the platform terminal stack (`ui-monospace`, SF Mono,
@@ -266,12 +273,12 @@ fixed-width cuts of one voice, not a contrast.
 
 ### Hierarchy
 
-- **Display** (Bebas Neue, 48px, 72px from `lg`, leading 1, -0.025em): page
+- **Display** (Bebas Neue semibold, 48px, 72px from `lg`, leading 1, -0.025em): page
   titles and Constantin's name on Home. It carries the sheet's LCP.
-- **Headline** (Bebas Neue, 30px, 36px from `lg`, leading 1.25, -0.025em): the
+- **Headline** (Bebas Neue semibold, 30px, 36px from `lg`, leading 1.25, -0.025em): the
   Greeting, written above the name inside a two-line stage so the rewrites
   never shift the layout.
-- **Title** (Bebas Neue, 24px, leading 1, -0.025em): record titles, such as
+- **Title** (Bebas Neue semibold, 24px, leading 1, -0.025em): record titles, such as
   Work clients.
 - **Body** (Space Grotesk, 14px, leading 1.625): introductions, annotations and
   CV entries. The page introduction's measure is capped at 720px. Wayfinding
@@ -300,6 +307,15 @@ set in Space Mono. Sentences stay in Space Grotesk.
 loaded. `next/font` preloads every weight it is given, so a second cut is
 bytes on every visit. Hierarchy comes from face, size, case and tracking, not
 weight.
+
+**The Deliberate Semibold.** Bebas Neue is drawn in one weight, and the titles
+ask it for `font-semibold` anyway, on purpose: the heavier title is the look.
+The browser synthesizes it by thickening the outlines, at no byte cost.
+Chrome adds about 1/32 of the font size (2.25px at 72px), and other engines
+use their own amounts, so the weight varies slightly between browsers. The
+thickening adds ink but no advance width, so at -0.025em tracking the
+display letters come close to touching. That is accepted. It is the only
+synthesized weight in the system: never ask Space Mono for one.
 
 **The Block Art Exception.** The console banner is the only thing not set in
 Space Mono. That face ships no block or box-drawing glyphs, and the browser's
@@ -484,7 +500,7 @@ Constantin, not entries in a collection.
   Micro caps in Faded Ink, at least 36px tall. On hover the border and text
   lift to ink.
 - **Console control:** square, ink-filled, Paper text, at least 36px tall. It
-  shows the `>_` glyph in Prompt Blue, "Console", and `K` in a 35%-opacity
+  shows the `>_` glyph in Annotation on Ink, "Console", and `K` in a 35%-opacity
   hairline box. It sits in the Closing Record's right column above the build
   stamp, and its hover scale is 1.02.
 - **Disabled:** a 1px dashed Hairline border with text at 40% ink.
@@ -589,7 +605,9 @@ greeting.
   around the identity mark and header glyph controls.
 - **Don't** use Annotation Blue for body copy, fills or emphasis, and don't
   put more than one dimension line on a page.
-- **Don't** load a second weight of Bebas Neue or Space Mono.
+- **Don't** load a second weight of Bebas Neue or Space Mono, or request a
+  weight from Space Mono it does not have. The titles' semibold on Bebas Neue
+  is the one deliberate synthesized weight.
 - **Don't** give the identity mark an entrance, or fade a page title. Both
   carry paint timing.
 - **Don't** use `animation-fill-mode: both`, or animate `transform` on an

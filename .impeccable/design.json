@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-25T00:00:00Z",
+  "generatedAt": "2026-09-25T14:49:14.589Z",
   "title": "Design System: Constantin Unterkofler",
   "extensions": {
     "colorMeta": {
@@ -23,6 +23,16 @@
         "role": "primary",
         "displayName": "Annotation Blue (dark theme)",
         "canonical": "oklch(0.78 0.11 250)"
+      },
+      "annotation-on-ink": {
+        "role": "primary",
+        "displayName": "Annotation on Ink",
+        "canonical": "oklch(0.78 0.11 250)"
+      },
+      "annotation-on-ink-dark": {
+        "role": "primary",
+        "displayName": "Annotation on Ink (dark theme)",
+        "canonical": "oklch(0.52 0.13 250)"
       },
       "paper": {
         "role": "neutral",
@@ -287,9 +297,18 @@
       }
     ],
     "breakpoints": [
-      { "name": "sm", "value": "640px" },
-      { "name": "md", "value": "768px" },
-      { "name": "lg", "value": "1024px" }
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
     ]
   },
   "components": [
@@ -307,7 +326,7 @@
       "refersTo": "console-control",
       "description": "The ink-filled control in the Closing Record that opens the Site Console.",
       "html": "<button class=\"ds-console-control\" type=\"button\" aria-keyshortcuts=\"K\"><span class=\"ds-console-control-prompt\" aria-hidden=\"true\">&gt;_</span><span>Console</span><span class=\"ds-console-control-key\" aria-hidden=\"true\">K</span></button>",
-      "css": ".ds-console-control { display: inline-flex; align-items: center; gap: 10px; min-height: 36px; padding: 10px 14px; border: 1px solid var(--color-ink, #111111); border-radius: 0; background: var(--color-ink, #111111); color: var(--color-paper, #f8f7f2); font-family: var(--font-mono, 'Space Mono', ui-monospace, monospace); font-size: 10px; letter-spacing: 0.12em; line-height: 1.4; text-transform: uppercase; cursor: pointer; transition: scale 300ms var(--ease-spring, cubic-bezier(0.34,1.56,0.64,1)); } .ds-console-control-prompt { color: var(--color-console-accent, oklch(0.78 0.11 250)); } .ds-console-control-key { border: 1px solid color-mix(in srgb, currentColor 35%, transparent); padding: 1px 6px; opacity: 0.75; } .ds-console-control:hover { scale: 1.02; } .ds-console-control:active { scale: 0.995; } .ds-console-control:focus-visible { outline: 2px solid var(--color-ink, #111111); outline-offset: 2px; }"
+      "css": ".ds-console-control { display: inline-flex; align-items: center; gap: 10px; min-height: 36px; padding: 10px 14px; border: 1px solid var(--color-ink, #111111); border-radius: 0; background: var(--color-ink, #111111); color: var(--color-paper, #f8f7f2); font-family: var(--font-mono, 'Space Mono', ui-monospace, monospace); font-size: 10px; letter-spacing: 0.12em; line-height: 1.4; text-transform: uppercase; cursor: pointer; transition: scale 300ms var(--ease-spring, cubic-bezier(0.34,1.56,0.64,1)); } .ds-console-control-prompt { color: var(--color-annotation-on-ink, oklch(0.78 0.11 250)); } .ds-console-control-key { border: 1px solid color-mix(in srgb, currentColor 35%, transparent); padding: 1px 6px; opacity: 0.75; } .ds-console-control:hover { scale: 1.02; } .ds-console-control:active { scale: 0.995; } .ds-console-control:focus-visible { outline: 2px solid var(--color-ink, #111111); outline-offset: 2px; }"
     },
     {
       "name": "Wayfinding Link",
@@ -388,7 +407,7 @@
       },
       {
         "name": "The Regular Cut Rule",
-        "body": "Only one weight of Bebas Neue and Space Mono is loaded. `next/font` preloads every weight it is given, so a second cut is bytes on every visit. Hierarchy comes from face, size, case and tracking, not weight.",
+        "body": "Only one weight of Bebas Neue and Space Mono is loaded. `next/font` preloads every weight it is given, so a second cut is bytes on every visit. Hierarchy comes from face, size, case and tracking, not weight. The one exception is deliberate: the titles ask Bebas Neue for `font-semibold`, and the browser synthesizes it by thickening the outlines (Chrome adds about 1/32 of the font size; other engines differ slightly). It adds ink but no advance width, so tight display tracking comes close to touching. Never ask Space Mono for a synthesized weight.",
         "section": "typography"
       },
       {
@@ -438,7 +457,7 @@
       "Don't raise `--blur-glass` above 1px, and don't add an inset highlight or bevel to glass.",
       "Don't draw column guides, a rule above the Closing Record, or frames around the identity mark and header glyph controls.",
       "Don't use Annotation Blue for body copy, fills or emphasis, and don't put more than one dimension line on a page.",
-      "Don't load a second weight of Bebas Neue or Space Mono.",
+      "Don't load a second weight of Bebas Neue or Space Mono, or request a weight from Space Mono it does not have. The titles' semibold on Bebas Neue is the one deliberate synthesized weight.",
       "Don't give the identity mark an entrance, or fade a page title. Both carry paint timing.",
       "Don't use `animation-fill-mode: both`, or animate `transform` on an ancestor of glass.",
       "Don't set type below 10px, or use 10px for anything but uppercase mono.",

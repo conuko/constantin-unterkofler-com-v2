@@ -33,7 +33,7 @@ Constantin's deliberate whole-number assessment of a completed book on an inclus
 _Avoid_: Star score, review score
 
 **Closing Record**:
-The in-flow footer record that ends every Portfolio Page with the copyright and one concise identity/status line. It draws no rule of its own; the page's bottom edge already ends the sheet.
+The footer record that ends every Portfolio Page with three things: the copyright year, the control that opens the Site Console, and the build stamp. It carries no identity or status line, and it draws no rule of its own; the page's bottom edge already ends the sheet.
 _Avoid_: Footer bar, fixed copyright
 
 **Greeting**:
