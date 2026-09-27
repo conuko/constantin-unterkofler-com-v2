@@ -207,6 +207,9 @@ describe("Portfolio Content", () => {
         meta: entry.primaryMetadata.toLowerCase(),
       })),
     );
+    expect(portfolioContent.console.repositoryUrl).toBe(
+      "https://github.com/conuko/constantin-unterkofler-com-v2",
+    );
   });
 
   test("keeps Work destinations optional and marks draft descriptions for owner review", () => {
