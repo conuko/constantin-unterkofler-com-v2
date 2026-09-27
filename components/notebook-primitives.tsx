@@ -25,7 +25,7 @@ type NotebookPageHeaderProps = {
   introduction?: ReactNode;
   /** Absent on the home Portfolio Page, where the Greeting takes this slot. */
   sectionCode?: string;
-  /** Right-aligned sheet stamp, e.g. "Sheet W · 07 records". */
+  /** Right-aligned sheet stamp, e.g. "Sheet W · 08 records". */
   sheetMeta?: string;
   showRule?: boolean;
   title: string;

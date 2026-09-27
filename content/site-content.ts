@@ -460,6 +460,23 @@ const workEntries: WorkEntry[] = [
     ],
   },
   {
+    client: "Movielingo",
+    url: "https://github.com/Movielingo",
+    primaryMetadata: "Language-learning app",
+    description:
+      "Built Movielingo, an open-source vocabulary-learning app based on movies and series. It helps people learn the words used in what they want to watch, using spaced repetition to move vocabulary into long-term memory.",
+    techStack: ["Flutter", "Firebase", "Python", "spaCy"],
+    marks: [
+      {
+        src: "/marks/sb-migrate.svg",
+        filename: "sb-migrate.svg",
+        alt: "Terminal prompt icon for Movielingo",
+        width: 240,
+        height: 160,
+      },
+    ],
+  },
+  {
     client: "FIFA",
     url: "https://publications.fifa.com/en/talent-development/",
     primaryMetadata: "Web platform",
@@ -531,7 +548,7 @@ const portfolioPages = {
         {
           label: "Stack",
           value:
-            "Frontend and Backend: TypeScript · React · Next.js · Vue · Nuxt · Node.js · NestJS · Tailwind CSS · React Native · Expo · Python · DBs: PostgreSQL · Prisma · Redis · Infrastructure: Docker · Turborepo · AWS Services · GitHub Actions · Datadog",
+            "Frontend and Backend: TypeScript · React · Next.js · Vue · Nuxt · Node.js · NestJS · Tailwind CSS · React Native · Expo · Flutter · Python · DBs: PostgreSQL · Prisma · Redis · Infrastructure: Docker · Turborepo · AWS Services · GitHub Actions · Datadog",
         },
       ] satisfies SpecificationField[],
     },
@@ -582,7 +599,7 @@ const portfolioPages = {
     publicationStatus: "published" satisfies PublicationStatus,
     route: "/work",
     sectionCode: "W",
-    sheetMeta: "Sheet W · 07 records",
+    sheetMeta: "Sheet W · 08 records",
     title: "Work",
     width: "collection",
     metadata: {

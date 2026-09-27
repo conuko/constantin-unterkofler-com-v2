@@ -80,8 +80,10 @@ neighbouring portfolio can copy the words but not these mechanisms.
 
 ## Evidence on Hand
 
-- Seven Work entries (Fielmann, Levi's, SB Migrate, TenneT, Harrods, SCAYLE /
-  ABOUT YOU, FIFA) with client marks in `public/marks/`.
+- Eight Work entries (Fielmann, Levi's, SB Migrate, TenneT, Harrods, SCAYLE /
+  ABOUT YOU, Movielingo, FIFA) with project marks in `public/marks/`.
+  Movielingo intentionally reuses the SB Migrate terminal prompt because the
+  project has no official logo.
 - CV (work and education), the About introduction, and the Specification Block.
 - Unpublished: six books with covers and Personal Ratings (`content/books/`),
   and six tracks with covers (`content/covers/`).

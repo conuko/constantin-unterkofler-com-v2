@@ -125,7 +125,7 @@ describe("Portfolio Content", () => {
       {
         label: "Stack",
         value:
-          "Frontend and Backend: TypeScript · React · Next.js · Vue · Nuxt · Node.js · NestJS · Tailwind CSS · React Native · Expo · Python · DBs: PostgreSQL · Prisma · Redis · Infrastructure: Docker · Turborepo · AWS Services · GitHub Actions · Datadog",
+          "Frontend and Backend: TypeScript · React · Next.js · Vue · Nuxt · Node.js · NestJS · Tailwind CSS · React Native · Expo · Flutter · Python · DBs: PostgreSQL · Prisma · Redis · Infrastructure: Docker · Turborepo · AWS Services · GitHub Actions · Datadog",
       },
     ]);
   });
@@ -309,6 +309,7 @@ describe("Portfolio Content", () => {
       "TenneT",
       "Harrods",
       "SCAYLE / ABOUT YOU",
+      "Movielingo",
       "FIFA",
     ]);
   });
@@ -325,6 +326,7 @@ describe("Portfolio Content", () => {
       "Web platform",
       "Commerce delivery",
       "Commerce platform",
+      "Language-learning app",
       "Web platform",
     ]);
   });
@@ -387,6 +389,11 @@ describe("Portfolio Content", () => {
         descriptionReview: undefined,
       },
       {
+        client: "Movielingo",
+        url: "https://github.com/Movielingo",
+        descriptionReview: undefined,
+      },
+      {
         client: "FIFA",
         url: "https://publications.fifa.com/en/talent-development/",
         descriptionReview: undefined,
@@ -394,7 +401,7 @@ describe("Portfolio Content", () => {
     ]);
   });
 
-  test("references official local Work marks with unique meaningful descriptions", () => {
+  test("references local Work marks with unique meaningful descriptions", () => {
     const marks = portfolioContent.pages.work.content.entries.flatMap(
       (entry) => entry.marks,
     );
@@ -419,6 +426,10 @@ describe("Portfolio Content", () => {
         src: "/marks/about-you.svg",
         alt: "ABOUT YOU black-and-white wordmark",
       },
+      {
+        src: "/marks/sb-migrate.svg",
+        alt: "Terminal prompt icon for Movielingo",
+      },
       { src: "/marks/fifa.svg", alt: "FIFA blue wordmark" },
     ]);
     expect(new Set(marks.map((mark) => mark.alt)).size).toBe(marks.length);
@@ -442,7 +453,7 @@ describe("Portfolio Content", () => {
       ),
     ];
 
-    expect(images).toHaveLength(14);
+    expect(images).toHaveLength(15);
     expect(
       images.every(
         (image) => Boolean(image.src) && image.alt.trim().length > 0,

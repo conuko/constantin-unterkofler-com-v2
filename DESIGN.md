@@ -347,7 +347,11 @@ intervals without a printed line.
 ```css
 background-image:
   radial-gradient(circle at 1px 1px, var(--color-dot) 0.5px, transparent 1px),
-  radial-gradient(circle at 1px 1px, var(--color-dot-major) 0.9px, transparent 1.4px);
+  radial-gradient(
+    circle at 1px 1px,
+    var(--color-dot-major) 0.9px,
+    transparent 1.4px
+  );
 background-size:
   var(--grid-pitch) var(--grid-pitch),
   var(--grid-pitch-major) var(--grid-pitch-major);
@@ -467,7 +471,8 @@ The unit of Portfolio Content. From top to bottom:
 **Brand marks in the dark theme.** Each Work mark takes one of three answers,
 set in `markRendering` in `components/work-presentation.tsx`. Marks legible on
 either ground (Levi's, FIFA, TenneT, ABOUT YOU) get nothing. Single-colour
-marks (Harrods, Fielmann, SB Migrate) are re-inked with
+marks (Harrods, Fielmann, and the terminal prompt shared by SB Migrate and
+Movielingo) are re-inked with
 `dark:brightness-0 dark:invert`. Marks with a brand accent (SCAYLE) get a
 second cut, `darkSrc`, because a filter would invert the accent too. Both cuts
 carry the real `alt`, and the hidden one is `display: none`.
