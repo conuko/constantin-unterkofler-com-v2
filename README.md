@@ -1,6 +1,6 @@
-# constantin-unterkofler.com
+# constantinunterkofler.com
 
-Source code for my portfolio [constantin-unterkofler.com](https://constantin-unterkofler.com).
+Source code for my portfolio [constantinunterkofler.com](https://constantinunterkofler.com).
 
 The site is designed as an Engineering Notebook: structured records on warm
 paper, black ink, one annotation blue, and drafting marks instead of decoration.
