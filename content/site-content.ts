@@ -111,7 +111,7 @@ const closingRecord = {
 const aboutIntroduction = [
   "I’m a Senior Software Engineer who works best close to the people using what I build. At Jung von Matt, I partner closely with client teams from early discovery and technical direction through hands-on delivery and production handover, turning complex requirements into clear product decisions and scalable digital products.",
   "I care about the details that decide whether software feels right: how fast it responds, how it moves, and whether everyone can use it.",
-  "Italian-German, I grew up in Bolzano and studied Philosophy and Cultural Studies before Software Engineering. That path still shapes how I ask questions, connect perspectives and turn an unclear problem into a clear decision.",
+  "Growing up Italian-German in Bolzano, I built my first website with JavaScript, HTML and CSS at 16. I later chose to study Philosophy and Cultural Studies before finding my way back to Software Engineering. That path still shapes how I ask questions, connect perspectives and turn an unclear problem into a clear decision.",
 ];
 
 const cvSections: CvSection[] = [
