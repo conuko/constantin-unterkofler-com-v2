@@ -5,10 +5,13 @@ import {
   NotebookRecordRow,
 } from "@/components/notebook-primitives";
 import type { SpecificationField } from "@/content/site-content";
+import { cn } from "@/lib/utils/cn";
 
 type SpecificationBlockProps = {
   fields: SpecificationField[];
 };
+
+const proseFields = new Set(["Focus", "Stack"]);
 
 const stackGroupLabels = new Set([
   "Frontend and Backend",
@@ -75,7 +78,12 @@ export function SpecificationBlock({ fields }: SpecificationBlockProps) {
       {fields.map((field) => (
         <NotebookRecordRow key={field.label} className="pt-3.5">
           <NotebookLabel>{field.label}</NotebookLabel>
-          <p className="mt-2.5 font-mono text-sm">
+          <p
+            className={cn(
+              "mt-2.5 font-mono text-sm",
+              proseFields.has(field.label) ? "text-pretty" : "text-balance",
+            )}
+          >
             {field.label === "Stack"
               ? renderStackValue(field.value)
               : field.value}

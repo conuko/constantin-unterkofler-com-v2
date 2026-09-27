@@ -6,7 +6,7 @@ type PortfolioPageProps = {
   title: string;
   /** Absent on the home Portfolio Page, whose title begins with a greeting. */
   sectionCode?: string;
-  /** Right-aligned sheet stamp, e.g. "Sheet W · 07 records". */
+  /** Right-aligned sheet stamp, e.g. "Sheet W · 08 records". */
   sheetMeta?: string;
   greeting?: ReactNode;
   introduction?: ReactNode;

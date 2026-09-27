@@ -30,6 +30,12 @@
    * never a fill. */
   --color-annotation: oklch(0.52 0.13 250);
 
+  /* The annotation colour for marks set on an ink fill — the console
+   * control's prompt glyph. Ink inverts with the theme, so this is the other
+   * theme's annotation value: the light blue on dark ink here, the deep blue on
+   * light ink in the dark theme, where the light blue fell to 1.85:1. */
+  --color-annotation-on-ink: oklch(0.78 0.11 250);
+
   --color-card-stroke: rgba(17, 17, 17, 0.82);
   --color-card-glass: rgba(255, 255, 255, 0.52);
   --color-media-field: rgba(255, 255, 255, 0.72);
@@ -37,9 +43,6 @@
 
   --color-background: var(--color-paper);
   --color-foreground: var(--color-ink);
-
-  --color-brand-spotify: #1db954;
-  --color-brand-apple-music: #fa233b;
 
   /* The console is one dark window in both themes. It is not themed, because a
    * terminal that repaints itself for light mode stops reading as a terminal. */
@@ -192,6 +195,7 @@
   --color-dot: rgba(248, 247, 242, 0.07);
   --color-dot-major: rgba(248, 247, 242, 0.16);
   --color-annotation: oklch(0.78 0.11 250);
+  --color-annotation-on-ink: oklch(0.52 0.13 250);
   --color-card-stroke: rgba(248, 247, 242, 0.82);
   --color-card-glass: rgba(248, 247, 242, 0.06);
   --color-media-field: rgba(248, 247, 242, 0.92);
