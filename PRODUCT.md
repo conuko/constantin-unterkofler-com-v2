@@ -39,9 +39,7 @@ neighbouring portfolio can copy the words but not these mechanisms.
 
 ## Operating Context
 
-- Published Portfolio Pages: Home, About me, Work, Contact. Read and Play are
-  curated but unpublished. `publicationStatus` in `content/site-content.ts` is
-  the only switch, and their routes return `notFound()` (ADR-0003).
+- Portfolio Pages: Home, About me, Work, Contact.
 - The Site Console opens with `K` or from the Closing Record. It docks on
   desktop and mobile and can be dragged on desktop.
 - The visitor can choose a light, dark or system theme.
@@ -85,8 +83,6 @@ neighbouring portfolio can copy the words but not these mechanisms.
   Movielingo intentionally reuses the SB Migrate terminal prompt because the
   project has no official logo.
 - CV (work and education), the About introduction, and the Specification Block.
-- Unpublished: six books with covers and Personal Ratings (`content/books/`),
-  and six tracks with covers (`content/covers/`).
 - Contact: email, GitHub, LinkedIn.
 - Absent, and not to be fabricated: testimonials, client quotes, metrics or
   performance numbers, screenshots of client work, and clients without a Work entry.

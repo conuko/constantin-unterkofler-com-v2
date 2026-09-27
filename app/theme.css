@@ -44,9 +44,6 @@
   --color-background: var(--color-paper);
   --color-foreground: var(--color-ink);
 
-  --color-brand-spotify: #1db954;
-  --color-brand-apple-music: #fa233b;
-
   /* The console is one dark window in both themes. It is not themed, because a
    * terminal that repaints itself for light mode stops reading as a terminal. */
   --color-console-surface: #15141a;

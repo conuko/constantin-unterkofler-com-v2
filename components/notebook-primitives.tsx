@@ -320,54 +320,6 @@ export function NotebookAnnotation({ children }: { children: ReactNode }) {
   );
 }
 
-type NotebookActionsProps = {
-  children: ReactNode;
-  label: string;
-};
-
-export function NotebookActions({ children, label }: NotebookActionsProps) {
-  return (
-    <ul
-      data-entry-part="actions"
-      aria-label={label}
-      className="notebook-in-part mt-5 flex flex-wrap gap-3"
-    >
-      {children}
-    </ul>
-  );
-}
-
-type NotebookActionProps = {
-  children: ReactNode;
-  className?: string;
-  href: string;
-  label: string;
-};
-
-export function NotebookAction({
-  children,
-  className,
-  href,
-  label,
-}: NotebookActionProps) {
-  return (
-    <li>
-      <a
-        href={href}
-        target="_blank"
-        rel="noreferrer noopener"
-        aria-label={label}
-        className={cn(
-          "notebook-press label inline-flex min-h-9 items-center gap-2 border border-rule bg-card-glass px-3.5 py-2 text-ink-muted text-micro backdrop-blur-glass hover:border-ink hover:text-ink",
-          className,
-        )}
-      >
-        {children}
-      </a>
-    </li>
-  );
-}
-
 type NotebookTagsProps = {
   children?: ReactNode;
   label: string;

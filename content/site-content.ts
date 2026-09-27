@@ -1,16 +1,3 @@
-import type { StaticImageData } from "next/image";
-import coverALittleLife from "@/content/books/a-little-life.jpg";
-import coverDieDunkleSeiteDesMondes from "@/content/books/die-dunkle-seite-des-mondes.jpg";
-import coverPresumedInnocent from "@/content/books/presumed-innocent.jpg";
-import coverTheBlackEcho from "@/content/books/the-black-echo.webp";
-import coverTheThreeBodyProblem from "@/content/books/the-three-body-problem.jpg";
-import coverTomorrowAndTomorrowAndTomorrow from "@/content/books/tomorrow-and-tomorrow-and-tomorrow.jpg";
-import coverElevatorMusic from "@/content/covers/elevator-music.jpg";
-import coverLiveAtRonnieScotts from "@/content/covers/live-at-ronnie-scotts.jpg";
-import coverOhCherie from "@/content/covers/oh-cherie.jpg";
-import coverSongsInTheKeyOfLife from "@/content/covers/songs-in-the-key-of-life.jpg";
-import coverTheFearlessFlyers from "@/content/covers/the-fearless-flyers.jpg";
-import coverUndercurrent from "@/content/covers/undercurrent.jpg";
 import { greetings } from "@/content/greetings";
 import packageJson from "../package.json";
 
@@ -18,8 +5,6 @@ export type NavItem = {
   href: string;
   label: string;
 };
-
-type PublicationStatus = "published" | "unpublished";
 
 type CvEntry = {
   organization: string;
@@ -30,31 +15,6 @@ type CvEntry = {
 export type CvSection = {
   title: string;
   entries: CvEntry[];
-};
-
-type ContentImage = {
-  src: StaticImageData;
-  alt: string;
-};
-
-export type TrackEntry = {
-  title: string;
-  artist: string;
-  album: string;
-  musicalKey: string;
-  cover: ContentImage;
-  spotifyUrl: string;
-  appleMusicUrl: string;
-};
-
-export type PersonalRating = 0 | 1 | 2 | 3 | 4 | 5;
-
-export type BookEntry = {
-  title: string;
-  author: string;
-  completedAt: `${number}-${number}`;
-  personalRating: PersonalRating;
-  cover: ContentImage;
 };
 
 export type WorkEntry = {
@@ -154,153 +114,6 @@ const cvSections: CvSection[] = [
         years: "2017–21",
       },
     ],
-  },
-];
-
-const trackEntries: TrackEntry[] = [
-  {
-    title: "Oh Chérie",
-    artist: "DAS MAER",
-    album: "Oh Chérie",
-    musicalKey: "Am",
-    cover: {
-      src: coverOhCherie,
-      alt: "Oh Chérie cover with three red cherries on a blue background",
-    },
-    spotifyUrl: "https://open.spotify.com/search/Oh%20Ch%C3%A9rie%20DAS%20MAER",
-    appleMusicUrl:
-      "https://music.apple.com/us/search?term=Oh%20Ch%C3%A9rie%20DAS%20MAER",
-  },
-  {
-    title: "Airplane Mode",
-    artist: "Cory Wong",
-    album: "Elevator Music for an Elevated Mood",
-    musicalKey: "Db",
-    cover: {
-      src: coverElevatorMusic,
-      alt: "Cory Wong playing guitar on the Elevator Music for an Elevated Mood cover",
-    },
-    spotifyUrl: "https://open.spotify.com/search/Airplane%20Mode%20Cory%20Wong",
-    appleMusicUrl:
-      "https://music.apple.com/us/search?term=Airplane%20Mode%20Cory%20Wong",
-  },
-  {
-    title: "Isn't She Lovely",
-    artist: "Stevie Wonder",
-    album: "Songs in the Key of Life",
-    musicalKey: "E",
-    cover: {
-      src: coverSongsInTheKeyOfLife,
-      alt: "Songs in the Key of Life cover with warm concentric circles around Stevie Wonder",
-    },
-    spotifyUrl:
-      "https://open.spotify.com/search/Isn't%20She%20Lovely%20Stevie%20Wonder",
-    appleMusicUrl:
-      "https://music.apple.com/us/search?term=Isn't%20She%20Lovely%20Stevie%20Wonder",
-  },
-  {
-    title: "Darn That Dream",
-    artist: "Bill Evans / Jim Hall",
-    album: "Undercurrent",
-    musicalKey: "G",
-    cover: {
-      src: coverUndercurrent,
-      alt: "Undercurrent album cover showing a woman floating underwater",
-    },
-    spotifyUrl:
-      "https://open.spotify.com/search/Darn%20That%20Dream%20Bill%20Evans%20Jim%20Hall",
-    appleMusicUrl:
-      "https://music.apple.com/us/search?term=Darn%20That%20Dream%20Bill%20Evans%20Jim%20Hall",
-  },
-  {
-    title: "Ace of Aces",
-    artist: "The Fearless Flyers",
-    album: "The Fearless Flyers",
-    musicalKey: "E",
-    cover: {
-      src: coverTheFearlessFlyers,
-      alt: "The Fearless Flyers cover collage of the band playing guitar and drums",
-    },
-    spotifyUrl:
-      "https://open.spotify.com/search/Ace%20of%20Aces%20Fearless%20Flyers",
-    appleMusicUrl:
-      "https://music.apple.com/us/search?term=Ace%20of%20Aces%20Fearless%20Flyers",
-  },
-  {
-    title: "Stratus",
-    artist: "Jeff Beck",
-    album: "Live at Ronnie Scott's",
-    musicalKey: "Em",
-    cover: {
-      src: coverLiveAtRonnieScotts,
-      alt: "Jeff Beck playing guitar on the Live at Ronnie Scott's cover",
-    },
-    spotifyUrl: "https://open.spotify.com/search/Stratus%20Jeff%20Beck",
-    appleMusicUrl:
-      "https://music.apple.com/us/search?term=Stratus%20Jeff%20Beck",
-  },
-];
-
-const bookEntries: BookEntry[] = [
-  {
-    title: "Tomorrow, and Tomorrow, and Tomorrow",
-    author: "Gabrielle Zevin",
-    completedAt: "2026-08",
-    personalRating: 5,
-    cover: {
-      src: coverTomorrowAndTomorrowAndTomorrow,
-      alt: "Tomorrow, and Tomorrow, and Tomorrow cover with colorful stacked lettering over stylized ocean waves",
-    },
-  },
-  {
-    title: "The Black Echo",
-    author: "Michael Connelly",
-    completedAt: "2026-06",
-    personalRating: 4,
-    cover: {
-      src: coverTheBlackEcho,
-      alt: "The Black Echo cover with Michael Connelly's name above a silhouetted figure in a tunnel",
-    },
-  },
-  {
-    title: "The Three-Body Problem",
-    author: "Liu Cixin",
-    completedAt: "2026-05",
-    personalRating: 4,
-    cover: {
-      src: coverTheThreeBodyProblem,
-      alt: "The Three-Body Problem cover with a translucent pyramid beneath three celestial bodies",
-    },
-  },
-  {
-    title: "A Little Life",
-    author: "Hanya Yanagihara",
-    completedAt: "2026-04",
-    personalRating: 4,
-    cover: {
-      src: coverALittleLife,
-      alt: "A Little Life cover with a blue-toned close-up portrait",
-    },
-  },
-  {
-    title: "Presumed Innocent",
-    author: "Scott Turow",
-    completedAt: "2026-02",
-    personalRating: 3,
-    cover: {
-      src: coverPresumedInnocent,
-      alt: "Presumed Innocent cover with Scott Turow's name above a shadowed profile",
-    },
-  },
-  {
-    title: "Die dunkle Seite des Mondes",
-    author: "Martin Suter",
-    completedAt: "2026-02",
-    personalRating: 5,
-    cover: {
-      src: coverDieDunkleSeiteDesMondes,
-      alt: "Die dunkle Seite des Mondes cover with a colorful forest illustration on a cream field",
-    },
   },
 ];
 
@@ -515,7 +328,6 @@ const contactLinks: ContactLink[] = [
 
 const portfolioPages = {
   home: {
-    publicationStatus: "published" satisfies PublicationStatus,
     route: "/",
     sectionCode: "",
     sheetMeta: "",
@@ -554,7 +366,6 @@ const portfolioPages = {
     },
   },
   about: {
-    publicationStatus: "published" satisfies PublicationStatus,
     route: "/about",
     sectionCode: "A",
     sheetMeta: "Sheet A · 06 records",
@@ -575,7 +386,6 @@ const portfolioPages = {
     },
   },
   contact: {
-    publicationStatus: "published" satisfies PublicationStatus,
     route: "/contact",
     sectionCode: "C",
     sheetMeta: "Sheet C · 03 routes",
@@ -596,7 +406,6 @@ const portfolioPages = {
     },
   },
   work: {
-    publicationStatus: "published" satisfies PublicationStatus,
     route: "/work",
     sectionCode: "W",
     sheetMeta: "Sheet W · 08 records",
@@ -617,53 +426,9 @@ const portfolioPages = {
       entries: workEntries,
     },
   },
-  read: {
-    publicationStatus: "unpublished" satisfies PublicationStatus,
-    route: "/read",
-    sectionCode: "R",
-    sheetMeta: "Sheet R · 06 records",
-    title: "What I recently read",
-    width: "collection",
-    metadata: {
-      title: "Read",
-      description:
-        "The six books most recently completed by Constantin Unterkofler, with personal ratings.",
-    },
-    primaryWayfinding: {
-      label: "Read",
-      order: 4,
-    },
-    content: {
-      introduction:
-        "I like to read books. Here are a couple of my recent reads. More to come.",
-      entries: bookEntries,
-    },
-  },
-  play: {
-    publicationStatus: "unpublished" satisfies PublicationStatus,
-    route: "/play",
-    sectionCode: "P",
-    sheetMeta: "Sheet P · 06 records",
-    title: "What I currently play",
-    width: "collection",
-    metadata: {
-      title: "Play",
-      description: "A rotating set of guitar tunes and studies.",
-    },
-    primaryWayfinding: {
-      label: "Play",
-      order: 5,
-    },
-    content: {
-      introduction:
-        "When I'm not coding, you'll usually find me with a guitar in hand – whether that's tracking in the studio or playing live on stage with Das Maer and other local Berlin artists. Here’s a rotating selection of current tunes I'm playing and studying.",
-      entries: trackEntries,
-    },
-  },
 } as const;
 
 const primaryWayfinding: NavItem[] = Object.values(portfolioPages)
-  .filter((page) => page.publicationStatus === "published")
   .flatMap((page) =>
     "primaryWayfinding" in page
       ? [

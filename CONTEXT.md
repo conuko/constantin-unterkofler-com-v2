@@ -1,6 +1,6 @@
 # Personal Portfolio
 
-The personal portfolio presents Constantin Unterkofler's professional identity, work, background, musical interests, and contact routes.
+The personal portfolio presents Constantin Unterkofler's professional identity, work, background, and contact routes.
 
 ## Language
 
@@ -9,7 +9,7 @@ The persistent portfolio region that presents Constantin's identity, primary way
 _Avoid_: Navigation bar, top bar
 
 **Portfolio Content**:
-The curated public material that presents Constantin's identity, background, work, musical interests, and contact routes as coherent portfolio pages.
+The curated public material that presents Constantin's identity, background, work, and contact routes as coherent portfolio pages.
 _Avoid_: Site copy, content catalog
 
 **CV**:
@@ -23,14 +23,6 @@ _Avoid_: Page shell, route page
 **Engineering Notebook**:
 The portfolio's canonical editorial identity, presenting Portfolio Content as precise, structured records with selective human annotation and restrained technical instrumentation.
 _Avoid_: Technical Engineering Notebook, technical bulletpoints notebook, journal, field notebook, Knowledge Machine
-
-**Recent Reading**:
-The six books Constantin completed most recently, ordered from newest to oldest.
-_Avoid_: Reading list, bookshelf, book collection
-
-**Personal Rating**:
-Constantin's deliberate whole-number assessment of a completed book on an inclusive zero-to-five scale; zero is a rating, not an unrated state.
-_Avoid_: Star score, review score
 
 **Closing Record**:
 The footer record that ends every Portfolio Page with three things: the copyright year, the control that opens the Site Console, and the build stamp. It carries no identity or status line, and it draws no rule of its own; the page's bottom edge already ends the sheet.
