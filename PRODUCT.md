@@ -43,7 +43,8 @@ neighbouring portfolio can copy the words but not these mechanisms.
 - The Site Console opens with `K` or from the Closing Record. It docks on
   desktop and mobile and can be dragged on desktop.
 - The visitor can choose a light, dark or system theme.
-- The source is public, and the console links to `github.com/conuko`, so
+- The source is public, and the console's `source` command opens
+  `github.com/conuko/constantin-unterkofler-com-v2`, so
   the implementation is part of what gets evaluated.
 
 ## Capabilities and Constraints

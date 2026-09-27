@@ -455,19 +455,13 @@ function specificationValue(label: string): string {
   return field.value;
 }
 
-const githubLink = contactLinks.find((link) => link.label === "GitHub");
-
-if (!githubLink) {
-  throw new Error("Missing GitHub contact link");
-}
-
 const siteConsoleContent: SiteConsoleContent = {
   identity: {
     name: identity.name,
     role: specificationValue("Role"),
     location: specificationValue("Based"),
   },
-  repositoryUrl: githubLink.href,
+  repositoryUrl: "https://github.com/conuko/constantin-unterkofler-com-v2",
   records: workEntries.map((entry, index) => ({
     index: `W–${String(index + 1).padStart(2, "0")}`,
     label: entry.client,
