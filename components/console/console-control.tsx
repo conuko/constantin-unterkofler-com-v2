@@ -40,7 +40,7 @@ export function SiteConsoleControl({
       <span>Console</span>
       <span
         aria-hidden
-        className="border border-current/35 px-1.5 py-px opacity-75"
+        className="border border-current/35 px-1.5 py-px leading-none opacity-75"
       >
         K
       </span>

@@ -376,7 +376,7 @@
 }
 
 /* A framed control is a surface, not a glyph. 5% of a 36px glyph box is under
- * 2px and reads as a nod; 5% of the 145px Console control is 7px and reads as
+ * 2px and reads as a nod; 5% of the 137px Console control is 7px and reads as
  * the button inflating. A framed control keeps the same spring and the same
  * press, and hovers at 2%. It overrides the token rather than the `:hover`
  * rule so that `.notebook-control:active` still wins while it is held. */

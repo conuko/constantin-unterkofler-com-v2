@@ -69,7 +69,7 @@ export function Cv({ sectionCode, sections }: CvProps) {
                         </h3>
                         <p className="text-ink-muted text-sm">{entry.role}</p>
                       </div>
-                      <NotebookLabel className="num ml-auto text-label sm:ml-0 sm:w-26 sm:text-right">
+                      <NotebookLabel className="num ml-auto sm:ml-0 sm:w-26 sm:text-right">
                         {entry.years}
                       </NotebookLabel>
                     </NotebookRecordRowBody>
