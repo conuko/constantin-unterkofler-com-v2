@@ -231,7 +231,8 @@ for light mode stops reading as a terminal.
 - **Terminal Night** (`console-surface`, #15141a): the window.
 - **Terminal Ink** (`console-ink` 82%, `console-output` 55%,
   `console-ink-muted` 45% of paper): typed input, command output, chrome
-  labels.
+  labels. Terminal Ink also draws the focus ring inside the window, where the
+  page's ink ring would be #111 on #15141a in the light theme.
 - **Prompt Blue** (`console-accent`): the working-directory path and the
   banner. It is the dark theme's annotation value, fixed because the window
   never changes theme.
@@ -524,7 +525,12 @@ Constantin, not entries in a collection.
   stamp, and its hover scale is 1.02.
 - **Disabled:** a 1px dashed Hairline border with text at 40% ink.
 - **Focus:** a 2px solid ink outline, offset 2px, on every focusable element.
-  The console prompt is the exception and shows its own caret instead.
+  The console prompt is the exception and shows its own caret instead. Inside
+  the console the ring is Terminal Ink, and in its title bar it goes around
+  the mark rather than the hit box: a round ring on a light, and a ring on the
+  caption for `Sound` and `Esc`, with the trailing tracking taken back. A page
+  title that a console command has given focus draws no ring, because it is a
+  place to read on from, not a control.
 
 ### Navigation
 
@@ -583,6 +589,11 @@ Site Header and is a second way in, never the only one.
   `sound` (`on` or `off`), `source`, `clear`, `exit`. It opens with `K`
   outside a text field or with the control, and closes with `Esc`, the red
   light, the `Esc` label or the control.
+- **Focus:** opening focuses the prompt. Closing gives focus back to whatever
+  opened the window, or to the control when that can no longer take it, and
+  only when focus was inside the window. A page command (`home`, `about`,
+  `work`, `contact`) gives it to the new page's title instead. No focus the
+  console places scrolls the page or the session.
 
 ### Greeting
 

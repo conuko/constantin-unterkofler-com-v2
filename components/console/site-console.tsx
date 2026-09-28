@@ -24,6 +24,11 @@ import {
   isConsoleDocked,
   trackConsoleOffset,
 } from "@/components/console/console-drag";
+import {
+  type ConsoleArrival,
+  consoleArrivalStep,
+  focusPageTitle,
+} from "@/components/console/console-focus";
 import { isTypingKeystroke } from "@/components/console/console-keystroke";
 import {
   type ConsoleDock,
@@ -71,6 +76,14 @@ function isEditableTarget(target: EventTarget | null): boolean {
     target instanceof HTMLTextAreaElement ||
     target instanceof HTMLSelectElement
   );
+}
+
+/* No focus the console places scrolls anything. The page stays where the
+ * reader left it, and the session stays where it was read to: the first open
+ * rests on the greeting, and a reader who has scrolled back through the output
+ * keeps their place when a drag or a light gives the prompt its focus back. */
+function focusPrompt(input: HTMLInputElement | null) {
+  input?.focus({ preventScroll: true });
 }
 
 /* Keep the newest line — and the prompt below it — in view. */
@@ -297,6 +310,10 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const sessionOpenedAtRef = useRef<Date | null>(null);
   const redockRef = useRef<ViewTransition | null>(null);
+  /* A command that closes the window lets its last line show first. */
+  const closeTimerRef = useRef<number | null>(null);
+  /* A page command whose page title is waiting for focus. */
+  const arrivalRef = useRef<ConsoleArrival | null>(null);
   /* The first open rests on the greeting: the session stays on its top, where
    * the banner types, until the reader takes it over — a key or a command at
    * the prompt, a touch or a wheel on the session, a move to the other dock —
@@ -348,7 +365,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
       }
 
       event.preventDefault();
-      toggle();
+      toggle(document.activeElement);
     }
 
     document.addEventListener("keydown", onKeyDown);
@@ -434,8 +451,35 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
   }, [isDesktop, isOpen]);
 
   useEffect(() => {
-    if (isOpen) inputRef.current?.focus();
+    if (isOpen) focusPrompt(inputRef.current);
   }, [isOpen]);
+
+  /* A close that gets there first, from Esc or the red light, cancels the one
+   * a command has scheduled. */
+  useEffect(() => {
+    if (!isOpen) return;
+
+    return () => {
+      if (closeTimerRef.current !== null) {
+        window.clearTimeout(closeTimerRef.current);
+        closeTimerRef.current = null;
+      }
+    };
+  }, [isOpen]);
+
+  /* A page command hands focus to the title of the page it opened, once the
+   * window has closed and the route has landed, in whichever order those
+   * happen. */
+  useEffect(() => {
+    const arrival = arrivalRef.current;
+    if (!arrival) return;
+
+    const step = consoleArrivalStep(arrival, { isOpen, pathname });
+    if (step === "wait") return;
+
+    arrivalRef.current = null;
+    if (step === "arrive") focusPageTitle(document, panelRef.current);
+  }, [isOpen, pathname]);
 
   /* A reload remounts this component, intentionally starting a new session.
    * Within one mount, reopening keeps the original login timestamp and output. */
@@ -504,10 +548,14 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
     setCaretIndex(0);
 
     let cleared = false;
+    let destination: string | null = null;
 
     for (const effect of result.effects) {
       if (effect.type === "clear") cleared = true;
-      if (effect.type === "navigate") router.push(effect.href);
+      if (effect.type === "navigate") {
+        router.push(effect.href);
+        destination = effect.href;
+      }
       if (effect.type === "open")
         window.open(effect.href, "_blank", "noopener");
       if (effect.type === "theme") {
@@ -515,7 +563,14 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
       }
       if (effect.type === "sound") setSoundsEnabled(effect.enabled);
       if (effect.type === "close") {
-        window.setTimeout(close, 220);
+        /* `exit` gives focus back to where it was before the window
+         * opened. A page command gives it to the page it opened instead. */
+        const from = pathname;
+        closeTimerRef.current = window.setTimeout(() => {
+          closeTimerRef.current = null;
+          if (destination) arrivalRef.current = { href: destination, from };
+          close({ returnFocus: destination === null });
+        }, 220);
       }
     }
 
@@ -662,7 +717,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
     drag.offset = settled;
     setDragPhase(panel, overshot ? "release" : null);
     writeDragOffset(panel, settled);
-    inputRef.current?.focus();
+    focusPrompt(inputRef.current);
   }
 
   function onPanelTransitionEnd(event: React.TransitionEvent<HTMLElement>) {
@@ -705,7 +760,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
         setDragPhase(panel, "home");
         writeDragOffset(panel, consoleDockedOffset);
       }
-      inputRef.current?.focus();
+      focusPrompt(inputRef.current);
       return;
     }
 
@@ -748,7 +803,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
       });
     }
 
-    inputRef.current?.focus();
+    focusPrompt(inputRef.current);
   }
 
   /* The block caret is drawn, not native: `caret-transparent` hides the
@@ -783,7 +838,11 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
         className="console-chrome flex shrink-0 select-none items-center gap-3 border-console-rule border-b bg-console-chrome px-3.5 py-2.5 lg:cursor-grab lg:in-data-[drag=tracking]:cursor-grabbing lg:touch-none"
       >
         <div className="console-lights group/lights -ml-1 flex">
-          <TrafficLight tone="close" label="Close console" onClick={close} />
+          <TrafficLight
+            tone="close"
+            label="Close console"
+            onClick={() => close()}
+          />
           <TrafficLight
             tone="minimize"
             label="Dock the console to the bottom edge"
@@ -811,14 +870,16 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
           aria-pressed={soundsEnabled}
           className="console-sound label -my-2.5 cursor-pointer px-1.5 py-2.5 text-console-ink-muted text-micro"
         >
-          Sound {soundsEnabled ? "on" : "off"}
+          <span className="console-caption">
+            Sound {soundsEnabled ? "on" : "off"}
+          </span>
         </button>
         <button
           type="button"
-          onClick={close}
+          onClick={() => close()}
           className="console-esc label -my-2.5 -mr-1.5 cursor-pointer px-1.5 py-2.5 text-console-ink-muted text-micro"
         >
-          Esc
+          <span className="console-caption">Esc</span>
         </button>
       </div>
 

@@ -24,7 +24,7 @@ export function SiteConsoleControl({
     <button
       ref={controlRef}
       type="button"
-      onClick={toggle}
+      onClick={(event) => toggle(event.currentTarget)}
       aria-expanded={isOpen}
       aria-controls={panelId}
       aria-keyshortcuts="K"
