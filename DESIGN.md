@@ -104,6 +104,7 @@ spacing:
   section: "44px"
   reading: "720px"
   collection: "1080px"
+  corner-lane: "185px"
 components:
   action-link:
     backgroundColor: "{colors.card-glass}"
@@ -324,18 +325,27 @@ terminal stack instead.
 
 ## Layout
 
-The sheet sits in a 24px gutter on every side. Content lives in one of two
-centred columns under a 1080px main container. **Reading** sheets (Home, About
-me, Contact) cap at 720px, and **collection** sheets (Work) take the full
-1080px. The Site Header sticks to the top (28px from the top, 16px from `lg`),
-and its wayfinding sits in a right-hand column on desktop. Below `lg` that
-column folds into a disclosure panel. On desktop the Closing Record is fixed to
-the bottom of the viewport, 32px up, and lets pointer events through except on
-the console control.
+The sheet sits in a 24px gutter on every side, in one of two centred columns.
+**Reading** sheets (Home, About me, Contact) cap at 720px, and **collection**
+sheets (Work) at 1080px. The Site Header sticks to the top (28px from the top,
+16px from `lg`), and its wayfinding sits in a right-hand column on desktop.
+Below `lg` that column folds into a disclosure panel. On desktop the Closing
+Record is fixed to the bottom of the viewport, 32px up. On desktop the header
+stacks above the sheet, and both it and the Closing Record let pointer events
+through except on their corner pieces.
+
+From `lg` those four corners (identity mark, wayfinding, copyright and console
+control) hold still while the sheet scrolls, so each side of the viewport is a
+**corner lane** 185px wide: the gutter, the 145px console control and 16px
+clear of it. Each sheet is capped at `min(sheet width, viewport − 2 × corner
+lane)`. At 1440px that leaves the collection 1070px and the reading column its
+full 720px, and at 1024px both run 654px. Below `lg` the lane is only the
+gutter.
 
 Vertical rhythm is set by one section gap (44px) between the page header, each
 record group and the Closing Record. Collections are one column, and two from
-`md`, with 32px column and 60px row gaps (52px / 76px from `lg`). The
+`md` while each column is at least 300px wide, with 32px column and 60px row
+gaps (52px / 76px from `lg`). The
 Specification Block is one column, and two from `sm`, with 40px between
 columns. Record rows use 16px vertical padding with 24px between their inline
 parts, and wrap below `sm` so the value takes its own line.
@@ -361,6 +371,10 @@ background-size:
 
 **The 1:5 Rule.** The minor and major dot pitch stay in a 1:5 ratio. If the
 minor pitch is tuned, the major follows.
+
+**The Corner Lane Rule.** Nothing on the sheet enters a corner lane. A corner
+piece wider than the console control widens the lane. It never overlaps the
+sheet.
 
 ## Elevation & Depth
 

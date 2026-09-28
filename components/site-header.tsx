@@ -279,10 +279,15 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
   const pathname = usePathname();
   const isScrolled = useScrolled();
 
+  /* The header stacks above the sheet at every width. On desktop it has no
+   * surface and the sheet scrolls beneath it, so the header box lets pointer
+   * events through and only its two corners take them back, the same way the
+   * Closing Record does. The sheet never reaches those corners: it is capped
+   * clear of the corner lanes (`components/portfolio-page.tsx`). */
   return (
     <header
       data-site-header
-      className="sticky top-7 z-10 pb-10 lg:top-4 lg:z-0"
+      className="sticky top-7 z-10 pb-10 lg:pointer-events-none lg:top-4"
     >
       <div className="relative flex justify-between gap-6">
         {/* The glass surface is its own layer rather than the header's own
@@ -307,7 +312,7 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
          * page title's to carry, and does so for the same reason — see the
          * paint-timing notes in `app/motion.css`. Like every other control it
          * is unframed — the two letters alone carry it. */}
-        <div className="self-start">
+        <div className="pointer-events-auto self-start">
           <IdentityMark shortName={identity.shortName} />
         </div>
 
@@ -315,7 +320,7 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
          * their own. When the column settled too, every link inside it rode
          * two entrances at once — twice the travel, faded twice over — and
          * arrived on a different footing from everything else on the sheet. */}
-        <div className="hidden flex-col items-end gap-2.5 lg:flex">
+        <div className="pointer-events-auto hidden flex-col items-end gap-2.5 lg:flex">
           <div
             style={notebookDelay(notebookTiming.siteHeaderControls)}
             className="notebook-in-part"

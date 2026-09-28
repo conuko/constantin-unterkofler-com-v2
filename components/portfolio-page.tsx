@@ -20,6 +20,10 @@ type PortfolioPageProps = {
  *
  * The sequence is fixed offsets in CSS (`notebookTiming`), so the shell holds
  * no state and renders on the server.
+ *
+ * The sheet sets its own width and keeps out of the corner lanes, so from `lg`
+ * it is capped at `min(sheet width, 100% − 2 × corner lane)` of the viewport
+ * (`--container-*` in `app/theme.css`).
  */
 export function PortfolioPage({
   title,
@@ -36,8 +40,8 @@ export function PortfolioPage({
       <div
         className={cn(
           "mx-auto flex w-full flex-col gap-11",
-          width === "collection" && "max-w-270",
-          width === "reading" && "max-w-180",
+          width === "collection" && "max-w-collection",
+          width === "reading" && "max-w-reading",
         )}
       >
         <NotebookPageHeader

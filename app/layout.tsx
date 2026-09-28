@@ -84,11 +84,7 @@ export default function RootLayout({
                 identity={portfolioContent.identity}
                 primaryWayfinding={portfolioContent.primaryWayfinding}
               />
-
-              <main
-                id="main-content"
-                className="mx-auto w-full max-w-270 flex-1 pb-16"
-              >
+              <main id="main-content" className="w-full flex-1 pb-16">
                 {children}
               </main>
 

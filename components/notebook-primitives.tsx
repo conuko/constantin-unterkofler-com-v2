@@ -157,7 +157,7 @@ export function NotebookCollection({
       base={base}
       step={step}
       className={cn(
-        "grid w-full grid-cols-1 gap-x-8 gap-y-15 md:grid-cols-2 lg:gap-x-13 lg:gap-y-19",
+        "grid w-full grid-cols-1 gap-x-8 gap-y-15 md:grid-cols-records lg:gap-x-13 lg:gap-y-19",
         className,
       )}
     >
