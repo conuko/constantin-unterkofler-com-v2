@@ -17,7 +17,7 @@ export default function AppleIcon() {
     >
       <rect width={180} height={180} fill="#f8f7f2" />
       <circle cx={90} cy={90} r={60} fill="#111111" />
-      <circle cx={90} cy={90} r={15} fill="#1f6cb0" />
+      <circle cx={90} cy={90} r={15} fill="#80bdfb" />
     </svg>,
     { ...size },
   );
