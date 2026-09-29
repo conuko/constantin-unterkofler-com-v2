@@ -68,7 +68,7 @@ export function NotebookPageHeader({
         <h1
           style={notebookDelay(notebookTiming.pageHeading)}
           data-notebook-title
-          className="notebook-in-heading w-fit pr-2 font-heading font-semibold text-5xl leading-none tracking-tight lg:text-7xl"
+          className="notebook-in-heading w-fit pr-2 font-heading font-semibold text-5xl leading-none tracking-tight md:text-7xl"
         >
           {title}
         </h1>

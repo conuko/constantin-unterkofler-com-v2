@@ -45,8 +45,10 @@ import {
   consoleRoutes,
   displayPath,
   interruptLine,
+  missingDirectoryLine,
   promptLine,
   runCommand,
+  workingDirectory,
 } from "@/components/console/console-session";
 import {
   consoleViewportVariableNames,
@@ -382,6 +384,9 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
 
   const router = useRouter();
   const pathname = usePathname();
+  const routes = consoleRoutes(wayfinding);
+  /* The shell's directory, which is the route except on a 404 sheet. */
+  const directory = workingDirectory(pathname, routes);
   const isHydrated = useSyncExternalStore(
     subscribeToNothing,
     () => true,
@@ -392,15 +397,30 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
     () => restsOnGreetingRef.current && intro !== "done",
   );
 
-  /* Where the reader was before this route, for `cd -`. */
+  /* Where the shell stood before this directory, for `cd -`. A 404 moves
+   * the route but not the directory, so it is never the one `cd -` returns
+   * to. */
   const previousPathnameRef = useRef<string | null>(null);
-  const lastPathnameRef = useRef(pathname);
+  const lastPathnameRef = useRef(directory);
 
   useEffect(() => {
-    if (lastPathnameRef.current === pathname) return;
+    if (lastPathnameRef.current === directory) return;
 
     previousPathnameRef.current = lastPathnameRef.current;
-    lastPathnameRef.current = pathname;
+    lastPathnameRef.current = directory;
+  }, [directory]);
+
+  /* Arriving on a 404 with a session running prints the cd that failed. A
+   * session that boots on one prints it under the boot text instead. */
+  const printMissingDirectory = useEffectEvent((route: string) => {
+    const missing = missingDirectoryLine(route, routes);
+    if (missing && sessionOpenedAtRef.current) {
+      setLines((current) => [...current, missing]);
+    }
+  });
+
+  useEffect(() => {
+    printMissingDirectory(pathname);
   }, [pathname]);
 
   useEffect(() => {
@@ -546,12 +566,15 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
 
   /* A reload remounts this component, intentionally starting a new session.
    * Within one mount, reopening keeps the original login timestamp and output. */
-  useEffect(() => {
-    if (!isOpen || sessionOpenedAtRef.current) return;
-
+  const bootSession = useEffectEvent(() => {
     const openedAt = new Date();
     sessionOpenedAtRef.current = openedAt;
-    setLines(bootLines(openedAt));
+    const missing = missingDirectoryLine(pathname, routes);
+    setLines([...bootLines(openedAt), ...(missing ? [missing] : [])]);
+  });
+
+  useEffect(() => {
+    if (isOpen && !sessionOpenedAtRef.current) bootSession();
   }, [isOpen]);
 
   useEffect(() => {
@@ -614,9 +637,10 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
       identityName: content.identity.name,
       identityRole: content.identity.role,
       identityLocation: content.identity.location,
-      routes: consoleRoutes(wayfinding),
+      routes,
       pathname,
       previousPathname: previousPathnameRef.current,
+      directory,
       soundsEnabled,
       appearance: {
         setting: isThemeSetting(theme) ? theme : defaultThemeSetting,
@@ -668,7 +692,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
         ? []
         : [
             ...current,
-            promptLine(entered, displayPath(pathname)),
+            promptLine(entered, displayPath(directory)),
             ...result.lines,
           ],
     );
@@ -697,12 +721,12 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
       event.preventDefault();
 
       const completion = completeInput(input, {
-        routes: consoleRoutes(wayfinding),
+        routes,
       });
       if (completion.candidates.length > 0) {
         setLines((current) => [
           ...current,
-          promptLine(input, displayPath(pathname)),
+          promptLine(input, displayPath(directory)),
           candidateLine(completion.candidates),
         ]);
       }
@@ -718,7 +742,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
       setIntro("done");
       setLines((current) => [
         ...current,
-        interruptLine(input, displayPath(pathname)),
+        interruptLine(input, displayPath(directory)),
       ]);
       setHistoryCursor(null);
       recall("");
@@ -1077,7 +1101,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
            * failed hydration against the URL the reader typed. The window is
            * closed at load, so nobody sees the path arrive. */}
           <span aria-hidden className="text-console-accent">
-            {isHydrated ? displayPath(pathname) : null}
+            {isHydrated ? displayPath(directory) : null}
           </span>
           <span aria-hidden className="text-console-ink-muted">
             ❯

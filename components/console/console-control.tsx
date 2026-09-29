@@ -19,6 +19,10 @@ type SiteConsoleControlProps = {
  * Tab would otherwise land on a control nobody can see, and the window
  * carries its own ways to close. It comes back as the window closes, in time
  * to take focus back (see `console-provider.tsx`).
+ *
+ * It wears the window's own palette in both themes: the closed state of a
+ * window that never changes theme. Inverted with the sheet, it went paper-white
+ * in the dark theme, the brightest object on the page, and opened a dark one.
  */
 export function SiteConsoleControl({
   className,
@@ -37,11 +41,11 @@ export function SiteConsoleControl({
       inert={isOpen}
       style={style}
       className={cn(
-        "notebook-control notebook-control-framed label pointer-events-auto inline-flex min-h-9 cursor-pointer items-center gap-2.5 border border-ink bg-ink px-3.5 py-2.5 text-micro text-paper",
+        "notebook-control notebook-control-framed label pointer-events-auto inline-flex min-h-9 cursor-pointer items-center gap-2.5 border border-console-rule bg-console-surface px-3.5 py-2.5 text-console-ink text-micro",
         className,
       )}
     >
-      <span aria-hidden className="text-annotation-on-ink">
+      <span aria-hidden className="text-console-accent">
         &gt;_
       </span>
       <span>Console</span>

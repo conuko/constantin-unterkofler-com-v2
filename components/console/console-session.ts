@@ -51,6 +51,8 @@ export type ConsoleContext = {
   /** The route currently on screen and the one before it, for `cd -`. */
   pathname: string;
   previousPathname: string | null;
+  /** Where the shell stands, when not the route: see `workingDirectory`. */
+  directory?: string;
   soundsEnabled: boolean;
   /** The stored appearance setting and what the system resolves to. */
   appearance: { setting: ThemeSetting; system: ResolvedTheme };
@@ -77,6 +79,37 @@ export function consoleRoutes(wayfinding: NavItem[]): NavItem[] {
 /** The working directory as the prompt shows it: `~` at home, `~/work` elsewhere. */
 export function displayPath(pathname: string): string {
   return pathname === "/" ? "~" : `~${pathname}`;
+}
+
+/**
+ * Where the shell stands. A URL the site does not publish, the 404 sheet, is
+ * not a directory a shell could be in: `cd` there would have failed and left
+ * it where it was. So the console stands in the nearest published directory
+ * above it, `~/work` for `/work/nope` and `~` for `/nope`, and every command
+ * (`cd ..`, `cd -`, the prompt) reads from there.
+ */
+export function workingDirectory(pathname: string, routes: NavItem[]): string {
+  const segments = pathname.split("/").filter(Boolean);
+
+  for (; segments.length > 0; segments.pop()) {
+    const href = `/${segments.join("/")}`;
+    if (routes.some((route) => route.href === href)) return href;
+  }
+
+  return "/";
+}
+
+/**
+ * The failed `cd` a 404 stands for, printed where a shell would print it:
+ * above the prompt that stayed in the directory it could not leave.
+ */
+export function missingDirectoryLine(
+  pathname: string,
+  routes: NavItem[],
+): ConsoleLine | null {
+  return workingDirectory(pathname, routes) === pathname
+    ? null
+    : line("error", `cd: no such directory: ${displayPath(pathname)}`);
 }
 
 let lineSequence = 0;
@@ -109,7 +142,10 @@ export type DirectoryResolution = { href: string } | { error: string };
  */
 export function resolveDirectory(
   target: string | undefined,
-  context: Pick<ConsoleContext, "routes" | "pathname" | "previousPathname">,
+  context: Pick<
+    ConsoleContext,
+    "routes" | "pathname" | "previousPathname" | "directory"
+  >,
 ): DirectoryResolution {
   if (target === undefined || target === "~" || target === "/") {
     return { href: "/" };
@@ -121,7 +157,7 @@ export function resolveDirectory(
       : { error: "cd: no previous directory" };
   }
 
-  const href = resolvePath(target, context.pathname);
+  const href = resolvePath(target, context.directory ?? context.pathname);
 
   return context.routes.some((route) => route.href === href)
     ? { href }
@@ -213,6 +249,8 @@ const commands: CommandSpec[] = [
 
       if ("error" in resolution) return output(line("error", resolution.error));
 
+      /* Against the route, not the directory: from a 404 in `~/work`,
+       * `cd .` is the way back onto the Work sheet. */
       if (resolution.href === context.pathname) {
         return output(
           line("muted", `already at ${displayPath(context.pathname)}`),

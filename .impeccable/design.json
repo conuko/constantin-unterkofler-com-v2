@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-29T09:23:16.295Z",
+  "generatedAt": "2026-09-29T10:22:01.000Z",
   "title": "Design System: Constantin Unterkofler",
   "extensions": {
     "colorMeta": {
@@ -278,36 +278,6 @@
         "role": "primary",
         "displayName": "Annotation Blue (dark theme)",
         "canonical": "oklch(0.78 0.11 250)",
-        "tonalRamp": [
-          "oklch(0.15 0.045 250)",
-          "oklch(0.26 0.085 250)",
-          "oklch(0.37 0.117 250)",
-          "oklch(0.48 0.130 250)",
-          "oklch(0.59 0.130 250)",
-          "oklch(0.70 0.111 250)",
-          "oklch(0.82 0.072 250)",
-          "oklch(0.95 0.019 250)"
-        ]
-      },
-      "annotation-on-ink": {
-        "role": "primary",
-        "displayName": "Annotation on Ink",
-        "canonical": "oklch(0.78 0.11 250)",
-        "tonalRamp": [
-          "oklch(0.15 0.045 250)",
-          "oklch(0.26 0.085 250)",
-          "oklch(0.37 0.117 250)",
-          "oklch(0.48 0.130 250)",
-          "oklch(0.59 0.130 250)",
-          "oklch(0.70 0.111 250)",
-          "oklch(0.82 0.072 250)",
-          "oklch(0.95 0.019 250)"
-        ]
-      },
-      "annotation-on-ink-dark": {
-        "role": "primary",
-        "displayName": "Annotation on Ink (dark theme)",
-        "canonical": "oklch(0.52 0.13 250)",
         "tonalRamp": [
           "oklch(0.15 0.045 250)",
           "oklch(0.26 0.085 250)",
@@ -721,7 +691,7 @@
       "refersTo": "console-control",
       "description": "The ink-filled control in the Closing Record that opens the Site Console: 36px tall, 10px Micro caps, K keycap in a 35% hairline box.",
       "html": "<button class=\"ds-console-control\" type=\"button\" aria-keyshortcuts=\"K\"><span class=\"ds-console-control-prompt\" aria-hidden=\"true\">&gt;_</span><span>Console</span><span class=\"ds-console-control-key\" aria-hidden=\"true\">K</span></button>",
-      "css": ".ds-console-control { display: inline-flex; align-items: center; gap: 10px; min-height: 36px; padding: 10px 14px; border: 1px solid var(--color-ink, #111111); border-radius: 0; background: var(--color-ink, #111111); color: var(--color-paper, #f8f7f2); font-family: var(--font-mono, 'Space Mono', ui-monospace, monospace); font-size: 10px; letter-spacing: 0.12em; line-height: 1.4; text-transform: uppercase; cursor: pointer; transition: scale 300ms var(--ease-spring, cubic-bezier(0.34,1.56,0.64,1)); } .ds-console-control-prompt { color: var(--color-annotation-on-ink, oklch(0.78 0.11 250)); } .ds-console-control-key { border: 1px solid color-mix(in srgb, currentColor 35%, transparent); padding: 1px 6px; line-height: 1; opacity: 0.75; } .ds-console-control:hover { scale: 1.02; } .ds-console-control:active { scale: 0.995; } .ds-console-control:focus-visible { outline: 2px solid var(--color-ink, #111111); outline-offset: 2px; }"
+      "css": ".ds-console-control { display: inline-flex; align-items: center; gap: 10px; min-height: 36px; padding: 10px 14px; border: 1px solid var(--color-console-rule, rgba(248, 247, 242, 0.14)); border-radius: 0; background: var(--color-console-surface, #15141a); color: var(--color-console-ink, rgba(248, 247, 242, 0.82)); font-family: var(--font-mono, 'Space Mono', ui-monospace, monospace); font-size: 10px; letter-spacing: 0.12em; line-height: 1.4; text-transform: uppercase; cursor: pointer; transition: scale 300ms var(--ease-spring, cubic-bezier(0.34,1.56,0.64,1)); } .ds-console-control-prompt { color: var(--color-console-accent, oklch(0.78 0.11 250)); } .ds-console-control-key { border: 1px solid color-mix(in srgb, currentColor 35%, transparent); padding: 1px 6px; line-height: 1; opacity: 0.75; } .ds-console-control:hover { scale: 1.02; } .ds-console-control:active { scale: 0.995; } .ds-console-control:focus-visible { outline: 2px solid var(--color-ink, #111111); outline-offset: 2px; }"
     },
     {
       "name": "Theme Control",
@@ -782,7 +752,7 @@
   ],
   "narrative": {
     "northStar": "The Engineering Notebook",
-    "overview": "The portfolio is a sheet of technical dot paper, not a page layout. Portfolio Content is set down as records: indexed, ruled, measured and annotated in ink, with one blue pen for the marks that measure. The model is a technical drawing, not a bullet journal. Every line on the sheet separates, bounds or measures something, and a line that does none of those is not drawn. Drafting tools do the work that decoration does elsewhere: ticked rules, crop marks, dimension lines and a monospace face for anything a reader might compare.\n\nThe notebook is dense but quiet. The paper is warm off-white in the light theme and warm near-black in the dark, never pure white or pure black. Type does the hierarchy work. A condensed display face names each sheet, a grotesk carries the sentences, and its fixed-width sibling carries every index, year, filename and measurement. Surfaces are flat and square. The Site Console is the one exception: it is a window, not a page element, so it keeps a window's radius, shadow and traffic lights.\n\nMotion is part of the drawing, not an effect on top of it. The sheet registers itself on a single 40ms beat from first paint, top to bottom, all of it in CSS. Rules draw where they stay, parts are written in and settle 8px once, nothing fades, and a spring carries every state change. Reduced motion puts everything in place from the start.",
+    "overview": "The portfolio is a sheet of technical dot paper, not a page layout. Portfolio Content is set down as records: indexed, ruled, measured and annotated in ink, with one blue pen for the marks that measure. The model is a technical drawing, not a bullet journal. Every line on the sheet separates, bounds or measures something, and a line that does none of those is not drawn. Drafting tools do the work that decoration does elsewhere: ticked rules, crop marks and a monospace face for anything a reader might compare.\n\nThe notebook is dense but quiet. The paper is warm off-white in the light theme and warm near-black in the dark, never pure white or pure black. Type does the hierarchy work. A condensed display face names each sheet, a grotesk carries the sentences, and its fixed-width sibling carries every index, year, filename and measurement. Surfaces are flat and square. The Site Console is the one exception: it is a window, not a page element, so it keeps a window's radius, shadow and traffic lights.\n\nMotion is part of the drawing, not an effect on top of it. The sheet registers itself on a single 40ms beat from first paint, top to bottom, all of it in CSS. Rules draw where they stay, parts are written in and settle 8px once, nothing fades, and a spring carries every state change. Reduced motion puts everything in place from the start.",
     "keyCharacteristics": [
       "Two-layer technical dot field (8px minor, 40px major) on warm paper.",
       "Square by default. Crop marks replace corner radius.",
@@ -795,7 +765,7 @@
     "rules": [
       {
         "name": "The One Pen Rule",
-        "body": "Annotation Blue marks measurement and nothing else. If a blue element is not an index, a code, a dimension or a prompt path, it should be ink.",
+        "body": "Annotation Blue marks measurement and nothing else. If a blue element is not an index, a code, a stack label or a prompt path, it should be ink.",
         "section": "colors"
       },
       {
@@ -863,7 +833,7 @@
       "Do keep every surface square (`--radius: 0`). Mark corners with crop marks when a field needs its edge stated.",
       "Do use a ticked rule where a line bounds a record or section, and a plain hairline where it only separates.",
       "Do set every index, year, coordinate, filename and URL in Space Mono.",
-      "Do keep Annotation Blue for indices, codes, dimension lines, stack labels and prompt paths.",
+      "Do keep Annotation Blue for indices, codes, stack labels and prompt paths.",
       "Do put every entrance offset on a whole number of 40ms beats, with `--notebook-ease` and `animation-fill-mode: backwards`.",
       "Do animate `translate` and `clip-path` on the element itself, and keep glass surfaces free of transformed, clipped or translucent ancestors.",
       "Do gate hover behind `(hover: hover)` and keep hit targets at 36px or more.",
@@ -874,7 +844,7 @@
       "Don't add corner radius to page elements. The console window is the only rounded object.",
       "Don't raise `--blur-glass` above 1px, and don't add an inset highlight or bevel to glass.",
       "Don't draw column guides, a rule above the Closing Record, or frames around the identity mark and header glyph controls.",
-      "Don't use Annotation Blue for body copy, fills or emphasis, and don't put more than one dimension line on a page.",
+      "Don't use Annotation Blue for body copy, fills or emphasis.",
       "Don't load a second weight of Bebas Neue or Space Mono, or request a weight from Space Mono it does not have. The titles' semibold on Bebas Neue is the one deliberate synthesized weight.",
       "Don't give the identity mark an entrance, or fade anything on the sheet. The mark carries FCP, and a transparent element is not recorded until frames after it paints.",
       "Don't use `animation-fill-mode: both`, or animate `transform` on an ancestor of glass.",

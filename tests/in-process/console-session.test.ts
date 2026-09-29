@@ -8,8 +8,10 @@ import {
   consoleRoutes,
   displayPath,
   formatLastLogin,
+  missingDirectoryLine,
   resolveDirectory,
   runCommand,
+  workingDirectory,
 } from "@/components/console/console-session";
 
 const wayfinding = [
@@ -215,6 +217,34 @@ describe("prompt", () => {
   test("shows ~ at home and ~/route elsewhere", () => {
     expect(displayPath("/")).toBe("~");
     expect(displayPath("/work")).toBe("~/work");
+  });
+
+  test("stands a 404 in the nearest published directory above it", () => {
+    const routes = consoleRoutes(wayfinding);
+    expect(workingDirectory("/work", routes)).toBe("/work");
+    expect(workingDirectory("/work/nope", routes)).toBe("/work");
+    expect(workingDirectory("/work/nope/deeper", routes)).toBe("/work");
+    expect(workingDirectory("/nope", routes)).toBe("/");
+    expect(workingDirectory("/", routes)).toBe("/");
+  });
+
+  test("names the missing path as the cd that failed, only on a 404", () => {
+    const routes = consoleRoutes(wayfinding);
+    expect(missingDirectoryLine("/work", routes)).toBeNull();
+    expect(missingDirectoryLine("/work/nope", routes)).toMatchObject({
+      kind: "error",
+      text: "cd: no such directory: ~/work/nope",
+    });
+  });
+
+  test("walks cd from the directory a 404 stands in", () => {
+    const onMissing = context({ pathname: "/work/nope", directory: "/work" });
+    expect(runCommand("cd ..", onMissing).effects).toEqual([
+      { type: "navigate", href: "/" },
+    ]);
+    expect(runCommand("cd .", onMissing).effects).toEqual([
+      { type: "navigate", href: "/work" },
+    ]);
   });
 
   test("boots with an introduction that names the starter commands", () => {

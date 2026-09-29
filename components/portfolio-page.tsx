@@ -36,10 +36,10 @@ export function PortfolioPage({
   width,
 }: PortfolioPageProps) {
   return (
-    <div className="flex w-full flex-col gap-11">
+    <div className="flex w-full flex-col gap-10">
       <div
         className={cn(
-          "mx-auto flex w-full flex-col gap-11",
+          "mx-auto flex w-full flex-col gap-10",
           width === "collection" && "max-w-collection",
           width === "reading" && "max-w-reading",
         )}
@@ -52,7 +52,7 @@ export function PortfolioPage({
           introduction={introduction}
           showRule={showHeaderRule}
         />
-        <div className="flex w-full flex-col gap-11">{children}</div>
+        <div className="flex w-full flex-col gap-10">{children}</div>
       </div>
     </div>
   );

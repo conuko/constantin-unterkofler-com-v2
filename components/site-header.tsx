@@ -367,11 +367,18 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
    * surface and the sheet scrolls beneath it, so the header box lets pointer
    * events through and only its two corners take them back, the same way the
    * Closing Record does. The sheet never reaches those corners: it is capped
-   * clear of the corner lanes (`components/portfolio-page.tsx`). */
+   * clear of the corner lanes (`components/portfolio-page.tsx`).
+   *
+   * The header also sets where the sheet starts, and it starts on a major dot
+   * row: 120px down below `lg`, 200px from it. So its footprint is fixed, not
+   * whatever its contents measure: a margin under the 36px bar, outside the
+   * box so the stuck header takes no clicks below its glass, and a set height
+   * on desktop, where the box takes none anyway and the wayfinding column
+   * would otherwise move the sheet with every link. */
   return (
     <header
       data-site-header
-      className="sticky top-7 z-10 pb-10 lg:pointer-events-none lg:top-4"
+      className="sticky top-7 z-10 mb-15 lg:pointer-events-none lg:top-4 lg:mb-0 lg:h-44"
     >
       <div className="relative flex justify-between gap-6">
         {/* The glass surface is its own layer rather than the header's own

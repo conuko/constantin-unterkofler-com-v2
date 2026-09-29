@@ -37,11 +37,6 @@
   /* For marks, record indices, and the console prompt; not body text or fills. */
   --color-annotation: oklch(0.52 0.13 250);
 
-  /* Annotation color on ink. Use the alternate value because ink inverts
-   * between themes. */
-  --color-annotation-on-ink: oklch(0.78 0.11 250);
-
-  --color-card-stroke: rgba(17, 17, 17, 0.82);
   --color-card-glass: rgba(255, 255, 255, 0.52);
   --color-media-field: rgba(255, 255, 255, 0.72);
   --color-media-field-rule: rgba(17, 17, 17, 0.14);
@@ -186,8 +181,6 @@
   --color-dot: rgba(248, 247, 242, 0.07);
   --color-dot-major: rgba(248, 247, 242, 0.16);
   --color-annotation: oklch(0.78 0.11 250);
-  --color-annotation-on-ink: oklch(0.52 0.13 250);
-  --color-card-stroke: rgba(248, 247, 242, 0.82);
   --color-card-glass: rgba(248, 247, 242, 0.06);
   --color-media-field: rgba(248, 247, 242, 0.92);
   --color-media-field-rule: rgba(248, 247, 242, 0.28);
