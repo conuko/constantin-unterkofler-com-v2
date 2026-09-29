@@ -17,11 +17,11 @@ reasoning behind them is recorded in [`docs/adr/`](docs/adr/).
   `prefers-reduced-motion`
   ([ADR-0005](docs/adr/0005-remove-motion-entirely.md),
   [ADR-0008](docs/adr/0008-one-beat-one-entrance-per-element.md)).
-- **Paint timing as a constraint.** Elements that report First or Largest
-  Contentful Paint never start at `opacity: 0`, and links prefetch on intent,
-  not on sight
-  ([ADR-0006](docs/adr/0006-introduction-fades-identity-mark-carries-paint-timing.md),
-  [ADR-0007](docs/adr/0007-paint-eligible-page-title-and-prefetch-on-intent.md)).
+- **Paint timing as a constraint.** Nothing on a sheet starts at
+  `opacity: 0`: entrances reveal by clip, so every sheet reports Largest
+  Contentful Paint at first paint, and links prefetch on intent, not on sight
+  ([ADR-0007](docs/adr/0007-paint-eligible-page-title-and-prefetch-on-intent.md),
+  [ADR-0009](docs/adr/0009-reveal-parts-by-clip-not-fade.md)).
 
 ## Stack
 

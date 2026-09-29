@@ -12,6 +12,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { returnConsoleFocus } from "@/components/console/console-focus";
 import {
   type ConsoleSound,
   consoleSoundPlayer,
@@ -22,10 +23,20 @@ import {
 /** Where the open window sits: a column in the right corner, or along the bottom edge. */
 export type ConsoleDock = "side" | "bottom";
 
+type ConsoleCloseOptions = {
+  /** Hand focus back to where it was before the window opened. A caller that
+   * places focus itself passes `false`, as a page command does when it hands
+   * focus to the title of the page it opened. */
+  returnFocus?: boolean;
+};
+
 type SiteConsoleState = {
   isOpen: boolean;
-  close: () => void;
-  toggle: () => void;
+  close: (options?: ConsoleCloseOptions) => void;
+  /** `invoker` is where focus goes back to on close. The control passes
+   * itself, because Safari does not focus a button on click. `K` passes
+   * whatever had focus. */
+  toggle: (invoker: Element | null) => void;
   /** The reader's preference. Below `lg` the panel ignores it and docks bottom. */
   dock: ConsoleDock;
   setDock: (dock: ConsoleDock) => void;
@@ -37,7 +48,8 @@ type SiteConsoleState = {
    * keystrokes. It never starts audio itself; an interaction has to have. */
   playTimedSound: (sound: ConsoleSound) => void;
   panelId: string;
-  /** The control that opened the window; focus returns here on close. */
+  /** The control in the Closing Record. Focus goes back to it when whatever
+   * opened the window can no longer take focus. */
   controlRef: RefObject<HTMLButtonElement | null>;
 };
 
@@ -62,6 +74,9 @@ export function SiteConsoleProvider({ children }: { children: ReactNode }) {
   const [dock, setDock] = useState<ConsoleDock>("side");
   const [soundsEnabled, setSoundsEnabledState] = useState(true);
   const controlRef = useRef<HTMLButtonElement>(null);
+  /* What had focus when the window opened: the control, or whatever the reader
+   * was on when they pressed `K`. Nothing, when focus was on the document. */
+  const invokerRef = useRef<HTMLElement | null>(null);
   const panelId = useId();
 
   /* The server and hydrating client agree on the enabled default. A stored
@@ -82,16 +97,55 @@ export function SiteConsoleProvider({ children }: { children: ReactNode }) {
     persistConsoleSoundsEnabled(soundStorage(), enabled);
   }, []);
 
-  const close = useCallback(() => {
-    if (isOpen) playSound("close");
-    setIsOpen(false);
-    controlRef.current?.focus();
-  }, [isOpen, playSound]);
+  /* Whether the close in flight hands focus back. */
+  const returnFocusRef = useRef(false);
 
-  const toggle = useCallback(() => {
-    playSound(isOpen ? "close" : "open");
-    setIsOpen(!isOpen);
-  }, [isOpen, playSound]);
+  const close = useCallback(
+    ({ returnFocus = true }: ConsoleCloseOptions = {}) => {
+      if (!isOpen) return;
+
+      playSound("close");
+      returnFocusRef.current = returnFocus;
+      setIsOpen(false);
+    },
+    [isOpen, playSound],
+  );
+
+  /* Focus goes back to where it came from. When that is gone (a page the
+   * console has since navigated away from, a disclosure that has closed, or
+   * the document itself) it goes to the control, which the window folds
+   * back into. See `console-focus.ts` for when it moves at all.
+   *
+   * It moves once the close has rendered, not inside `close`: while the
+   * window is open the control it folds back into is inert, and an inert
+   * element refuses focus. The window is still visible then — it hides only
+   * after its exit — so focus inside it is still inside it. */
+  useEffect(() => {
+    if (isOpen || !returnFocusRef.current) return;
+
+    returnFocusRef.current = false;
+    returnConsoleFocus(document, document.getElementById(panelId), [
+      invokerRef.current,
+      controlRef.current,
+    ]);
+  }, [isOpen, panelId]);
+
+  const toggle = useCallback(
+    (invoker: Element | null) => {
+      if (isOpen) {
+        close();
+        return;
+      }
+
+      invokerRef.current =
+        invoker instanceof HTMLElement && invoker !== document.body
+          ? invoker
+          : null;
+      playSound("open");
+      setIsOpen(true);
+    },
+    [close, isOpen, playSound],
+  );
 
   return (
     <SiteConsoleContext

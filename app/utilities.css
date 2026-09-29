@@ -66,21 +66,6 @@
   }
 }
 
-/* Permanent static underline for card action links */
-@utility underline-static {
-  position: relative;
-  padding-bottom: 0.25rem;
-
-  &::after {
-    content: "";
-    position: absolute;
-    inset-inline: 0;
-    bottom: 0;
-    height: 2px;
-    background: currentColor;
-  }
-}
-
 /* Greeting colour, composed on the element so the inline per-language
  * `--greeting-hue` substitutes here rather than resolving at :root. */
 @utility greeting-ink {
@@ -93,6 +78,15 @@
  * shifting the headline or the content below while the greeting rewrites. */
 @utility greeting-stage {
   min-block-size: 2lh;
+
+  /* Bebas Neue draws Latin only, so these scripts fall into `next/font`'s
+   * size-adjusted Arial, made 76.72% as large to match Bebas's widths, and
+   * stood a quarter shorter than the Latin greetings. Normalising cap height
+   * to Bebas's 0.7 undoes that for whichever face draws them: no bytes, and
+   * the Latin run, already at 0.7, does not move. */
+  & :is(:lang(el), :lang(he), :lang(ar)) {
+    font-size-adjust: cap-height 0.7;
+  }
 }
 
 /* The caret shares the greeting's inline formatting context, so its em-sized
@@ -152,31 +146,6 @@
     inline-size: 1px;
     block-size: 7px;
     background: var(--color-rule);
-  }
-
-  &::before {
-    inset-inline-start: 0;
-  }
-
-  &::after {
-    inset-inline-end: 0;
-  }
-}
-
-/* Annotation only, never structure. One per page at most. */
-@utility dimension-line {
-  position: relative;
-  block-size: 1px;
-  background: var(--color-annotation);
-
-  &::before,
-  &::after {
-    content: "";
-    position: absolute;
-    top: -4px;
-    inline-size: 1px;
-    block-size: 9px;
-    background: var(--color-annotation);
   }
 
   &::before {

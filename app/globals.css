@@ -89,6 +89,43 @@ body {
   outline: none;
 }
 
+/* The console is one dark window in both themes, so the page's ink ring
+ * would all but vanish on it in the light theme (#111 on #15141a). Inside the
+ * window the ring is drawn in the console's own ink. */
+.notebook-console :focus-visible {
+  outline-color: var(--color-console-ink);
+}
+
+/* In the title bar the ring goes around the mark, not the hit box. The boxes
+ * run the full height of the bar, so the window's edge would cut a ring drawn
+ * around one, and a square ring would frame a round light. The trailing
+ * tracking after a caption's last letter is taken back, so its ring sits as
+ * far from the text on the right as on the left. */
+.console-chrome button:focus-visible {
+  outline: none;
+}
+
+.console-chrome button:focus-visible > span {
+  outline: 2px solid var(--color-console-ink);
+  outline-offset: 2px;
+}
+
+.console-caption {
+  margin-inline-end: calc(-1 * var(--tracking-label));
+  /* The button sizes itself to the caption less that tracking, which would
+   * otherwise leave "Sound on" a hair too little room for one line. */
+  white-space: nowrap;
+}
+
+/* A page title takes focus only as a place to read on from, after a console
+ * command opens its page (`focusPageTitle` in
+ * `components/console/console-focus.ts`). It is not a control, so it draws no
+ * ring. */
+#main-content[tabindex="-1"]:focus-visible,
+#main-content h1[tabindex="-1"]:focus-visible {
+  outline: none;
+}
+
 /* Below `lg` the console stays the window it is on desktop — docked along the
  * bottom edge, the page still visible around it — but the software keyboard
  * would cover it: `position: fixed` resolves against the layout viewport, and

@@ -28,8 +28,8 @@ type WorkPresentationProps = {
  *
  * - `darkClassName` re-inks a single-colour mark with a filter.
  * - `darkSrc` names a separate cut, for a mark carrying a brand colour a
- *   filter would destroy — SCAYLE's wordmark has to invert while its green
- *   accent stays green.
+ *   filter would destroy — SCAYLE's wordmark and TenneT's navy have to
+ *   invert while their greens stay green.
  *
  * A mark that survives the inversion as drawn names neither.
  */
@@ -54,8 +54,17 @@ const markRendering: Record<WorkMark["src"], MarkRendering> = {
     darkSrc: "/marks/scayle-dark.svg",
   },
   "/marks/about-you.svg": { sizeClassName: "w-41/50 max-w-40" },
-  "/marks/fifa.svg": { sizeClassName: "w-2/5 max-w-40" },
-  "/marks/tennet.svg": { sizeClassName: "w-29/50 max-w-56" },
+  /* FIFA's blue measured 2:1 on the dark field and TenneT's navy 1.7:1, under
+   * the 3:1 a graphic needs. FIFA is one colour, so it re-inks. TenneT keeps
+   * its green and light blue, so it takes a cut with the navy in paper. */
+  "/marks/fifa.svg": {
+    sizeClassName: "w-2/5 max-w-40",
+    darkClassName: "dark:brightness-0 dark:invert",
+  },
+  "/marks/tennet.svg": {
+    sizeClassName: "w-29/50 max-w-56",
+    darkSrc: "/marks/tennet-dark.svg",
+  },
   "/marks/sb-migrate.svg": {
     sizeClassName: "w-1/5 max-w-24",
     darkClassName: "dark:brightness-0 dark:invert",
@@ -79,7 +88,7 @@ type MarkVariant = {
  * The pair has to be two elements rather than one swapped `src`: the theme
  * here is a class on `<html>`, not `prefers-color-scheme`, and an external SVG
  * loaded through `<img>` can read neither. Both cuts are therefore fetched
- * (3.5KB each) and CSS hides one.
+ * (SCAYLE 3.5KB, TenneT 1.8KB a cut) and CSS hides one.
  */
 function markVariants({ src }: WorkMark): MarkVariant[] {
   const { sizeClassName, darkClassName, darkSrc } = markRendering[src];

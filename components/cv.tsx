@@ -35,7 +35,7 @@ export function Cv({ sectionCode, sections }: CvProps) {
   let position = 0;
 
   return (
-    <div className="flex w-full flex-col gap-11">
+    <div className="flex w-full flex-col gap-10">
       {sections.map((section, sectionIndex) => {
         const sectionStarts = starts[sectionIndex];
 
@@ -69,7 +69,7 @@ export function Cv({ sectionCode, sections }: CvProps) {
                         </h3>
                         <p className="text-ink-muted text-sm">{entry.role}</p>
                       </div>
-                      <NotebookLabel className="num ml-auto text-label sm:ml-0 sm:w-26 sm:text-right">
+                      <NotebookLabel className="num ml-auto sm:ml-0 sm:w-26 sm:text-right">
                         {entry.years}
                       </NotebookLabel>
                     </NotebookRecordRowBody>

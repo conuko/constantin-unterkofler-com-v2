@@ -1,5 +1,26 @@
 import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+/**
+ * Scale names from the `@theme` block in `app/theme.css` that tailwind-merge
+ * does not know. Without them it reads `text-label` as a colour and drops the
+ * `text-ink-muted` beside it, and reads `shadow-console` as a shadow colour.
+ * Keys follow Tailwind's `--{namespace}-*` names; `cn.test.ts` fails when a
+ * theme token merges in the wrong group.
+ */
+const themeScales = {
+  animate: ["caret"],
+  blur: ["glass"],
+  container: ["reading", "collection"],
+  ease: ["default", "spring"],
+  leading: ["console"],
+  radius: ["console"],
+  shadow: ["console"],
+  text: ["label", "micro"],
+  tracking: ["code", "label", "micro"],
+};
+
+const twMerge = extendTailwindMerge({ extend: { theme: themeScales } });
 
 /**
  * Combines multiple class values into a single string.

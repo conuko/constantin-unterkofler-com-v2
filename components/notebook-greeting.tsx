@@ -65,7 +65,7 @@ export function NotebookGreeting({ greetings, name }: NotebookGreetingProps) {
     <>
       <p
         aria-hidden="true"
-        className="greeting-stage greeting-ink flex w-full items-end font-heading font-semibold text-3xl leading-tight tracking-tight lg:text-4xl"
+        className="greeting-stage greeting-ink flex w-full items-end font-heading font-semibold text-3xl leading-tight tracking-tight md:text-4xl"
         style={{ "--greeting-hue": cycle.hue } as CSSProperties}
       >
         <span dir="auto" lang={displayed.lang} className="inline-block">
@@ -74,7 +74,7 @@ export function NotebookGreeting({ greetings, name }: NotebookGreetingProps) {
         </span>
       </p>
       <p className="sr-only">{leadGreeting.text}</p>
-      <h1 className="w-fit font-heading font-semibold text-5xl leading-none tracking-tight lg:text-7xl">
+      <h1 className="w-fit font-heading font-semibold text-5xl leading-none tracking-tight md:text-7xl">
         <span translate="no">{name}</span>
       </h1>
     </>

@@ -7,6 +7,11 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { portfolioContent } from "@/content/site-content";
+import {
+  defaultThemeSetting,
+  themeSettingScript,
+  themeStorageKey,
+} from "@/lib/theme-setting";
 import "./globals.css";
 
 const displayFont = Bebas_Neue({
@@ -68,9 +73,16 @@ export default function RootLayout({
       className={`${displayFont.variable} ${bodyFont.variable} ${monoFont.variable}`}
     >
       <body className="flex min-h-dvh flex-col bg-paper text-ink leading-relaxed">
+        {/* Before anything paints: the stored appearance setting, for the
+         * theme control's glyph (see `lib/theme-setting.ts`). */}
+        <script
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: a fixed, first-party string
+          dangerouslySetInnerHTML={{ __html: themeSettingScript }}
+        />
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          storageKey={themeStorageKey}
+          defaultTheme={defaultThemeSetting}
           enableSystem
           disableTransitionOnChange
         >
@@ -84,11 +96,7 @@ export default function RootLayout({
                 identity={portfolioContent.identity}
                 primaryWayfinding={portfolioContent.primaryWayfinding}
               />
-
-              <main
-                id="main-content"
-                className="mx-auto w-full max-w-270 flex-1 pb-16"
-              >
+              <main id="main-content" className="w-full flex-1 pb-16">
                 {children}
               </main>
 

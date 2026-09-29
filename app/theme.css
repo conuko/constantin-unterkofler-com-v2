@@ -1,12 +1,5 @@
-/* ═══════════════════════════════════════════════════
- * DESIGN TOKENS
- * Project-scoped theme for a portfolio site.
- * Plain @theme so dark mode can override via CSS variables.
- *
- * Engineering Notebook / Technical — see Design.md. Paper, ink, Bebas Neue,
- * Space Grotesk, and every timing below are unchanged. What is new: a finer
- * dot pitch, an annotation colour, a monospace face, and a zero radius.
- * ═══════════════════════════════════════════════════ */
+/* Engineering Notebook / Technical portfolio tokens. Dark mode overrides the
+ * CSS variables; existing paper, ink, fonts, and timings remain unchanged. */
 
 @custom-variant dark (&:is(.dark *));
 
@@ -15,28 +8,35 @@
   --color-ink: #111111;
   --color-ink-muted: rgba(17, 17, 17, 0.72);
 
-  /* Moved from 18% to 20%. The hairline now has to hold its own against a
-   * denser dot field; at 18% it dissolved into it. */
+  /* Stamps: filenames, the sheet stamp, counts, and the build stamp. Quieter
+   * than Faded Ink, and still 4.8:1 on paper. Stamps are 10–11px, so they take
+   * the body-text floor of 4.5:1, not the 3:1 large type gets. */
+  --color-ink-faint: rgba(17, 17, 17, 0.6);
+
+  /* 20% keeps the rule visible against the denser dot field. */
   --color-rule: rgba(17, 17, 17, 0.2);
 
-  /* Two dot layers, 1:5. Every fifth dot is heavier so the eye can count
-   * without a printed line. */
+  /* Two dot layers at a 1:5 pitch; major dots aid counting. */
   --color-dot: rgba(17, 17, 17, 0.085);
   --color-dot-major: rgba(17, 17, 17, 0.2);
   --grid-pitch: 8px;
   --grid-pitch-major: 40px;
 
-  /* Measurement marks, record indices, the console prompt. Never body copy,
-   * never a fill. */
+  /* Reading and collection widths are capped by the corner lanes. */
+  --container-reading: min(45rem, var(--sheet-cap));
+  --container-collection: min(67.5rem, var(--sheet-cap));
+
+  /* Records use two columns at 300px minimum, then one column. The formula
+   * follows the lane-limited width instead of a breakpoint and never makes
+   * more than two columns. */
+  --grid-template-columns-records: repeat(
+    auto-fill,
+    minmax(min(100%, max(18.75rem, 50% - 3.25rem)), 1fr)
+  );
+
+  /* For marks, record indices, and the console prompt; not body text or fills. */
   --color-annotation: oklch(0.52 0.13 250);
 
-  /* The annotation colour for marks set on an ink fill — the console
-   * control's prompt glyph. Ink inverts with the theme, so this is the other
-   * theme's annotation value: the light blue on dark ink here, the deep blue on
-   * light ink in the dark theme, where the light blue fell to 1.85:1. */
-  --color-annotation-on-ink: oklch(0.78 0.11 250);
-
-  --color-card-stroke: rgba(17, 17, 17, 0.82);
   --color-card-glass: rgba(255, 255, 255, 0.52);
   --color-media-field: rgba(255, 255, 255, 0.72);
   --color-media-field-rule: rgba(17, 17, 17, 0.14);
@@ -44,58 +44,47 @@
   --color-background: var(--color-paper);
   --color-foreground: var(--color-ink);
 
-  /* The console is one dark window in both themes. It is not themed, because a
-   * terminal that repaints itself for light mode stops reading as a terminal. */
+  /* The console stays dark in both themes so it keeps its terminal identity. */
   --color-console-surface: #15141a;
   --color-console-chrome: rgba(248, 247, 242, 0.05);
   --color-console-rule: rgba(248, 247, 242, 0.14);
   --color-console-ink: rgba(248, 247, 242, 0.82);
-  --color-console-ink-muted: rgba(248, 247, 242, 0.45);
+  /* 50% holds 4.8:1 on the title bar, the lightest surface it sits on. */
+  --color-console-ink-muted: rgba(248, 247, 242, 0.5);
   --color-console-output: rgba(248, 247, 242, 0.55);
   --color-console-accent: oklch(0.78 0.11 250);
   --color-console-command: oklch(0.86 0.14 150);
   --color-console-error: #ff7b72;
 
-  /* The window's three lights, named for what each one does rather than for
-   * its hue — they are quoted from the macOS terminal, not derived from the
-   * notebook's palette, which is why they are raw hex among oklch. */
+  /* macOS terminal light colors, kept as raw hex and named by function. */
   --color-console-light-close: #ff5f57;
   --color-console-light-minimize: #febc2e;
   --color-console-light-zoom: #28c840;
 
-  /* Terminal leading: looser than body copy, so a wall of mono output stays
-   * scannable line by line. */
+  /* Extra leading keeps terminal output readable line by line. */
   --leading-console: 1.8;
 
-  /* Bottom dock: the session grows from this floor and scrolls once it passes
-   * the cap; the viewport cap keeps the window off the page header on short
-   * screens. `--max-height-*` / `--min-height-*` are the namespaces `max-h-*`
-   * and `min-h-*` resolve against — a `--size-*` name generates no CSS at all. */
+  /* Bottom dock height: grows from the minimum, then scrolls at the viewport
+   * cap. `--max-height-*` and `--min-height-*` power the matching utilities;
+   * `--size-*` would generate no utility. */
   --min-height-console-body: 13rem;
   --max-height-console-body: min(52vh, 26rem);
 
-  /* Side dock: a fixed column in the right corner, the body filling it. Wide
-   * enough for the `help` grid and the session title without wrapping. */
+  /* Right-side dock, sized for the help grid and session title. */
   --width-console-side: 45rem;
   --height-console-side: min(72vh, 40rem);
 
-  /* Command name column in `help` output, wide enough for the longest name
-   * plus its flag. */
+  /* Help command column, sized for the longest name and flag. */
   --grid-template-columns-console-help: 7rem 1fr;
 
-  /* --font-body / --font-display / --font-mono-face are set by the Next.js
-   * font loader on <html>. Space Grotesk was drawn from Space Mono, so the
-   * text face and the data face share proportion and terminals. */
+  /* Next.js sets these font variables on <html>; text and data fonts share
+   * proportions and terminals. */
   --font-sans: var(--font-body), sans-serif;
   --font-heading: var(--font-display), serif;
   --font-mono: var(--font-mono-face), ui-monospace, monospace;
 
-  /* Block art only. Space Mono ships no block or box-drawing glyphs, so a
-   * banner set in it is composed per character by the browser's fallback —
-   * measured here, the Latin glyphs came out at 0.61em and every █ and ╗
-   * beside them at 0.97em, which is not a grid any more. This stack is the
-   * platform's own terminal face, which has the glyphs and sets all of them
-   * on one advance. It is the console banner's face and nothing else's. */
+  /* Block art only. This fallback stack supplies aligned block and box-drawing
+   * glyphs that Space Mono does not provide. */
   --font-mono-block:
     ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
 
@@ -106,36 +95,19 @@
   --tracking-label: 0.12em;
   --tracking-micro: 0.1em;
 
-  /* Square by default. The console window is the one exception and names its
-   * own radius. */
+  /* Square by default; the console defines its own radius. */
   --radius: 0rem;
   --radius-console: 0.625rem;
 
   --shadow-console: 0 30px 70px -24px rgba(0, 0, 0, 0.6);
 
-  /* 1px, and that is not a typo or a placeholder — it is measured.
-   *
-   * A backdrop blur can only show what is behind it, and behind every glass
-   * surface here is the body's dot grid. Sampled against that grid, 1px softens
-   * the dots to roughly a third of their contrast — they stay visible, smeared,
-   * which is the thing the eye reads as glass. At 3px they are almost gone;
-   * from 5px up they are erased outright and the surface collapses into flat
-   * tint, indistinguishable from a plain translucent background. So the
-   * conventional 8-12px frost is exactly wrong on this backdrop: more blur here
-   * means less visible glass.
-   *
-   * The grid got finer (22px/0.9px to 8px/0.5px), which does not raise this
-   * number — if anything it lowers it. Do not raise it.
-   *
-   * The Site Header's own surface uses `backdrop-blur-md` instead, and that is
-   * consistent rather than contradictory: it sits over running text, which has
-   * structure at a much coarser scale and needs the heavier radius. */
+  /* Measured 1px preserves the dot grid through the glass effect; do not raise
+   * it. Larger blur erases the grid. The header uses `backdrop-blur-md` because
+   * it sits over text instead. */
   --blur-glass: 1px;
 
-  /* `--transition-duration-*` is the namespace Tailwind's `duration-*` utility
-   * resolves against. A plainer `--duration-*` name reads better but is not a
-   * namespace, so `duration-normal` would generate no CSS and every use would
-   * fall back to Tailwind's 150ms default — silently. Don't shorten these. */
+  /* Tailwind's `duration-*` utilities require the `--transition-duration-*`
+   * namespace. `--duration-*` would be ignored and silently use 150ms. */
   --transition-duration-fast: 150ms;
   --transition-duration-normal: 300ms;
   --transition-duration-slow: 500ms;
@@ -172,31 +144,43 @@
   }
 }
 
-/* Greeting: the hue is random per language and arrives inline from the
- * component. Lightness and chroma stay theme-owned, so every hue the rotation
- * lands on keeps its contrast against paper. The annotation colour is separate
- * and never rotates. */
+/* Greeting hue is random per language and arrives inline from the component.
+ * Theme-owned lightness and chroma preserve contrast; annotation color stays
+ * fixed. */
 :root {
   --greeting-lightness: 0.48;
   --greeting-chroma: 0.15;
 }
 
-/* ═══════════════════════════════════════════════════
- * DARK THEME
- * Warm inversion of the portfolio palette.
- * ═══════════════════════════════════════════════════ */
+/* At `lg`, corner controls stay fixed while the sheet scrolls. The lane covers
+ * the gutter, console control, and clearance; below `lg`, corners return to
+ * the header and in-flow Closing Record. */
+:root {
+  --corner-lane: 1.5rem;
+
+  /* Sheet width is the viewport minus both lanes, excluding the 24px gutter
+   * already provided by the sheet frame. */
+  --sheet-cap: calc(100% - 2 * (var(--corner-lane) - 1.5rem));
+}
+
+@media (width >= 64rem) {
+  :root {
+    --corner-lane: 185px;
+  }
+}
+
+/* Dark theme: warm inversion of the portfolio palette. */
 
 .dark,
 [data-theme="dark"] {
   --color-paper: #1a1917;
   --color-ink: #f8f7f2;
   --color-ink-muted: rgba(248, 247, 242, 0.72);
+  --color-ink-faint: rgba(248, 247, 242, 0.55);
   --color-rule: rgba(248, 247, 242, 0.2);
   --color-dot: rgba(248, 247, 242, 0.07);
   --color-dot-major: rgba(248, 247, 242, 0.16);
   --color-annotation: oklch(0.78 0.11 250);
-  --color-annotation-on-ink: oklch(0.52 0.13 250);
-  --color-card-stroke: rgba(248, 247, 242, 0.82);
   --color-card-glass: rgba(248, 247, 242, 0.06);
   --color-media-field: rgba(248, 247, 242, 0.92);
   --color-media-field-rule: rgba(248, 247, 242, 0.28);
@@ -206,9 +190,7 @@
   --color-foreground: var(--color-ink);
 }
 
-/* ═══════════════════════════════════════════════════
- * REDUCED MOTION
- * ═══════════════════════════════════════════════════ */
+/* Reduced motion: disable theme transition durations. */
 
 @media (prefers-reduced-motion: reduce) {
   :root {

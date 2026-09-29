@@ -2,12 +2,16 @@ import { describe, expect, test } from "vitest";
 import {
   bootLines,
   type ConsoleContext,
+  candidateLine,
   commandNames,
+  completeInput,
   consoleRoutes,
   displayPath,
   formatLastLogin,
+  missingDirectoryLine,
   resolveDirectory,
   runCommand,
+  workingDirectory,
 } from "@/components/console/console-session";
 
 const wayfinding = [
@@ -25,6 +29,7 @@ function context(overrides: Partial<ConsoleContext> = {}): ConsoleContext {
     pathname: "/",
     previousPathname: null,
     soundsEnabled: true,
+    appearance: { setting: "system", system: "light" },
     repositoryUrl: "https://github.com/conuko",
     records: [],
     ...overrides,
@@ -69,6 +74,55 @@ describe("console routes", () => {
     expect(commandNames).toContain("home");
     expect(commandNames).toContain("cd");
     expect(commandNames).toContain("sound");
+  });
+});
+
+describe("theme", () => {
+  test("bare theme presses the theme control", () => {
+    expect(runCommand("theme", context()).effects).toEqual([
+      { type: "theme", setting: "dark" },
+    ]);
+    expect(
+      runCommand(
+        "theme",
+        context({ appearance: { setting: "light", system: "light" } }),
+      ).effects,
+    ).toEqual([{ type: "theme", setting: "system" }]);
+  });
+
+  test("sets the named appearance, system included", () => {
+    const result = runCommand(
+      "theme system",
+      context({ appearance: { setting: "dark", system: "light" } }),
+    );
+
+    expect(result.effects).toEqual([{ type: "theme", setting: "system" }]);
+    expect(result.lines[0]).toMatchObject({
+      kind: "muted",
+      text: "appearance: system (light)",
+    });
+    expect(runCommand("theme DARK", context()).effects).toEqual([
+      { type: "theme", setting: "dark" },
+    ]);
+  });
+
+  test("says so when the appearance is already set", () => {
+    const result = runCommand("theme system", context());
+
+    expect(result.effects).toEqual([]);
+    expect(result.lines[0]).toMatchObject({
+      text: "appearance is already system (light)",
+    });
+  });
+
+  test("rejects an unknown appearance instead of toggling", () => {
+    const result = runCommand("theme sepia", context());
+
+    expect(result.effects).toEqual([]);
+    expect(result.lines[0]).toMatchObject({
+      kind: "error",
+      text: "theme: expected light, dark or system",
+    });
   });
 });
 
@@ -165,6 +219,34 @@ describe("prompt", () => {
     expect(displayPath("/work")).toBe("~/work");
   });
 
+  test("stands a 404 in the nearest published directory above it", () => {
+    const routes = consoleRoutes(wayfinding);
+    expect(workingDirectory("/work", routes)).toBe("/work");
+    expect(workingDirectory("/work/nope", routes)).toBe("/work");
+    expect(workingDirectory("/work/nope/deeper", routes)).toBe("/work");
+    expect(workingDirectory("/nope", routes)).toBe("/");
+    expect(workingDirectory("/", routes)).toBe("/");
+  });
+
+  test("names the missing path as the cd that failed, only on a 404", () => {
+    const routes = consoleRoutes(wayfinding);
+    expect(missingDirectoryLine("/work", routes)).toBeNull();
+    expect(missingDirectoryLine("/work/nope", routes)).toMatchObject({
+      kind: "error",
+      text: "cd: no such directory: ~/work/nope",
+    });
+  });
+
+  test("walks cd from the directory a 404 stands in", () => {
+    const onMissing = context({ pathname: "/work/nope", directory: "/work" });
+    expect(runCommand("cd ..", onMissing).effects).toEqual([
+      { type: "navigate", href: "/" },
+    ]);
+    expect(runCommand("cd .", onMissing).effects).toEqual([
+      { type: "navigate", href: "/work" },
+    ]);
+  });
+
   test("boots with an introduction that names the starter commands", () => {
     const openedAt = new Date(2026, 8, 16, 10, 53, 47);
     const lines = bootLines(openedAt);
@@ -185,5 +267,83 @@ describe("prompt", () => {
     expect(formatLastLogin(new Date(2026, 8, 16, 10, 53, 47))).toBe(
       "Last login: Wed Sep 16 10:53:47 on ttys002",
     );
+  });
+});
+
+describe("tab completion", () => {
+  const routes = { routes: consoleRoutes(wayfinding) };
+
+  test("writes out a unique command with the space after a finished word", () => {
+    expect(completeInput("wh", routes)).toEqual({
+      value: "whoami ",
+      candidates: [],
+    });
+  });
+
+  test("extends an ambiguous command as far as the matches agree", () => {
+    expect(completeInput("c", routes)).toEqual({
+      value: "c",
+      candidates: ["cd", "clear", "contact"],
+    });
+    expect(completeInput("con", routes)).toEqual({
+      value: "contact ",
+      candidates: [],
+    });
+  });
+
+  test("completes cd to a directory, with its trailing slash", () => {
+    expect(completeInput("cd w", routes).value).toBe("cd work/");
+    expect(completeInput("cd ~/a", routes).value).toBe("cd ~/about/");
+    expect(completeInput("cd /c", routes).value).toBe("cd /contact/");
+  });
+
+  test("lists every directory for a bare cd", () => {
+    expect(completeInput("cd ", routes)).toEqual({
+      value: "cd ",
+      candidates: ["about/", "contact/", "work/"],
+    });
+  });
+
+  test("a completed directory is one cd reads", () => {
+    expect(
+      resolveDirectory("work/", {
+        ...routes,
+        pathname: "/",
+        previousPathname: null,
+      }),
+    ).toEqual({ href: "/work" });
+  });
+
+  test("completes the arguments theme, sound and work read", () => {
+    expect(completeInput("theme d", routes).value).toBe("theme dark ");
+    expect(completeInput("theme ", routes).candidates).toEqual([
+      "dark",
+      "light",
+      "system",
+    ]);
+    expect(completeInput("sound o", routes).candidates).toEqual(["off", "on"]);
+    expect(completeInput("work --", routes).value).toBe("work --list ");
+  });
+
+  test("leaves a word nothing matches, and arguments no command reads", () => {
+    expect(completeInput("xyz", routes)).toEqual({
+      value: "xyz",
+      candidates: [],
+    });
+    expect(completeInput("cd work/ a", routes)).toEqual({
+      value: "cd work/ a",
+      candidates: [],
+    });
+    expect(completeInput("help h", routes)).toEqual({
+      value: "help h",
+      candidates: [],
+    });
+  });
+
+  test("lists candidates on one line, two spaces apart", () => {
+    expect(candidateLine(["about/", "work/"])).toMatchObject({
+      kind: "output",
+      text: "about/  work/",
+    });
   });
 });

@@ -5,9 +5,11 @@ import { useTheme } from "next-themes";
 import {
   type ReactNode,
   useEffect,
+  useEffectEvent,
   useLayoutEffect,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { flushSync } from "react-dom";
 import { ConsoleBanner } from "@/components/console/console-banner";
@@ -24,6 +26,11 @@ import {
   isConsoleDocked,
   trackConsoleOffset,
 } from "@/components/console/console-drag";
+import {
+  type ConsoleArrival,
+  consoleArrivalStep,
+  focusPageTitle,
+} from "@/components/console/console-focus";
 import { isTypingKeystroke } from "@/components/console/console-keystroke";
 import {
   type ConsoleDock,
@@ -33,17 +40,22 @@ import {
   bootLines,
   type ConsoleContext,
   type ConsoleLine,
-  completeCommand,
+  candidateLine,
+  completeInput,
   consoleRoutes,
   displayPath,
+  interruptLine,
+  missingDirectoryLine,
   promptLine,
   runCommand,
+  workingDirectory,
 } from "@/components/console/console-session";
 import {
   consoleViewportVariableNames,
   consoleViewportVariables,
 } from "@/components/console/console-viewport";
 import type { NavItem, SiteConsoleContent } from "@/content/site-content";
+import { defaultThemeSetting, isThemeSetting } from "@/lib/theme-setting";
 import { useMediaQuery } from "@/lib/use-media-query";
 import { cn } from "@/lib/utils/cn";
 
@@ -73,9 +85,20 @@ function isEditableTarget(target: EventTarget | null): boolean {
   );
 }
 
+/* No focus the console places scrolls anything. The page stays where the
+ * reader left it, and the session stays where it was read to: the first open
+ * rests on the greeting, and a reader who has scrolled back through the output
+ * keeps their place when a drag or a light gives the prompt its focus back. */
+function focusPrompt(input: HTMLInputElement | null) {
+  input?.focus({ preventScroll: true });
+}
+
 /* Keep the newest line — and the prompt below it — in view. */
-function followSession(scroller: HTMLDivElement | null) {
-  if (scroller) scroller.scrollTop = scroller.scrollHeight;
+function followSession(
+  scroller: HTMLDivElement | null,
+  behavior: ScrollBehavior = "instant",
+) {
+  scroller?.scrollTo({ top: scroller.scrollHeight, behavior });
 }
 
 /* Where the session sits: on its newest line, or on its top while the first
@@ -204,10 +227,13 @@ type TrafficLightProps = {
   disabled?: boolean;
 };
 
-/* An 11px light inside a 20px hit box, opened to 24px on touch so the target
- * clears the minimum. Hovering any light reveals the glyphs on all three, as
- * the platform does. A disabled light is only dimmed: the dashed frame other
- * disabled controls wear would draw a square around a round light. */
+/* An 11px light inside a 24px hit box, at every width. The platform sets its
+ * lights on a 20px pitch, and 20px boxes that close together leave each
+ * target under the 24px minimum with no spacing to make up for it, so the
+ * lights sit 4px further apart than the ones they quote. Hovering any light
+ * reveals the glyphs on all three, as the platform does. A disabled light is
+ * only dimmed: the dashed frame other disabled controls wear would draw a
+ * square around a round light. */
 function TrafficLight({
   tone,
   label,
@@ -222,7 +248,7 @@ function TrafficLight({
       aria-label={label}
       aria-pressed={pressed}
       disabled={disabled}
-      className="flex size-6 cursor-pointer items-center justify-center disabled:cursor-default disabled:opacity-40 lg:size-5"
+      className="flex size-6 cursor-pointer items-center justify-center disabled:cursor-default disabled:opacity-40"
     >
       <span
         className={cn(
@@ -240,6 +266,35 @@ function TrafficLight({
       </span>
     </button>
   );
+}
+
+function hasModifier(event: React.KeyboardEvent) {
+  return event.shiftKey || event.altKey || event.ctrlKey || event.metaKey;
+}
+
+/* Ctrl and the key alone. Command stays the platform's, so on macOS Cmd+C
+ * still copies and Cmd+L still reaches the address bar. */
+function isControlKey(event: React.KeyboardEvent, key: string) {
+  return (
+    event.ctrlKey &&
+    !event.metaKey &&
+    !event.altKey &&
+    !event.shiftKey &&
+    event.key.toLowerCase() === key
+  );
+}
+
+/* Text selected in the prompt, or in the session above it. */
+function hasSelection(field: HTMLInputElement) {
+  return (
+    field.selectionStart !== field.selectionEnd ||
+    (window.getSelection()?.toString() ?? "") !== ""
+  );
+}
+
+/* Hydration is the only thing `isHydrated` waits for; nothing changes after. */
+function subscribeToNothing() {
+  return () => {};
 }
 
 /**
@@ -288,6 +343,8 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
   const [intro, setIntro] = useState<ConsoleBannerIntro>("pending");
   const [input, setInput] = useState("");
   const [caretIndex, setCaretIndex] = useState(0);
+  /* How far a line longer than the prompt has scrolled the field. */
+  const [inputScroll, setInputScroll] = useState(0);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
   const [historyCursor, setHistoryCursor] = useState<number | null>(null);
@@ -297,6 +354,10 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const sessionOpenedAtRef = useRef<Date | null>(null);
   const redockRef = useRef<ViewTransition | null>(null);
+  /* A command that closes the window lets its last line show first. */
+  const closeTimerRef = useRef<number | null>(null);
+  /* A page command whose page title is waiting for focus. */
+  const arrivalRef = useRef<ConsoleArrival | null>(null);
   /* The first open rests on the greeting: the session stays on its top, where
    * the banner types, until the reader takes it over — a key or a command at
    * the prompt, a touch or a wheel on the session, a move to the other dock —
@@ -305,7 +366,14 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
    * On a phone the software keyboard rises as the window opens, and on its way
    * up both this component and the browser would carry the session down to
    * the focused prompt, so the greeting was heard typing out of sight. While
-   * the session rests, a scroll the reader did not make is put back. */
+   * the session rests, a scroll the reader did not make is put back.
+   *
+   * It rests only while the greeting types. Once it has been typed the
+   * session glides down to the prompt, so on a window too short for the whole
+   * boot text (a phone, with the keyboard up) the prompt comes into view
+   * without the reader having to find it. A banner printed whole, for a
+   * reader who has asked for less motion, gives the session nothing to wait
+   * for. */
   const restsOnGreetingRef = useRef(true);
   /* The drag never goes through React state: a render per pointer move would
    * drop frames, so the offset is written straight onto the window. */
@@ -316,23 +384,55 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
 
   const router = useRouter();
   const pathname = usePathname();
-  const { resolvedTheme, setTheme } = useTheme();
+  const routes = consoleRoutes(wayfinding);
+  /* The shell's directory, which is the route except on a 404 sheet. */
+  const directory = workingDirectory(pathname, routes);
+  const isHydrated = useSyncExternalStore(
+    subscribeToNothing,
+    () => true,
+    () => false,
+  );
+  const { theme, systemTheme, setTheme } = useTheme();
+  const isRestingOnGreeting = useEffectEvent(
+    () => restsOnGreetingRef.current && intro !== "done",
+  );
 
-  /* Where the reader was before this route, for `cd -`. */
+  /* Where the shell stood before this directory, for `cd -`. A 404 moves
+   * the route but not the directory, so it is never the one `cd -` returns
+   * to. */
   const previousPathnameRef = useRef<string | null>(null);
-  const lastPathnameRef = useRef(pathname);
+  const lastPathnameRef = useRef(directory);
 
   useEffect(() => {
-    if (lastPathnameRef.current === pathname) return;
+    if (lastPathnameRef.current === directory) return;
 
     previousPathnameRef.current = lastPathnameRef.current;
-    lastPathnameRef.current = pathname;
+    lastPathnameRef.current = directory;
+  }, [directory]);
+
+  /* Arriving on a 404 with a session running prints the cd that failed. A
+   * session that boots on one prints it under the boot text instead. */
+  const printMissingDirectory = useEffectEvent((route: string) => {
+    const missing = missingDirectoryLine(route, routes);
+    if (missing && sessionOpenedAtRef.current) {
+      setLines((current) => [...current, missing]);
+    }
+  });
+
+  useEffect(() => {
+    printMissingDirectory(pathname);
   }, [pathname]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
+      /* Esc closes one layer at a time. A layer that holds focus handles
+       * its own Esc first and marks it handled, as the Site Header's
+       * disclosure does. With focus in neither, the window is the top layer
+       * and goes first. */
       if (event.key === "Escape") {
-        if (isOpen) close();
+        if (!isOpen || event.defaultPrevented) return;
+        event.preventDefault();
+        close();
         return;
       }
 
@@ -348,7 +448,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
       }
 
       event.preventDefault();
-      toggle();
+      toggle(document.activeElement);
     }
 
     document.addEventListener("keydown", onKeyDown);
@@ -378,7 +478,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
         panel.style.setProperty(name, value);
       }
 
-      settleSession(scrollRef.current, restsOnGreetingRef.current);
+      settleSession(scrollRef.current, isRestingOnGreeting());
     };
 
     syncViewport();
@@ -434,17 +534,47 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
   }, [isDesktop, isOpen]);
 
   useEffect(() => {
-    if (isOpen) inputRef.current?.focus();
+    if (isOpen) focusPrompt(inputRef.current);
   }, [isOpen]);
+
+  /* A close that gets there first, from Esc or the red light, cancels the one
+   * a command has scheduled. */
+  useEffect(() => {
+    if (!isOpen) return;
+
+    return () => {
+      if (closeTimerRef.current !== null) {
+        window.clearTimeout(closeTimerRef.current);
+        closeTimerRef.current = null;
+      }
+    };
+  }, [isOpen]);
+
+  /* A page command hands focus to the title of the page it opened, once the
+   * window has closed and the route has landed, in whichever order those
+   * happen. */
+  useEffect(() => {
+    const arrival = arrivalRef.current;
+    if (!arrival) return;
+
+    const step = consoleArrivalStep(arrival, { isOpen, pathname });
+    if (step === "wait") return;
+
+    arrivalRef.current = null;
+    if (step === "arrive") focusPageTitle(document, panelRef.current);
+  }, [isOpen, pathname]);
 
   /* A reload remounts this component, intentionally starting a new session.
    * Within one mount, reopening keeps the original login timestamp and output. */
-  useEffect(() => {
-    if (!isOpen || sessionOpenedAtRef.current) return;
-
+  const bootSession = useEffectEvent(() => {
     const openedAt = new Date();
     sessionOpenedAtRef.current = openedAt;
-    setLines(bootLines(openedAt));
+    const missing = missingDirectoryLine(pathname, routes);
+    setLines([...bootLines(openedAt), ...(missing ? [missing] : [])]);
+  });
+
+  useEffect(() => {
+    if (isOpen && !sessionOpenedAtRef.current) bootSession();
   }, [isOpen]);
 
   useEffect(() => {
@@ -453,6 +583,20 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
     );
   }, [isOpen, prefersReducedMotion]);
 
+  /* The greeting has been typed, or printed whole, and the session goes on to
+   * the prompt: gliding after typing, and simply there under reduced motion,
+   * where nothing on the window moves. */
+  const leaveGreeting = useEffectEvent(() => {
+    releaseGreeting({
+      follow: true,
+      behavior: prefersReducedMotion ? "instant" : "smooth",
+    });
+  });
+
+  useEffect(() => {
+    if (isOpen && intro === "done") leaveGreeting();
+  }, [intro, isOpen]);
+
   /* Follow the session to its newest line, and once more on open, since a
    * hidden scroller cannot be scrolled. A session resting on the greeting
    * holds its top instead, through the banner's typing and after it, so on a
@@ -460,20 +604,28 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
    * the reader reaches for it. */
   useEffect(() => {
     if (!isOpen || lines.length === 0) return;
-    settleSession(scrollRef.current, restsOnGreetingRef.current);
+    settleSession(scrollRef.current, isRestingOnGreeting());
   }, [lines, isOpen]);
 
   /* The reader has taken the session over. At the prompt it follows them
    * there; a touch or a wheel on the session is theirs to scroll. */
-  function releaseGreeting({ follow }: { follow: boolean }) {
+  function releaseGreeting({
+    follow,
+    behavior,
+  }: {
+    follow: boolean;
+    behavior?: ScrollBehavior;
+  }) {
     if (!restsOnGreetingRef.current) return;
 
     restsOnGreetingRef.current = false;
-    if (follow) followSession(scrollRef.current);
+    if (follow) followSession(scrollRef.current, behavior);
   }
 
   function holdGreeting(event: React.UIEvent<HTMLDivElement>) {
-    if (restsOnGreetingRef.current) event.currentTarget.scrollTop = 0;
+    if (restsOnGreetingRef.current && intro !== "done") {
+      event.currentTarget.scrollTop = 0;
+    }
   }
 
   function submit(event: React.FormEvent) {
@@ -485,10 +637,15 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
       identityName: content.identity.name,
       identityRole: content.identity.role,
       identityLocation: content.identity.location,
-      routes: consoleRoutes(wayfinding),
+      routes,
       pathname,
       previousPathname: previousPathnameRef.current,
+      directory,
       soundsEnabled,
+      appearance: {
+        setting: isThemeSetting(theme) ? theme : defaultThemeSetting,
+        system: systemTheme ?? "light",
+      },
       repositoryUrl: content.repositoryUrl,
       records: content.records,
     };
@@ -504,18 +661,27 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
     setCaretIndex(0);
 
     let cleared = false;
+    let destination: string | null = null;
 
     for (const effect of result.effects) {
       if (effect.type === "clear") cleared = true;
-      if (effect.type === "navigate") router.push(effect.href);
+      if (effect.type === "navigate") {
+        router.push(effect.href);
+        destination = effect.href;
+      }
       if (effect.type === "open")
         window.open(effect.href, "_blank", "noopener");
-      if (effect.type === "theme") {
-        setTheme(resolvedTheme === "dark" ? "light" : "dark");
-      }
+      if (effect.type === "theme") setTheme(effect.setting);
       if (effect.type === "sound") setSoundsEnabled(effect.enabled);
       if (effect.type === "close") {
-        window.setTimeout(close, 220);
+        /* `exit` gives focus back to where it was before the window
+         * opened. A page command gives it to the page it opened instead. */
+        const from = pathname;
+        closeTimerRef.current = window.setTimeout(() => {
+          closeTimerRef.current = null;
+          if (destination) arrivalRef.current = { href: destination, from };
+          close({ returnFocus: destination === null });
+        }, 220);
       }
     }
 
@@ -526,7 +692,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
         ? []
         : [
             ...current,
-            promptLine(entered, displayPath(pathname)),
+            promptLine(entered, displayPath(directory)),
             ...result.lines,
           ],
     );
@@ -548,9 +714,47 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
       setIntro("done");
     }
 
-    if (event.key === "Tab" && !event.shiftKey) {
+    /* Tab completes what is on the line. On an empty prompt there is
+     * nothing to complete, and Tab moves focus on, as it does from any
+     * field: the window is not modal, so it never keeps focus in. */
+    if (event.key === "Tab" && !hasModifier(event) && input.trim() !== "") {
       event.preventDefault();
-      recall(completeCommand(input));
+
+      const completion = completeInput(input, {
+        routes,
+      });
+      if (completion.candidates.length > 0) {
+        setLines((current) => [
+          ...current,
+          promptLine(input, displayPath(directory)),
+          candidateLine(completion.candidates),
+        ]);
+      }
+      recall(completion.value);
+      return;
+    }
+
+    /* Ctrl+C abandons the line, as in a shell, and leaves it in the session
+     * marked `^C`. A selection is still the reader's to copy: where Ctrl+C is
+     * the copy key, it copies. */
+    if (isControlKey(event, "c") && !hasSelection(event.currentTarget)) {
+      event.preventDefault();
+      setIntro("done");
+      setLines((current) => [
+        ...current,
+        interruptLine(input, displayPath(directory)),
+      ]);
+      setHistoryCursor(null);
+      recall("");
+      return;
+    }
+
+    /* Ctrl+L clears the session as `clear` does, and keeps the line. */
+    if (isControlKey(event, "l")) {
+      event.preventDefault();
+      setIntro("done");
+      setHasBanner(false);
+      setLines([]);
       return;
     }
 
@@ -662,7 +866,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
     drag.offset = settled;
     setDragPhase(panel, overshot ? "release" : null);
     writeDragOffset(panel, settled);
-    inputRef.current?.focus();
+    focusPrompt(inputRef.current);
   }
 
   function onPanelTransitionEnd(event: React.TransitionEvent<HTMLElement>) {
@@ -705,7 +909,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
         setDragPhase(panel, "home");
         writeDragOffset(panel, consoleDockedOffset);
       }
-      inputRef.current?.focus();
+      focusPrompt(inputRef.current);
       return;
     }
 
@@ -748,7 +952,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
       });
     }
 
-    inputRef.current?.focus();
+    focusPrompt(inputRef.current);
   }
 
   /* The block caret is drawn, not native: `caret-transparent` hides the
@@ -757,6 +961,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
   function syncCaret(event: React.SyntheticEvent<HTMLInputElement>) {
     const field = event.currentTarget;
     setCaretIndex(field.selectionStart ?? field.value.length);
+    setInputScroll(field.scrollLeft);
   }
 
   return (
@@ -782,8 +987,12 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
         onPointerCancel={onChromePointerUp}
         className="console-chrome flex shrink-0 select-none items-center gap-3 border-console-rule border-b bg-console-chrome px-3.5 py-2.5 lg:cursor-grab lg:in-data-[drag=tracking]:cursor-grabbing lg:touch-none"
       >
-        <div className="console-lights group/lights -ml-1 flex">
-          <TrafficLight tone="close" label="Close console" onClick={close} />
+        <div className="console-lights group/lights -ml-1.5 flex">
+          <TrafficLight
+            tone="close"
+            label="Close console"
+            onClick={() => close()}
+          />
           <TrafficLight
             tone="minimize"
             label="Dock the console to the bottom edge"
@@ -799,26 +1008,34 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
             onClick={() => moveTo("side")}
           />
         </div>
+        {/* A phone's title bar has room for the user and host, not the
+         * path as well, and a title cut off mid-word reads as broken. */}
         <p className="console-title mx-auto truncate font-mono text-console-ink-muted text-xs">
-          cu@portfolio — ~/constantin-unterkofler.com
+          cu@portfolio
+          <span className="max-sm:hidden"> — ~/constantin-unterkofler.com</span>
         </p>
+        {/* A toggle keeps one name and says its state as pressed or not.
+         * The caption's "on" or "off" is that state written out, so it is
+         * left out of the name: "Sound", pressed. The name still starts
+         * with the caption, so speaking what is on screen presses it. */}
         <button
           type="button"
           onClick={() => setSoundsEnabled(!soundsEnabled)}
-          aria-label={
-            soundsEnabled ? "Turn console sounds off" : "Turn console sounds on"
-          }
           aria-pressed={soundsEnabled}
-          className="console-sound label -my-2.5 cursor-pointer px-1.5 py-2.5 text-console-ink-muted text-micro"
+          className="console-sound label -my-2.5 flex cursor-pointer items-center self-stretch px-1.5 text-console-ink-muted text-micro"
         >
-          Sound {soundsEnabled ? "on" : "off"}
+          <span className="console-caption">
+            Sound<span aria-hidden> {soundsEnabled ? "on" : "off"}</span>
+          </span>
         </button>
         <button
           type="button"
-          onClick={close}
-          className="console-esc label -my-2.5 -mr-1.5 cursor-pointer px-1.5 py-2.5 text-console-ink-muted text-micro"
+          onClick={() => close()}
+          aria-label="Esc, close console"
+          aria-keyshortcuts="Escape"
+          className="console-esc label -my-2.5 -mr-1.5 flex cursor-pointer items-center self-stretch px-1.5 text-console-ink-muted text-micro"
         >
-          Esc
+          <span className="console-caption">Esc</span>
         </button>
       </div>
 
@@ -847,7 +1064,10 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
             entry.kind === "prompt" ? (
               <p key={entry.id} className="mt-2.5">
                 <span className="text-console-accent">{entry.path ?? "~"}</span>{" "}
-                <span className="text-console-ink-muted">❯</span> {entry.text}
+                <span aria-hidden className="text-console-ink-muted">
+                  ❯
+                </span>{" "}
+                {entry.text}
               </p>
             ) : entry.name ? (
               <p key={entry.id} className="grid grid-cols-console-help gap-x-5">
@@ -875,15 +1095,24 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
         </div>
 
         <form onSubmit={submit} className="mt-2.5 flex items-center gap-2">
+          {/* The path is written once the page has hydrated. The 404 sheet is
+           * prerendered once, as `/_not-found`, and served for every unknown
+           * URL, so a path written on the server named `~/_not-found` and
+           * failed hydration against the URL the reader typed. The window is
+           * closed at load, so nobody sees the path arrive. */}
           <span aria-hidden className="text-console-accent">
-            {displayPath(pathname)}
+            {isHydrated ? displayPath(directory) : null}
           </span>
           <span aria-hidden className="text-console-ink-muted">
             ❯
           </span>
-          <div className="relative min-w-0 flex-1">
+          {/* A line longer than the prompt scrolls inside the field, and the
+           * drawn caret scrolls with it; the field's end padding keeps room
+           * for the block after the last character. */}
+          <div className="relative min-w-0 flex-1 overflow-hidden">
             <input
               ref={inputRef}
+              name="command"
               value={input}
               onChange={(event) => {
                 /* A software keyboard's keys can arrive without a keydown to
@@ -893,6 +1122,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
                 syncCaret(event);
               }}
               onSelect={syncCaret}
+              onScroll={syncCaret}
               onFocus={() => setIsInputFocused(true)}
               onBlur={() => setIsInputFocused(false)}
               onKeyDown={onInputKeyDown}
@@ -900,10 +1130,11 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
               autoComplete="off"
               autoCapitalize="none"
               aria-label="Console input"
-              className="w-full bg-transparent p-0 font-mono text-base text-console-ink caret-transparent outline-none lg:text-sm"
+              className="w-full bg-transparent p-0 pe-2 font-mono text-base text-console-ink caret-transparent outline-none lg:text-sm"
             />
             <span
               aria-hidden
+              style={{ translate: `${-inputScroll}px 0` }}
               className="pointer-events-none absolute inset-y-0 left-0 flex items-center whitespace-pre text-base lg:text-sm"
             >
               <span className="invisible">{input.slice(0, caretIndex)}</span>

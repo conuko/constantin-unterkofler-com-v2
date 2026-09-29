@@ -1,4 +1,12 @@
 import type { NavItem } from "@/content/site-content";
+import {
+  describeThemeSetting,
+  isThemeSetting,
+  nextThemeSetting,
+  type ResolvedTheme,
+  type ThemeSetting,
+  themeSettings,
+} from "@/lib/theme-setting";
 
 /**
  * The console's command surface, kept out of the component so it can be
@@ -24,7 +32,7 @@ export type ConsoleLine = {
 export type ConsoleEffect =
   | { type: "navigate"; href: string }
   | { type: "open"; href: string }
-  | { type: "theme" }
+  | { type: "theme"; setting: ThemeSetting }
   | { type: "sound"; enabled: boolean }
   | { type: "clear" }
   | { type: "close" };
@@ -43,7 +51,11 @@ export type ConsoleContext = {
   /** The route currently on screen and the one before it, for `cd -`. */
   pathname: string;
   previousPathname: string | null;
+  /** Where the shell stands, when not the route: see `workingDirectory`. */
+  directory?: string;
   soundsEnabled: boolean;
+  /** The stored appearance setting and what the system resolves to. */
+  appearance: { setting: ThemeSetting; system: ResolvedTheme };
   repositoryUrl: string;
   records: { index: string; label: string; meta: string }[];
 };
@@ -67,6 +79,37 @@ export function consoleRoutes(wayfinding: NavItem[]): NavItem[] {
 /** The working directory as the prompt shows it: `~` at home, `~/work` elsewhere. */
 export function displayPath(pathname: string): string {
   return pathname === "/" ? "~" : `~${pathname}`;
+}
+
+/**
+ * Where the shell stands. A URL the site does not publish, the 404 sheet, is
+ * not a directory a shell could be in: `cd` there would have failed and left
+ * it where it was. So the console stands in the nearest published directory
+ * above it, `~/work` for `/work/nope` and `~` for `/nope`, and every command
+ * (`cd ..`, `cd -`, the prompt) reads from there.
+ */
+export function workingDirectory(pathname: string, routes: NavItem[]): string {
+  const segments = pathname.split("/").filter(Boolean);
+
+  for (; segments.length > 0; segments.pop()) {
+    const href = `/${segments.join("/")}`;
+    if (routes.some((route) => route.href === href)) return href;
+  }
+
+  return "/";
+}
+
+/**
+ * The failed `cd` a 404 stands for, printed where a shell would print it:
+ * above the prompt that stayed in the directory it could not leave.
+ */
+export function missingDirectoryLine(
+  pathname: string,
+  routes: NavItem[],
+): ConsoleLine | null {
+  return workingDirectory(pathname, routes) === pathname
+    ? null
+    : line("error", `cd: no such directory: ${displayPath(pathname)}`);
 }
 
 let lineSequence = 0;
@@ -99,7 +142,10 @@ export type DirectoryResolution = { href: string } | { error: string };
  */
 export function resolveDirectory(
   target: string | undefined,
-  context: Pick<ConsoleContext, "routes" | "pathname" | "previousPathname">,
+  context: Pick<
+    ConsoleContext,
+    "routes" | "pathname" | "previousPathname" | "directory"
+  >,
 ): DirectoryResolution {
   if (target === undefined || target === "~" || target === "/") {
     return { href: "/" };
@@ -111,7 +157,7 @@ export function resolveDirectory(
       : { error: "cd: no previous directory" };
   }
 
-  const href = resolvePath(target, context.pathname);
+  const href = resolvePath(target, context.directory ?? context.pathname);
 
   return context.routes.some((route) => route.href === href)
     ? { href }
@@ -203,6 +249,8 @@ const commands: CommandSpec[] = [
 
       if ("error" in resolution) return output(line("error", resolution.error));
 
+      /* Against the route, not the directory: from a 404 in `~/work`,
+       * `cd .` is the way back onto the Work sheet. */
       if (resolution.href === context.pathname) {
         return output(
           line("muted", `already at ${displayPath(context.pathname)}`),
@@ -217,11 +265,34 @@ const commands: CommandSpec[] = [
   },
   {
     name: "theme",
-    description: "toggle light / dark",
-    run: () => ({
-      lines: [line("muted", "toggling appearance")],
-      effects: [{ type: "theme" }],
-    }),
+    description: "cycle appearance or set it — theme dark, theme system",
+    run: (args, context) => {
+      const requested = args[0]?.toLowerCase();
+
+      if (requested !== undefined && !isThemeSetting(requested)) {
+        return output(line("error", "theme: expected light, dark or system"));
+      }
+
+      /* Bare `theme` is one press of the Site Header's theme control. */
+      const { setting: current, system } = context.appearance;
+      const setting = requested ?? nextThemeSetting(current, system);
+
+      if (setting === current) {
+        return output(
+          line(
+            "muted",
+            `appearance is already ${describeThemeSetting(setting, system)}`,
+          ),
+        );
+      }
+
+      return {
+        lines: [
+          line("muted", `appearance: ${describeThemeSetting(setting, system)}`),
+        ],
+        effects: [{ type: "theme", setting }],
+      };
+    },
   },
   {
     name: "sound",
@@ -351,17 +422,95 @@ export function runCommand(
   return command.run(args, context);
 }
 
-/** Longest common prefix completion for the Tab key. */
-export function completeCommand(input: string): string {
-  const matches = commandNames.filter((name) => name.startsWith(input));
+export type Completion = {
+  /** The line after the Tab key. */
+  value: string;
+  /** Every way the word can still go, when Tab could not extend it and there
+   * is more than one. Empty otherwise. */
+  candidates: string[];
+};
 
-  if (matches.length === 0) return input;
-  if (matches.length === 1) return matches[0];
+/* A directory is written with its trailing slash, as a shell completes one.
+ * `cd` reads `work/` as `work`. Home has no name to complete: it is `~`. */
+function directoryNames(routes: NavItem[]): string[] {
+  return routes
+    .filter((route) => route.href !== "/")
+    .map((route) => `${route.href.slice(1)}/`);
+}
 
-  let prefix = matches[0];
-  for (const match of matches) {
-    while (!match.startsWith(prefix)) prefix = prefix.slice(0, -1);
+/* What the word under the caret can become, from the command and the place
+ * of the word after it. Only the arguments a command reads are offered. */
+function wordsFor(
+  command: string | undefined,
+  position: number,
+  routes: NavItem[],
+): string[] {
+  if (command === undefined) return commandNames;
+  if (command === "work") return ["--list"];
+  if (position !== 1) return [];
+  if (command === "cd") return directoryNames(routes);
+  if (command === "theme") return [...themeSettings];
+  if (command === "sound") return ["on", "off"];
+  return [];
+}
+
+function commonPrefix(words: string[]): string {
+  let prefix = words[0];
+  for (const word of words) {
+    while (!word.startsWith(prefix)) prefix = prefix.slice(0, -1);
+  }
+  return prefix;
+}
+
+/**
+ * The Tab key, completing the last word on the line: a command name first,
+ * then that command's arguments, so `cd w` becomes `cd work/` and `theme d`
+ * becomes `theme dark `. A single match is written out in full, with the
+ * space a shell leaves after a finished word. Several matches are completed
+ * as far as they agree, and when they agree no further than what is already
+ * typed, they are listed instead, which is what a shell's second Tab does.
+ *
+ * `cd` completes a path from the root too: `cd ~/w` and `cd /w` keep the
+ * prefix the reader typed.
+ */
+export function completeInput(
+  input: string,
+  context: Pick<ConsoleContext, "routes">,
+): Completion {
+  const wordStart = input.search(/\S*$/);
+  const head = input.slice(0, wordStart);
+  const word = input.slice(wordStart);
+  const [command, ...args] = head.trim().split(/\s+/).filter(Boolean);
+
+  const root =
+    command === "cd" && args.length === 0
+      ? (/^~?\//.exec(word)?.[0] ?? "")
+      : "";
+  const partial = word.slice(root.length);
+  const matches = wordsFor(command, args.length + 1, context.routes)
+    .filter((candidate) => candidate.startsWith(partial))
+    .sort();
+
+  if (matches.length === 0) return { value: input, candidates: [] };
+
+  if (matches.length === 1) {
+    const [match] = matches;
+    const end = match.endsWith("/") ? "" : " ";
+    return { value: `${head}${root}${match}${end}`, candidates: [] };
   }
 
-  return prefix;
+  const prefix = commonPrefix(matches);
+  return prefix.length > partial.length
+    ? { value: `${head}${root}${prefix}`, candidates: [] }
+    : { value: input, candidates: matches };
+}
+
+/** The candidates a Tab listed, on one line, as a shell lays them out. */
+export function candidateLine(candidates: string[]): ConsoleLine {
+  return line("output", candidates.join("  "));
+}
+
+/** A line abandoned with Ctrl+C: written out as it stood, then `^C`. */
+export function interruptLine(input: string, path: string): ConsoleLine {
+  return promptLine(`${input}^C`, path);
 }

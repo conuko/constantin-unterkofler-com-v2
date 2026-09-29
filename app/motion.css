@@ -2,13 +2,14 @@
  * ENTRANCE CHOREOGRAPHY
  *
  * See ADR-0004 for why it is CSS and why the identity mark stays out of it,
- * and ADR-0008 for the beat every offset is counted in.
+ * ADR-0008 for the beat every offset is counted in, and ADR-0009 for why parts
+ * are revealed rather than faded.
  *
- * The Engineering Notebook registers itself on load: rules draw, parts settle.
- * Each does it once. A rule draws where it will stay and never travels; a part
- * settles its 8px and nothing around it moves too, so no entrance is ever
- * carried by an ancestor's — two entrances stacked on one element land it
- * twice as far and fade it twice over.
+ * The Engineering Notebook registers itself on load: rules draw, parts are
+ * written in and settle. Each does it once. A rule draws where it will stay
+ * and never travels; a part settles its 8px and nothing around it moves too,
+ * so no entrance is ever carried by an ancestor's — two entrances stacked on
+ * one element land it twice as far and draw it twice over.
  *
  * Two rules govern how, and both come from measurement.
  *
@@ -18,18 +19,19 @@
  *    The page painted at ~680ms and did not become contentful until ~1500ms.
  *    As CSS, the animation starts at first paint instead.
  *
- * 2. Nothing that reports a paint metric may be painted at `opacity: 0`.
- *    Chrome excludes a transparent element from First and Largest Contentful
- *    Paint and only catches it several frames later, long after the compositor
- *    has revealed it. Clipping is not the same: a fully clipped element is
- *    recorded at first paint, at its unclipped size — measured, and the reason
- *    the page title keeps its wipe (see ADR-0007).
+ * 2. Nothing on the sheet is painted at `opacity: 0`. Chrome excludes a
+ *    transparent element from First and Largest Contentful Paint and only
+ *    catches it several frames later, long after the compositor has revealed
+ *    it. Clipping is not the same: a fully clipped element is recorded at
+ *    first paint, at its unclipped size — measured, and the reason the page
+ *    title keeps its wipe (see ADR-0007).
  *
- *    That lands on two elements. The Site Header's identity mark stays out of
- *    the choreography altogether — the notebook's stationery, printed before
- *    the entry is written into it — and carries FCP on every page. The page
- *    title is the largest candidate on every sheet, so it carries LCP, and it
- *    settles on `clip-path` alone for the same reason.
+ *    So nothing fades. The title wipes open and every part is revealed by a
+ *    clip, which leaves the largest element on a sheet to report LCP at first
+ *    paint whichever element it is: the title on About, a Specification value
+ *    on Home (ADR-0009). The Site Header's identity mark stays out of the
+ *    choreography altogether — the notebook's stationery, printed before the
+ *    entry is written into it — and still carries FCP on every page.
  *
  * Stagger is an absolute `--notebook-delay` per element, rendered into the
  * server HTML and counted in whole beats of 40ms (`notebookBeat` in
@@ -50,18 +52,27 @@
   }
 }
 
-/* `translate`, not `transform: translateY()`. A non-`none` `transform` on an
+/* A part is written in from its top edge down while it settles its 8px, the
+ * same direction the sheet registers in. It is fully clipped until its turn,
+ * never transparent, so it reports its paint at first paint (see rule 2).
+ *
+ * The clip runs 8px wide of the part on both sides and below, so glyph
+ * overhang and a link's underline, which sit just outside a part's box, are
+ * written in with it rather than appearing when the clip comes off. Only the
+ * bottom edge moves; the top stays on the part, where the reveal begins.
+ *
+ * `translate`, not `transform: translateY()`. A non-`none` `transform` on an
  * ancestor orphans a descendant's `backdrop-filter` (see the fill-mode note
  * below); the independent `translate` property does not. Measured on the Work
  * page's glass tiles: ancestor `translate` keeps the blur, ancestor
  * `transform` — even an identity matrix — destroys it. */
 @keyframes notebook-part-in {
   from {
-    opacity: 0;
+    clip-path: inset(0 -8px 100% -8px);
     translate: 0 var(--motion-initial-y);
   }
   to {
-    opacity: 1;
+    clip-path: inset(0 -8px -8px -8px);
     translate: none;
   }
 }
@@ -98,9 +109,10 @@
  * Dropping the forwards half lets the animated values fall away entirely at
  * the end, leaving `transform: none` for real.
  *
- * `opacity` under 1 orphans a backdrop the same way, and that one is spec, not
- * a Chrome quirk — which is why `NotebookMedia` hangs this entrance on the
- * glass field itself rather than on a wrapper above it. */
+ * A `clip-path` on an ancestor orphans a backdrop the same way, and that one
+ * is spec, not a Chrome quirk: it makes the ancestor a Backdrop Root, as
+ * `opacity` under 1 does. That is why `NotebookMedia` hangs this entrance on
+ * the glass field itself rather than on a wrapper above it. */
 .notebook-in-part,
 .notebook-in-marks::before,
 .notebook-in-identity,
@@ -123,7 +135,7 @@
  * empty sheet for up to a second before the tile arrived inside them. They
  * take the field's entrance instead, on the delay the wrapper already hands
  * down, so the frame and its marks settle as one drawing. A pseudo-element is
- * not an ancestor of the glass, so fading it costs the backdrop nothing. */
+ * not an ancestor of the glass, so clipping it costs the backdrop nothing. */
 .notebook-in-marks::before {
   animation-name: notebook-part-in;
   animation-duration: 0.32s;
@@ -134,22 +146,22 @@
   animation-duration: 0.42s;
 }
 
-/* The introduction fades and settles like every other part, only a beat
- * slower: a paragraph reads calmer arriving over 0.5s than a label does over
- * 0.32s. */
+/* The introduction is written in like every other part, only slower: a
+ * paragraph reads calmer arriving over 0.5s than a label does over 0.32s. */
 .notebook-in-introduction {
   animation-name: notebook-part-in;
   animation-duration: 0.5s;
 }
 
-/* The wipe, and only the wipe. The title is the largest paint candidate on
- * every sheet, so it is the one that reports LCP, and an element painted at
- * `opacity: 0` is excluded until a later frame catches it — which cost this
- * heading ~450ms of render delay while the clip was already open. A fully
- * clipped element is not excluded the same way: Chrome records it at first
- * paint at its unclipped size. Measured both ways on the production build;
- * see ADR-0007. So the clip stays and the fade goes, and the move is the same
- * move — a fade under a wipe was only ever tinting the part already revealed. */
+/* The wipe, and only the wipe. An element painted at `opacity: 0` is excluded
+ * from LCP until a later frame catches it — which cost this heading ~450ms of
+ * render delay while the clip was already open. A fully clipped element is
+ * not excluded the same way: Chrome records it at first paint at its
+ * unclipped size. Measured both ways on the production build; see ADR-0007.
+ * So the clip stays and the fade goes, and the move is the same move — a fade
+ * under a wipe was only ever tinting the part already revealed. The title
+ * wipes left to right and parts are written top down, so the signature move
+ * stays the title's own. */
 .notebook-in-heading {
   animation-name: notebook-heading-clip-in;
   animation-duration: 0.9s;
@@ -376,7 +388,7 @@
 }
 
 /* A framed control is a surface, not a glyph. 5% of a 36px glyph box is under
- * 2px and reads as a nod; 5% of the 145px Console control is 7px and reads as
+ * 2px and reads as a nod; 5% of the 137px Console control is 7px and reads as
  * the button inflating. A framed control keeps the same spring and the same
  * press, and hovers at 2%. It overrides the token rather than the `:hover`
  * rule so that `.notebook-control:active` still wins while it is held. */
@@ -412,6 +424,96 @@
   opacity: 1;
   translate: 0 0;
   scale: 1;
+}
+
+/* ═══════════════════════════════════════════════════
+ * THEME CONTROL
+ *
+ * Three glyphs share the control's 36px box — sun and moon for a setting the
+ * reader chose, the two together for `system` — and `data-theme-setting` on
+ * `<html>` says which one stands. It is written before first paint
+ * (`lib/theme-setting.ts`), so no script has to run for the right glyph to
+ * show; without one at all, `system` shows, which is the default.
+ *
+ * The swap is keyframes, not transitions, for a measured reason: the theme
+ * provider suspends every transition on the page for the frame the theme
+ * changes (`disableTransitionOnChange`, so colours switch at once instead of
+ * each fading on its own clock), and that suspension took the glyph's spring
+ * with it — the glyphs cut. An animation is not a transition, so it plays.
+ * It only plays once `data-theme-previous` exists, which is only after a
+ * change: on load the control has its entrance and nothing else.
+ *
+ * The old glyph turns out and shrinks on a straight ease-in, because the
+ * spring's overshoot would take its scale below zero and mirror it. The new
+ * one turns in on the spring and lands a touch large, like every other state
+ * change in the notebook.
+ * ═══════════════════════════════════════════════════ */
+
+.theme-glyph {
+  scale: 0;
+  rotate: 90deg;
+}
+
+/* The label that names the button, off the screen and in the accessibility
+ * tree only while its setting stands. */
+.theme-label {
+  display: none;
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+:root:not([data-theme-setting]) [data-setting="system"],
+:root[data-theme-setting="system"] [data-setting="system"],
+:root[data-theme-setting="light"] [data-setting="light"],
+:root[data-theme-setting="dark"] [data-setting="dark"] {
+  &.theme-glyph {
+    scale: 1;
+    rotate: 0deg;
+  }
+
+  &.theme-label {
+    display: inline;
+  }
+}
+
+@keyframes theme-glyph-in {
+  from {
+    scale: 0;
+    rotate: -90deg;
+  }
+}
+
+@keyframes theme-glyph-out {
+  from {
+    scale: 1;
+    rotate: 0deg;
+  }
+  to {
+    scale: 0;
+    rotate: 90deg;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-theme-previous="system"] .theme-glyph[data-setting="system"],
+  :root[data-theme-previous="light"] .theme-glyph[data-setting="light"],
+  :root[data-theme-previous="dark"] .theme-glyph[data-setting="dark"] {
+    animation: theme-glyph-out var(--transition-duration-fast) var(--ease-in);
+  }
+
+  :root[data-theme-previous][data-theme-setting="system"]
+    .theme-glyph[data-setting="system"],
+  :root[data-theme-previous][data-theme-setting="light"]
+    .theme-glyph[data-setting="light"],
+  :root[data-theme-previous][data-theme-setting="dark"]
+    .theme-glyph[data-setting="dark"] {
+    animation: theme-glyph-in var(--transition-duration-normal)
+      var(--ease-spring);
+  }
 }
 
 /* ═══════════════════════════════════════════════════

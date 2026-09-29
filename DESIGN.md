@@ -5,6 +5,7 @@ colors:
   paper: "#f8f7f2"
   ink: "#111111"
   ink-muted: "rgba(17, 17, 17, 0.72)"
+  ink-faint: "rgba(17, 17, 17, 0.6)"
   rule: "rgba(17, 17, 17, 0.2)"
   dot: "rgba(17, 17, 17, 0.085)"
   dot-major: "rgba(17, 17, 17, 0.2)"
@@ -15,12 +16,11 @@ colors:
   paper-dark: "#1a1917"
   ink-dark: "#f8f7f2"
   ink-muted-dark: "rgba(248, 247, 242, 0.72)"
+  ink-faint-dark: "rgba(248, 247, 242, 0.55)"
   rule-dark: "rgba(248, 247, 242, 0.2)"
   dot-dark: "rgba(248, 247, 242, 0.07)"
   dot-major-dark: "rgba(248, 247, 242, 0.16)"
   annotation-dark: "oklch(0.78 0.11 250)"
-  annotation-on-ink: "oklch(0.78 0.11 250)"
-  annotation-on-ink-dark: "oklch(0.52 0.13 250)"
   card-glass-dark: "rgba(248, 247, 242, 0.06)"
   media-field-dark: "rgba(248, 247, 242, 0.92)"
   media-field-rule-dark: "rgba(248, 247, 242, 0.28)"
@@ -28,7 +28,7 @@ colors:
   console-chrome: "rgba(248, 247, 242, 0.05)"
   console-rule: "rgba(248, 247, 242, 0.14)"
   console-ink: "rgba(248, 247, 242, 0.82)"
-  console-ink-muted: "rgba(248, 247, 242, 0.45)"
+  console-ink-muted: "rgba(248, 247, 242, 0.5)"
   console-output: "rgba(248, 247, 242, 0.55)"
   console-accent: "oklch(0.78 0.11 250)"
   console-command: "oklch(0.86 0.14 150)"
@@ -101,9 +101,10 @@ spacing:
   grid: "8px"
   grid-major: "40px"
   gutter: "24px"
-  section: "44px"
+  section: "40px"
   reading: "720px"
   collection: "1080px"
+  corner-lane: "185px"
 components:
   action-link:
     backgroundColor: "{colors.card-glass}"
@@ -115,8 +116,8 @@ components:
   action-link-hover:
     textColor: "{colors.ink}"
   console-control:
-    backgroundColor: "{colors.ink}"
-    textColor: "{colors.paper}"
+    backgroundColor: "{colors.console-surface}"
+    textColor: "{colors.console-ink}"
     typography: "{typography.micro}"
     rounded: "{rounded.none}"
     padding: "10px 14px"
@@ -156,8 +157,8 @@ Content is set down as records: indexed, ruled, measured and annotated in ink,
 with one blue pen for the marks that measure. The model is a technical drawing,
 not a bullet journal. Every line on the sheet separates, bounds or measures
 something, and a line that does none of those is not drawn. Drafting tools do
-the work that decoration does elsewhere: ticked rules, crop marks, dimension
-lines and a monospace face for anything a reader might compare.
+the work that decoration does elsewhere: ticked rules, crop marks and a
+monospace face for anything a reader might compare.
 
 The notebook is dense but quiet. The paper is warm off-white in the light theme
 and warm near-black in the dark, never pure white or pure black. Type does the
@@ -169,8 +170,9 @@ shadow and traffic lights.
 
 Motion is part of the drawing, not an effect on top of it. The sheet registers
 itself on a single 40ms beat from first paint, top to bottom, all of it in CSS.
-Rules draw where they stay, parts settle 8px once, and a spring carries every
-state change. Reduced motion puts everything in place from the start.
+Rules draw where they stay, parts are written in and settle 8px once, nothing
+fades, and a spring carries every state change. Reduced motion puts
+everything in place from the start.
 
 **Key Characteristics:**
 
@@ -190,15 +192,9 @@ annotation blue, plus a separate, unthemed console palette.
 ### Primary
 
 - **Annotation Blue** (`annotation`; `annotation-dark` in the dark theme): the
-  measuring pen. Record indices (`W–01`, `A–03`), section codes, dimension
-  lines, stack group labels in the Specification Block, and the console prompt
-  path. It never carries body copy, never fills a surface, and never stands in
-  for ink.
-- **Annotation on Ink** (`annotation-on-ink`; `annotation-on-ink-dark` in the
-  dark theme): the same pen on an ink-filled surface, which is only the `>_`
-  glyph on the console control. Ink inverts with the theme, so this token takes
-  the other theme's annotation value: the light blue on dark ink (9.5:1), the
-  deep blue on light ink (5.1:1).
+  measuring pen. Record indices (`W–01`, `A–03`), section codes, stack group
+  labels in the Specification Block, and the console prompt path. It never
+  carries body copy, never fills a surface, and never stands in for ink.
 
 ### Neutral
 
@@ -209,8 +205,11 @@ annotation blue, plus a separate, unthemed console palette.
   anything that has become active. Rules and record rules lift to ink on hover
   and focus.
 - **Faded Ink** (`ink-muted`, 72% ink): introductions, annotations, labels,
-  metadata and tags. Stamps go quieter still with opacity (60% for filenames
-  and the build stamp, 55% for counts).
+  metadata and tags.
+- **Faint Ink** (`ink-faint`, 60% ink in light, 55% in dark): stamps, which
+  are the sheet stamp, filenames, the `[04]` counts and the build stamp. It is
+  the quietest text on the sheet and still 4.8:1 on paper (5.7:1 in dark),
+  because stamps are 10–11px and take the body-text floor of 4.5:1.
 - **Hairline** (`rule`, 20% ink): every rule, border and crop mark. It went
   from 18% to 20% so the hairline holds its own against the dot field.
 - **Minor Dot / Major Dot** (`dot` 8.5% and `dot-major` 20% of ink; 7% and 16%
@@ -225,14 +224,19 @@ annotation blue, plus a separate, unthemed console palette.
 ### Console
 
 The console is one dark window in both themes. A terminal that repaints itself
-for light mode stops reading as a terminal.
+for light mode stops reading as a terminal. The control that opens it wears
+the same palette, because it is the window's closed state: inverted with the
+sheet, it went paper-white in the dark theme, the brightest object on the
+page, and opened a dark window.
 
 - **Terminal Night** (`console-surface`, #15141a): the window.
 - **Terminal Ink** (`console-ink` 82%, `console-output` 55%,
-  `console-ink-muted` 45% of paper): typed input, command output, chrome
-  labels.
-- **Prompt Blue** (`console-accent`): the working-directory path and the
-  banner. It is the dark theme's annotation value, fixed because the window
+  `console-ink-muted` 50% of paper): typed input, command output, chrome
+  labels. 50% holds 4.8:1 on the title bar, the lightest surface it sits on.
+  Terminal Ink also draws the focus ring inside the window, where the page's
+  ink ring would be #111 on #15141a in the light theme.
+- **Prompt Blue** (`console-accent`): the working-directory path, the
+  banner and the `>_` on the console control. It is the dark theme's annotation value, fixed because the window
   never changes theme.
 - **Command Green** (`console-command`): command names and the block caret.
 - **Error Coral** (`console-error`): error output.
@@ -246,13 +250,15 @@ The Greeting's colour is composed on the element as
 `oklch(var(--greeting-lightness) var(--greeting-chroma) var(--greeting-hue))`.
 The hue is random for each language and arrives inline. Lightness and chroma
 belong to the theme (0.48 / 0.15 light, 0.78 / 0.13 dark), so every hue keeps
-its contrast against paper.
+its contrast against paper. Each new hue is at least 40° from the last and
+never inside 220–280°, the band around Annotation Blue (250°), where the
+Greeting would read as the measuring pen.
 
 ### Named Rules
 
 **The One Pen Rule.** Annotation Blue marks measurement and nothing else. If a
-blue element is not an index, a code, a dimension or a prompt path, it should
-be ink.
+blue element is not an index, a code, a stack label or a prompt path, it
+should be ink.
 
 **The Separate Greeting Rule.** The Greeting's rotating colour is its own
 system. The annotation colour never rotates, and the Greeting never borrows
@@ -273,16 +279,19 @@ fixed-width cuts of one voice, not a contrast.
 
 ### Hierarchy
 
-- **Display** (Bebas Neue semibold, 48px, 72px from `lg`, leading 1, -0.025em): page
-  titles and Constantin's name on Home. It carries the sheet's LCP.
-- **Headline** (Bebas Neue semibold, 30px, 36px from `lg`, leading 1.25, -0.025em): the
+- **Display** (Bebas Neue semibold, 48px, 72px from `md`, leading 1, -0.025em): page
+  titles and Constantin's name on Home. It steps at `md` because that is where
+  the column reaches its full 720px, so a title is one size wherever the
+  column is. It wipes open on a clip, never a fade,
+  so it is recorded at first paint.
+- **Headline** (Bebas Neue semibold, 30px, 36px from `md`, leading 1.25, -0.025em): the
   Greeting, written above the name inside a two-line stage so the rewrites
   never shift the layout.
 - **Title** (Bebas Neue semibold, 24px, leading 1, -0.025em): record titles, such as
   Work clients.
 - **Body** (Space Grotesk, 14px, leading 1.625): introductions, annotations and
-  CV entries. The page introduction's measure is capped at 720px. Wayfinding
-  links run at 12px.
+  CV entries. The page introduction's measure is capped at 720px, the reading
+  width, on every sheet. Wayfinding links run at 12px.
 - **Data** (Space Mono, 14px): values a reader compares, such as Specification
   fields and contact addresses.
 - **Label** (Space Mono, 11px, 0.12em, uppercase, leading 1.4): metadata, field
@@ -317,6 +326,13 @@ thickening adds ink but no advance width, so at -0.025em tracking the
 display letters come close to touching. That is accepted. It is the only
 synthesized weight in the system: never ask Space Mono for one.
 
+**The Full-Width Introduction Rule.** A page introduction runs the reading
+width, 720px, and is not capped to a narrower measure. That puts 104–108
+characters on a full line, past the usual 65–75, and the long line is
+accepted: a 488px measure was built, reviewed on the sheets and rejected
+(ADR-0010). The 1.625 leading is what keeps the line trackable, so it is not
+tightened either.
+
 **The Block Art Exception.** The console banner is the only thing not set in
 Space Mono. That face ships no block or box-drawing glyphs, and the browser's
 per-glyph fallback breaks the column grid, so the banner uses the platform's
@@ -324,25 +340,42 @@ terminal stack instead.
 
 ## Layout
 
-The sheet sits in a 24px gutter on every side. Content lives in one of two
-centred columns under a 1080px main container. **Reading** sheets (Home, About
-me, Contact) cap at 720px, and **collection** sheets (Work) take the full
-1080px. The Site Header sticks to the top (28px from the top, 16px from `lg`),
-and its wayfinding sits in a right-hand column on desktop. Below `lg` that
-column folds into a disclosure panel. On desktop the Closing Record is fixed to
-the bottom of the viewport, 32px up, and lets pointer events through except on
-the console control.
+The sheet sits in a 24px gutter on every side, in one of two centred columns.
+**Reading** sheets (Home, About me, Contact) cap at 720px, and **collection**
+sheets (Work) at 1080px. The Site Header sticks to the top (28px from the top,
+16px from `lg`), and its wayfinding sits in a right-hand column on desktop.
+Below `lg` that column folds into a disclosure panel. On desktop the Closing
+Record is fixed to the bottom of the viewport, 32px up. On desktop the header
+stacks above the sheet, and both it and the Closing Record let pointer events
+through except on their corner pieces.
 
-Vertical rhythm is set by one section gap (44px) between the page header, each
-record group and the Closing Record. Collections are one column, and two from
-`md`, with 32px column and 60px row gaps (52px / 76px from `lg`). The
+From `lg` those four corners (identity mark, wayfinding, copyright and console
+control) hold still while the sheet scrolls, so each side of the viewport is a
+**corner lane** 185px wide: the gutter, the 137px console control and 24px
+clear of it. Each sheet is capped at `min(sheet width, viewport − 2 × corner
+lane)`. At 1440px that leaves the collection 1070px and the reading column its
+full 720px, and at 1024px both run 654px. Below `lg` the lane is only the
+gutter.
+
+The sheet starts on a major dot row, 120px down below `lg` and 200px from it,
+whatever the Site Header holds: the header's footprint is fixed (a 60px margin
+under its 36px bar, then a 176px box on desktop) rather than measured from its
+contents. Vertical rhythm is set by one section gap, 40px or one major
+interval, between the page header, each record group and the Closing Record. Collections are one column, and two from
+`md` while each column is at least 300px wide, with 32px column and 60px row
+gaps (52px / 76px from `lg`). The
 Specification Block is one column, and two from `sm`, with 40px between
 columns. Record rows use 16px vertical padding with 24px between their inline
 parts, and wrap below `sm` so the value takes its own line.
 
-The dot field is the grid everything sits on. The minor pitch is 8px (two 4px
-base units) and every fifth dot, at 40px, is heavier, so the eye can count
-intervals without a printed line.
+The dot field is the grid the structure sits on: the sheet's origin and the
+interval between its groups. Text runs on its own leading and does not snap to
+it, so a rule under a paragraph lands where the paragraph ends. The minor pitch
+is 8px (two 4px base units) and every fifth dot, at 40px, is heavier, so the
+eye can count intervals without a printed line.
+
+There is no end mark. On desktop the four fixed corners frame the sheet, and it
+ends where its last record does.
 
 ```css
 background-image:
@@ -361,6 +394,10 @@ background-size:
 
 **The 1:5 Rule.** The minor and major dot pitch stay in a 1:5 ratio. If the
 minor pitch is tuned, the major follows.
+
+**The Corner Lane Rule.** Nothing on the sheet enters a corner lane. A corner
+piece wider than the console control widens the lane. It never overlaps the
+sheet.
 
 ## Elevation & Depth
 
@@ -392,10 +429,10 @@ near-white top edge read as a second border stacked on the real one. A media
 field is bounded by its border and marked by its crop marks, and that is
 already two statements of its edge.
 
-**The Backdrop Root Rule.** Never put `opacity` below 1, or a non-`none`
-`transform`, on an ancestor of a glass surface. Either one turns it into a
-Backdrop Root, and the blur renders as flat tint. Entrances ride on the glass
-element itself and animate `translate`, not `transform`.
+**The Backdrop Root Rule.** Never put `opacity` below 1, a `clip-path`, or a
+non-`none` `transform` on an ancestor of a glass surface. Any of them turns it
+into a Backdrop Root, and the blur renders as flat tint. Entrances ride on the
+glass element itself and animate `translate`, not `transform`.
 
 ## Shapes
 
@@ -405,14 +442,16 @@ frame, drawn as one masked pseudo-element rather than four spans. The console
 window has a 10px radius, and its three traffic lights are the only other round
 shapes in the system.
 
-Lines come in three kinds, and the kind says what the line does:
+Lines come in two kinds, and the kind says what the line does:
 
 - **Hairline**: 1px at Hairline colour. It separates, for example rows in a
   list or Specification fields.
 - **Ticked rule**: a hairline with 7px end ticks. It bounds a record or a page
   section. It is a hairline that knows where it stops.
-- **Dimension line**: an Annotation Blue rule with 9px end ticks. Annotation
-  only, never structure, and at most one per page.
+
+The system once specified a third, an Annotation Blue dimension line, and no
+sheet ever measured anything with it, so it was taken out rather than given
+something to measure.
 
 ### Named Rules
 
@@ -435,11 +474,13 @@ are server components with CSS-only states.
   is a whole number of 40ms beats. The page header takes one row per beat and
   the Site Header's column ticks with it. Rows and record parts stagger one
   beat, records two, and a new group waits three.
-- **Kinds of entrance:** parts fade and settle 8px over 320ms, introductions
-  over 500ms, rules draw in place over 360ms, and titles wipe open with a clip
-  over 900ms, with no fade so LCP stays reportable. All of them use
-  `--notebook-ease` (`cubic-bezier(0.16, 1, 0.3, 1)`) and
-  `animation-fill-mode: backwards`.
+- **Kinds of entrance:** parts are written in from their top edge down by a
+  clip while they settle 8px, over 320ms, and introductions over 500ms. Rules
+  draw in place over 360ms, and titles wipe open left to right over 900ms.
+  Nothing fades: a part is fully clipped until its turn, never transparent,
+  so every sheet reports LCP at first paint whichever element is largest
+  (ADR-0009). All of them use `--notebook-ease`
+  (`cubic-bezier(0.16, 1, 0.3, 1)`) and `animation-fill-mode: backwards`.
 - **One entrance per element:** a record has no entrance of its own. Its rule
   draws and its parts settle, so nothing travels twice.
 - **No entrance:** the identity mark (CU) is opaque at first paint and carries
@@ -458,7 +499,7 @@ The unit of Portfolio Content. From top to bottom:
 
 1. **Ticked rule**, which lifts to ink when the record has focus inside it.
 2. **Index row**: the record index in Annotation Blue on the left, and the
-   source filename (`levi.svg`) in Micro at 60% on the right.
+   source filename (`levi.svg`) in Micro and Faint Ink on the right.
 3. **Media field**: square, 16:9, 40px padding (28px below `sm`), a 1px border
    and crop marks. Work records use Glass with a Hairline border. The
    primitive's default is Media Field fill with its quieter border.
@@ -470,12 +511,14 @@ The unit of Portfolio Content. From top to bottom:
 
 **Brand marks in the dark theme.** Each Work mark takes one of three answers,
 set in `markRendering` in `components/work-presentation.tsx`. Marks legible on
-either ground (Levi's, FIFA, TenneT, ABOUT YOU) get nothing. Single-colour
-marks (Harrods, Fielmann, and the terminal prompt shared by SB Migrate and
-Movielingo) are re-inked with
-`dark:brightness-0 dark:invert`. Marks with a brand accent (SCAYLE) get a
-second cut, `darkSrc`, because a filter would invert the accent too. Both cuts
-carry the real `alt`, and the hidden one is `display: none`.
+either ground (Levi's, ABOUT YOU) get nothing. Single-colour marks (Harrods,
+Fielmann, FIFA, and the terminal prompt shared by SB Migrate and Movielingo)
+are re-inked with `dark:brightness-0 dark:invert`. Marks with a brand accent
+(SCAYLE, TenneT) get a second cut, `darkSrc`, with the ink drawn in Paper and
+the accents kept, because a filter would invert the accents too. A mark earns
+its answer by contrast: under 3:1 on the dark field (FIFA's blue measured 2:1,
+TenneT's navy 1.7:1) it is re-inked or cut. Both cuts carry the real `alt`,
+and the hidden one is `display: none`.
 
 ### Record row
 
@@ -500,30 +543,54 @@ Constantin, not entries in a collection.
 
 - **Glyph controls** (identity mark, theme toggle, disclosure): a 36px hit box
   with no frame, because the glyph is the control. The identity mark is Code
-  at 11px. The disclosure's three lines fold into a cross.
+  at 11px. The disclosure's three lines fold into a cross. The theme toggle
+  has three settings, each with its glyph (sun and moon together for system,
+  sun for light, moon for dark), and each press moves to the next: from
+  system to the theme the system is not showing, then the other, then back to
+  system. The glyph is right from the first frame, because the stored setting
+  is written onto `<html>` before paint. The glyphs swap on keyframes, the old
+  one turning out and the new one turning in on the spring, because the theme
+  change suspends transitions. It stays in ink on hover.
 - **Action link:** square, 1px Hairline border, Glass fill with the 1px blur,
   Micro caps in Faded Ink, at least 36px tall. On hover the border and text
   lift to ink.
-- **Console control:** square, ink-filled, Paper text, at least 36px tall. It
-  shows the `>_` glyph in Annotation on Ink, "Console", and `K` in a 35%-opacity
-  hairline box. It sits in the Closing Record's right column above the build
+- **Console control:** square, at least 36px tall, in the console's palette in
+  both themes: Terminal Night with a 1px Console rule border and Terminal Ink
+  text. It shows the `>_` glyph in Prompt Blue, "Console", and `K` in a
+  35%-opacity hairline box. It sits in the Closing Record's right column above the build
   stamp, and its hover scale is 1.02.
 - **Disabled:** a 1px dashed Hairline border with text at 40% ink.
 - **Focus:** a 2px solid ink outline, offset 2px, on every focusable element.
-  The console prompt is the exception and shows its own caret instead.
+  The console prompt is the exception and shows its own caret instead. Inside
+  the console the ring is Terminal Ink, and in its title bar it goes around
+  the mark rather than the hit box: a round ring on a light, and a ring on the
+  caption for `Sound` and `Esc`, with the trailing tracking taken back. A page
+  title that a console command has given focus draws no ring, because it is a
+  place to read on from, not a control.
 
 ### Navigation
 
 - **Wayfinding link:** Space Grotesk 12px with `underline-reveal`, a 2px
   current-colour rule that draws from the left on hover (300ms spring) and
   stays drawn on the current route. It retracts faster on the entrance curve,
-  because the spring's overshoot would mirror the rule past zero.
+  because the spring's overshoot would mirror the rule past zero. The link's
+  box stays the size of its word, so the rule draws under the word, and a
+  pseudo-element widens the hit area to the whole row the link stands on.
 - **Desktop:** the identity mark on the left, with the theme toggle and
-  wayfinding stacked in a right-hand column.
+  wayfinding stacked in a right-hand column. The links stand on a 26px pitch
+  and their hit areas meet edge to edge on it.
 - **Below `lg`:** the header floats on a Glass surface (Hairline border,
-  `backdrop-blur-md`, `shadow-sm`). The disclosure opens a square panel,
-  minimum 160px wide, in 85% Paper with a Hairline border, the same blur and
-  `shadow-lg`. It stays in the DOM, and transitions carry both open and close.
+  `backdrop-blur-md`, `shadow-sm`), shown once the page scrolls and whenever
+  the disclosure is open. The disclosure opens a square panel, minimum 160px
+  wide, in 85% Paper with a Hairline border, the same blur and `shadow-lg`. It
+  hangs from the bar: its right edge on the bar's, and 8px below the bar's
+  lower edge. Its links take one 40px row each, the major pitch of the dot
+  field. It stays in the DOM, and transitions carry both open and close. The
+  disclosure control's name is "Menu", whatever its state, with
+  `aria-expanded` saying which.
+- **Esc:** closes one layer at a time. The disclosure or the console,
+  whichever holds focus, closes first. With focus in neither, the console is
+  the top layer and closes first, and the next Esc closes the disclosure.
 
 ### Site Console (signature component)
 
@@ -532,23 +599,41 @@ Site Header and is a second way in, never the only one.
 
 - **Window:** Terminal Night, a 1px Console rule border, 10px radius and the
   console shadow. On desktop it docks in the right corner (a column 45rem wide
-  and `min(72vh, 40rem)` tall) or along the bottom edge. The session grows
+  and `min(72vh, 40rem)` tall) or along the bottom edge. It is a window over
+  the sheet, not a panel beside it, so the sheet never reflows for it. Docked
+  right at 1440px it covers half the reading column, and the bottom dock and
+  the drag are the ways to uncover it. The session grows
   from a 13rem floor to `min(52vh, 26rem)` and then scrolls. On desktop the
   title bar drags the window anywhere, with a 20% elastic give past the edges,
   until it closes or a light docks it. Below `lg` it always docks to the
   bottom, measures `visualViewport` to stay clear of the software keyboard,
   and disables the dock lights (dimmed to 40%, with no dashed frame, because a
   square around a round light reads as a glitch).
-- **Chrome:** three 11px lights in 20px hit boxes: red closes, amber docks to
-  the bottom, green docks to the right. Hovering any light shows the macOS
-  glyphs on all three. In the centre, `cu@portfolio — ~/constantin-unterkofler.com`
-  in 12px mono. On the right, a "Sound on/off" toggle and `Esc`, both Micro in
-  Console muted ink.
+- **Chrome:** three 11px lights in 24px hit boxes: red closes, amber docks to
+  the bottom, green docks to the right. The platform sets its lights on a 20px
+  pitch, but 20px targets that close together fall under the 24px minimum
+  with no spacing to make up for it, so these sit 4px further apart than the
+  ones they quote. Hovering any light shows the macOS glyphs on all three. In
+  the centre, `cu@portfolio — ~/constantin-unterkofler.com` in 12px mono, and
+  `cu@portfolio` alone below `sm`, where the path would be cut mid-word. On
+  the right, a "Sound on/off" toggle and `Esc`, both Micro in Console muted
+  ink, each with a hit box the full height of the bar. The toggle is named
+  "Sound" and says on or off as pressed or not. `Esc` is named "Esc, close
+  console".
 - **Body:** Console type. The prompt shows the working directory (`~` on Home,
-  `~/work` elsewhere) in Prompt Blue, then `❯`. Command names are Command
+  `~/about` on About me, and so on) in Prompt Blue, then `❯`. A 404 sheet is
+  not a directory a shell could stand in, because the `cd` there would have
+  failed, so the console stays in the nearest published directory above it
+  (`~/work` for `/work/nope`) and prints `cd: no such directory: ~/work/nope`
+  above the prompt. `cd`, `cd ..` and `cd -` read from that directory, and
+  `cd .` goes back onto its sheet. Command names are Command
   Green and output is Console output ink. The session opens on a short boot
   text: the login line with the local time of the first open, starter
-  commands and key hints.
+  commands and key hints. The session rests on its top while the banner
+  types, then glides down to the prompt, so a window too short for the whole
+  boot text (a phone, with the keyboard up) still shows its prompt. Under
+  reduced motion the banner is printed whole and the session starts on the
+  prompt.
 - **Banner:** "HELLO THERE!" in ANSI Shadow block capitals, in Prompt Blue.
   It is 89 columns at leading 1, sized with container units to fill the dock
   it sits in, and capped at 12px. It types itself once per page session, one
@@ -565,10 +650,27 @@ Site Header and is a second way in, never the only one.
   closes over 180ms, animating `translate` and opacity, never `transform`.
   Moving between docks takes 400ms.
 - **Commands:** `help`, `whoami`, `home`, `about`, `work` (`--list` prints
-  the record index), `contact`, `ls`, `cd` (shell-style, stays open), `theme`,
-  `sound` (`on` or `off`), `source`, `clear`, `exit`. It opens with `K`
+  the record index), `contact`, `ls`, `cd` (shell-style, stays open), `theme`
+  (a press of the theme toggle, or `light`, `dark` or `system`), `sound` (`on`
+  or `off`), `source`, `clear`, `exit`. It opens with `K`
   outside a text field or with the control, and closes with `Esc`, the red
-  light, the `Esc` label or the control.
+  light or the `Esc` label.
+- **Line editing:** Tab completes the last word: a command, then the
+  arguments that command reads, so `cd w` becomes `cd work/` (a directory
+  keeps its trailing slash, and `cd ~/w` keeps its prefix) and `theme d`
+  becomes `theme dark`. Where the matches agree no further than what is
+  typed, Tab lists them under the line, as a shell's second Tab does. On an
+  empty prompt Tab moves focus on, because the window is not modal. `↑` and
+  `↓` walk the history. Ctrl+C abandons the line and leaves it marked `^C`,
+  unless text is selected, which it copies. Ctrl+L clears the session and
+  keeps the line. A line longer than the prompt scrolls inside it, and the
+  drawn caret with it.
+- **Focus:** opening focuses the prompt, and makes the control inert: the
+  window opens over it, and Tab should not reach a control nobody can see.
+  Closing gives focus back to whatever opened the window, or to the control
+  when that can no longer take it, and only when focus was inside the window. A page command (`home`, `about`,
+  `work`, `contact`) gives it to the new page's title instead. No focus the
+  console places scrolls the page or the session.
 
 ### Greeting
 
@@ -579,6 +681,13 @@ sits in a two-line stage above the name, so the rewrites never move the name
 or anything below it. A screen-reader-only paragraph carries the lead
 greeting.
 
+Bebas Neue draws Latin only. Greek, Hebrew and Arabic are drawn by
+`next/font`'s fallback face, which is Arial made 76.72% as large to match
+Bebas's widths, so they stood a quarter shorter than the Latin greetings.
+They take `font-size-adjust: cap-height 0.7`, Bebas's own cap ratio, which
+undoes the shrink for whichever face draws them, so their capitals stand as
+tall as the Latin ones at no byte cost.
+
 ## Do's and Don'ts
 
 ### Do:
@@ -588,14 +697,16 @@ greeting.
 - **Do** use a ticked rule where a line bounds a record or section, and a plain
   hairline where it only separates.
 - **Do** set every index, year, coordinate, filename and URL in Space Mono.
-- **Do** keep Annotation Blue for indices, codes, dimension lines, stack
-  labels and prompt paths.
+- **Do** keep Annotation Blue for indices, codes, stack labels and prompt
+  paths.
 - **Do** put every entrance offset on a whole number of 40ms beats, with
   `--notebook-ease` and `animation-fill-mode: backwards`.
-- **Do** animate `translate` and opacity on the element itself, and keep glass
-  surfaces free of transformed or translucent ancestors.
+- **Do** animate `translate` and `clip-path` on the element itself, and keep
+  glass surfaces free of transformed, clipped or translucent ancestors.
 - **Do** gate hover behind `(hover: hover)` and keep hit targets at 36px or
-  more.
+  more. Links in a stacked list are the exception, bounded by the pitch they
+  stand on: their hit areas fill the row (26px in the desktop wayfinding, 40px
+  in the disclosure) and never fall under 24px.
 - **Do** give every motion a reduced-motion state in which content starts in
   place.
 - **Do** keep the console dark and unthemed in both themes.
@@ -608,13 +719,13 @@ greeting.
   or bevel to glass.
 - **Don't** draw column guides, a rule above the Closing Record, or frames
   around the identity mark and header glyph controls.
-- **Don't** use Annotation Blue for body copy, fills or emphasis, and don't
-  put more than one dimension line on a page.
+- **Don't** use Annotation Blue for body copy, fills or emphasis.
 - **Don't** load a second weight of Bebas Neue or Space Mono, or request a
   weight from Space Mono it does not have. The titles' semibold on Bebas Neue
   is the one deliberate synthesized weight.
-- **Don't** give the identity mark an entrance, or fade a page title. Both
-  carry paint timing.
+- **Don't** give the identity mark an entrance, or fade anything on the sheet.
+  The mark carries FCP, and a transparent element is not recorded until frames
+  after it paints.
 - **Don't** use `animation-fill-mode: both`, or animate `transform` on an
   ancestor of glass.
 - **Don't** set type below 10px, or use 10px for anything but uppercase mono.
