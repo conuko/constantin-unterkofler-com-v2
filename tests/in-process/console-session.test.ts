@@ -2,7 +2,9 @@ import { describe, expect, test } from "vitest";
 import {
   bootLines,
   type ConsoleContext,
+  candidateLine,
   commandNames,
+  completeInput,
   consoleRoutes,
   displayPath,
   formatLastLogin,
@@ -235,5 +237,83 @@ describe("prompt", () => {
     expect(formatLastLogin(new Date(2026, 8, 16, 10, 53, 47))).toBe(
       "Last login: Wed Sep 16 10:53:47 on ttys002",
     );
+  });
+});
+
+describe("tab completion", () => {
+  const routes = { routes: consoleRoutes(wayfinding) };
+
+  test("writes out a unique command with the space after a finished word", () => {
+    expect(completeInput("wh", routes)).toEqual({
+      value: "whoami ",
+      candidates: [],
+    });
+  });
+
+  test("extends an ambiguous command as far as the matches agree", () => {
+    expect(completeInput("c", routes)).toEqual({
+      value: "c",
+      candidates: ["cd", "clear", "contact"],
+    });
+    expect(completeInput("con", routes)).toEqual({
+      value: "contact ",
+      candidates: [],
+    });
+  });
+
+  test("completes cd to a directory, with its trailing slash", () => {
+    expect(completeInput("cd w", routes).value).toBe("cd work/");
+    expect(completeInput("cd ~/a", routes).value).toBe("cd ~/about/");
+    expect(completeInput("cd /c", routes).value).toBe("cd /contact/");
+  });
+
+  test("lists every directory for a bare cd", () => {
+    expect(completeInput("cd ", routes)).toEqual({
+      value: "cd ",
+      candidates: ["about/", "contact/", "work/"],
+    });
+  });
+
+  test("a completed directory is one cd reads", () => {
+    expect(
+      resolveDirectory("work/", {
+        ...routes,
+        pathname: "/",
+        previousPathname: null,
+      }),
+    ).toEqual({ href: "/work" });
+  });
+
+  test("completes the arguments theme, sound and work read", () => {
+    expect(completeInput("theme d", routes).value).toBe("theme dark ");
+    expect(completeInput("theme ", routes).candidates).toEqual([
+      "dark",
+      "light",
+      "system",
+    ]);
+    expect(completeInput("sound o", routes).candidates).toEqual(["off", "on"]);
+    expect(completeInput("work --", routes).value).toBe("work --list ");
+  });
+
+  test("leaves a word nothing matches, and arguments no command reads", () => {
+    expect(completeInput("xyz", routes)).toEqual({
+      value: "xyz",
+      candidates: [],
+    });
+    expect(completeInput("cd work/ a", routes)).toEqual({
+      value: "cd work/ a",
+      candidates: [],
+    });
+    expect(completeInput("help h", routes)).toEqual({
+      value: "help h",
+      candidates: [],
+    });
+  });
+
+  test("lists candidates on one line, two spaces apart", () => {
+    expect(candidateLine(["about/", "work/"])).toMatchObject({
+      kind: "output",
+      text: "about/  work/",
+    });
   });
 });

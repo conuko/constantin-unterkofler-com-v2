@@ -97,26 +97,38 @@ export function SiteConsoleProvider({ children }: { children: ReactNode }) {
     persistConsoleSoundsEnabled(soundStorage(), enabled);
   }, []);
 
-  /* Focus goes back to where it came from. When that is gone (a page the
-   * console has since navigated away from, a disclosure that has closed, or
-   * the document itself) it goes to the control, which the window folds
-   * back into. See `console-focus.ts` for when it moves at all. */
+  /* Whether the close in flight hands focus back. */
+  const returnFocusRef = useRef(false);
+
   const close = useCallback(
     ({ returnFocus = true }: ConsoleCloseOptions = {}) => {
       if (!isOpen) return;
 
       playSound("close");
+      returnFocusRef.current = returnFocus;
       setIsOpen(false);
-
-      if (returnFocus) {
-        returnConsoleFocus(document, document.getElementById(panelId), [
-          invokerRef.current,
-          controlRef.current,
-        ]);
-      }
     },
-    [isOpen, panelId, playSound],
+    [isOpen, playSound],
   );
+
+  /* Focus goes back to where it came from. When that is gone (a page the
+   * console has since navigated away from, a disclosure that has closed, or
+   * the document itself) it goes to the control, which the window folds
+   * back into. See `console-focus.ts` for when it moves at all.
+   *
+   * It moves once the close has rendered, not inside `close`: while the
+   * window is open the control it folds back into is inert, and an inert
+   * element refuses focus. The window is still visible then — it hides only
+   * after its exit — so focus inside it is still inside it. */
+  useEffect(() => {
+    if (isOpen || !returnFocusRef.current) return;
+
+    returnFocusRef.current = false;
+    returnConsoleFocus(document, document.getElementById(panelId), [
+      invokerRef.current,
+      controlRef.current,
+    ]);
+  }, [isOpen, panelId]);
 
   const toggle = useCallback(
     (invoker: Element | null) => {

@@ -5,6 +5,7 @@ import {
   nextThemeSetting,
   type ResolvedTheme,
   type ThemeSetting,
+  themeSettings,
 } from "@/lib/theme-setting";
 
 /**
@@ -383,17 +384,95 @@ export function runCommand(
   return command.run(args, context);
 }
 
-/** Longest common prefix completion for the Tab key. */
-export function completeCommand(input: string): string {
-  const matches = commandNames.filter((name) => name.startsWith(input));
+export type Completion = {
+  /** The line after the Tab key. */
+  value: string;
+  /** Every way the word can still go, when Tab could not extend it and there
+   * is more than one. Empty otherwise. */
+  candidates: string[];
+};
 
-  if (matches.length === 0) return input;
-  if (matches.length === 1) return matches[0];
+/* A directory is written with its trailing slash, as a shell completes one.
+ * `cd` reads `work/` as `work`. Home has no name to complete: it is `~`. */
+function directoryNames(routes: NavItem[]): string[] {
+  return routes
+    .filter((route) => route.href !== "/")
+    .map((route) => `${route.href.slice(1)}/`);
+}
 
-  let prefix = matches[0];
-  for (const match of matches) {
-    while (!match.startsWith(prefix)) prefix = prefix.slice(0, -1);
+/* What the word under the caret can become, from the command and the place
+ * of the word after it. Only the arguments a command reads are offered. */
+function wordsFor(
+  command: string | undefined,
+  position: number,
+  routes: NavItem[],
+): string[] {
+  if (command === undefined) return commandNames;
+  if (command === "work") return ["--list"];
+  if (position !== 1) return [];
+  if (command === "cd") return directoryNames(routes);
+  if (command === "theme") return [...themeSettings];
+  if (command === "sound") return ["on", "off"];
+  return [];
+}
+
+function commonPrefix(words: string[]): string {
+  let prefix = words[0];
+  for (const word of words) {
+    while (!word.startsWith(prefix)) prefix = prefix.slice(0, -1);
+  }
+  return prefix;
+}
+
+/**
+ * The Tab key, completing the last word on the line: a command name first,
+ * then that command's arguments, so `cd w` becomes `cd work/` and `theme d`
+ * becomes `theme dark `. A single match is written out in full, with the
+ * space a shell leaves after a finished word. Several matches are completed
+ * as far as they agree, and when they agree no further than what is already
+ * typed, they are listed instead, which is what a shell's second Tab does.
+ *
+ * `cd` completes a path from the root too: `cd ~/w` and `cd /w` keep the
+ * prefix the reader typed.
+ */
+export function completeInput(
+  input: string,
+  context: Pick<ConsoleContext, "routes">,
+): Completion {
+  const wordStart = input.search(/\S*$/);
+  const head = input.slice(0, wordStart);
+  const word = input.slice(wordStart);
+  const [command, ...args] = head.trim().split(/\s+/).filter(Boolean);
+
+  const root =
+    command === "cd" && args.length === 0
+      ? (/^~?\//.exec(word)?.[0] ?? "")
+      : "";
+  const partial = word.slice(root.length);
+  const matches = wordsFor(command, args.length + 1, context.routes)
+    .filter((candidate) => candidate.startsWith(partial))
+    .sort();
+
+  if (matches.length === 0) return { value: input, candidates: [] };
+
+  if (matches.length === 1) {
+    const [match] = matches;
+    const end = match.endsWith("/") ? "" : " ";
+    return { value: `${head}${root}${match}${end}`, candidates: [] };
   }
 
-  return prefix;
+  const prefix = commonPrefix(matches);
+  return prefix.length > partial.length
+    ? { value: `${head}${root}${prefix}`, candidates: [] }
+    : { value: input, candidates: matches };
+}
+
+/** The candidates a Tab listed, on one line, as a shell lays them out. */
+export function candidateLine(candidates: string[]): ConsoleLine {
+  return line("output", candidates.join("  "));
+}
+
+/** A line abandoned with Ctrl+C: written out as it stood, then `^C`. */
+export function interruptLine(input: string, path: string): ConsoleLine {
+  return promptLine(`${input}^C`, path);
 }

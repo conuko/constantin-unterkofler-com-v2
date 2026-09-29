@@ -565,13 +565,24 @@ Constantin, not entries in a collection.
 - **Wayfinding link:** Space Grotesk 12px with `underline-reveal`, a 2px
   current-colour rule that draws from the left on hover (300ms spring) and
   stays drawn on the current route. It retracts faster on the entrance curve,
-  because the spring's overshoot would mirror the rule past zero.
+  because the spring's overshoot would mirror the rule past zero. The link's
+  box stays the size of its word, so the rule draws under the word, and a
+  pseudo-element widens the hit area to the whole row the link stands on.
 - **Desktop:** the identity mark on the left, with the theme toggle and
-  wayfinding stacked in a right-hand column.
+  wayfinding stacked in a right-hand column. The links stand on a 26px pitch
+  and their hit areas meet edge to edge on it.
 - **Below `lg`:** the header floats on a Glass surface (Hairline border,
-  `backdrop-blur-md`, `shadow-sm`). The disclosure opens a square panel,
-  minimum 160px wide, in 85% Paper with a Hairline border, the same blur and
-  `shadow-lg`. It stays in the DOM, and transitions carry both open and close.
+  `backdrop-blur-md`, `shadow-sm`), shown once the page scrolls and whenever
+  the disclosure is open. The disclosure opens a square panel, minimum 160px
+  wide, in 85% Paper with a Hairline border, the same blur and `shadow-lg`. It
+  hangs from the bar: its right edge on the bar's, and 8px below the bar's
+  lower edge. Its links take one 40px row each, the major pitch of the dot
+  field. It stays in the DOM, and transitions carry both open and close. The
+  disclosure control's name is "Menu", whatever its state, with
+  `aria-expanded` saying which.
+- **Esc:** closes one layer at a time. The disclosure or the console,
+  whichever holds focus, closes first. With focus in neither, the console is
+  the top layer and closes first, and the next Esc closes the disclosure.
 
 ### Site Console (signature component)
 
@@ -587,16 +598,26 @@ Site Header and is a second way in, never the only one.
   bottom, measures `visualViewport` to stay clear of the software keyboard,
   and disables the dock lights (dimmed to 40%, with no dashed frame, because a
   square around a round light reads as a glitch).
-- **Chrome:** three 11px lights in 20px hit boxes: red closes, amber docks to
-  the bottom, green docks to the right. Hovering any light shows the macOS
-  glyphs on all three. In the centre, `cu@portfolio — ~/constantin-unterkofler.com`
-  in 12px mono. On the right, a "Sound on/off" toggle and `Esc`, both Micro in
-  Console muted ink.
+- **Chrome:** three 11px lights in 24px hit boxes: red closes, amber docks to
+  the bottom, green docks to the right. The platform sets its lights on a 20px
+  pitch, but 20px targets that close together fall under the 24px minimum
+  with no spacing to make up for it, so these sit 4px further apart than the
+  ones they quote. Hovering any light shows the macOS glyphs on all three. In
+  the centre, `cu@portfolio — ~/constantin-unterkofler.com` in 12px mono, and
+  `cu@portfolio` alone below `sm`, where the path would be cut mid-word. On
+  the right, a "Sound on/off" toggle and `Esc`, both Micro in Console muted
+  ink, each with a hit box the full height of the bar. The toggle is named
+  "Sound" and says on or off as pressed or not. `Esc` is named "Esc, close
+  console".
 - **Body:** Console type. The prompt shows the working directory (`~` on Home,
   `~/work` elsewhere) in Prompt Blue, then `❯`. Command names are Command
   Green and output is Console output ink. The session opens on a short boot
   text: the login line with the local time of the first open, starter
-  commands and key hints.
+  commands and key hints. The session rests on its top while the banner
+  types, then glides down to the prompt, so a window too short for the whole
+  boot text (a phone, with the keyboard up) still shows its prompt. Under
+  reduced motion the banner is printed whole and the session starts on the
+  prompt.
 - **Banner:** "HELLO THERE!" in ANSI Shadow block capitals, in Prompt Blue.
   It is 89 columns at leading 1, sized with container units to fill the dock
   it sits in, and capped at 12px. It types itself once per page session, one
@@ -617,10 +638,21 @@ Site Header and is a second way in, never the only one.
   (a press of the theme toggle, or `light`, `dark` or `system`), `sound` (`on`
   or `off`), `source`, `clear`, `exit`. It opens with `K`
   outside a text field or with the control, and closes with `Esc`, the red
-  light, the `Esc` label or the control.
-- **Focus:** opening focuses the prompt. Closing gives focus back to whatever
-  opened the window, or to the control when that can no longer take it, and
-  only when focus was inside the window. A page command (`home`, `about`,
+  light or the `Esc` label.
+- **Line editing:** Tab completes the last word: a command, then the
+  arguments that command reads, so `cd w` becomes `cd work/` (a directory
+  keeps its trailing slash, and `cd ~/w` keeps its prefix) and `theme d`
+  becomes `theme dark`. Where the matches agree no further than what is
+  typed, Tab lists them under the line, as a shell's second Tab does. On an
+  empty prompt Tab moves focus on, because the window is not modal. `↑` and
+  `↓` walk the history. Ctrl+C abandons the line and leaves it marked `^C`,
+  unless text is selected, which it copies. Ctrl+L clears the session and
+  keeps the line. A line longer than the prompt scrolls inside it, and the
+  drawn caret with it.
+- **Focus:** opening focuses the prompt, and makes the control inert: the
+  window opens over it, and Tab should not reach a control nobody can see.
+  Closing gives focus back to whatever opened the window, or to the control
+  when that can no longer take it, and only when focus was inside the window. A page command (`home`, `about`,
   `work`, `contact`) gives it to the new page's title instead. No focus the
   console places scrolls the page or the session.
 
@@ -649,7 +681,9 @@ greeting.
 - **Do** animate `translate` and `clip-path` on the element itself, and keep
   glass surfaces free of transformed, clipped or translucent ancestors.
 - **Do** gate hover behind `(hover: hover)` and keep hit targets at 36px or
-  more.
+  more. Links in a stacked list are the exception, bounded by the pitch they
+  stand on: their hit areas fill the row (26px in the desktop wayfinding, 40px
+  in the disclosure) and never fall under 24px.
 - **Do** give every motion a reduced-motion state in which content starts in
   place.
 - **Do** keep the console dark and unthemed in both themes.

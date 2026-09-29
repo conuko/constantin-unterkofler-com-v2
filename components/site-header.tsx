@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useSiteConsole } from "@/components/console/console-provider";
 import type { NavItem } from "@/content/site-content";
 import { notebookDelay, notebookTiming } from "@/lib/notebook-motion";
 import {
@@ -169,7 +170,15 @@ function DesktopWayfinding({ items, pathname }: DesktopWayfindingProps) {
             )}
             className="notebook-in-part"
           >
-            <WayfindingLink item={item} pathname={pathname} />
+            {/* The link's box is the size of its text, set on the foot of
+             * the 26px row it stands on, where the text sat as an inline
+             * box. Its hit area grows to the whole row, so the stacked links
+             * meet edge to edge without overlapping. */}
+            <WayfindingLink
+              item={item}
+              pathname={pathname}
+              className="inline-block align-bottom before:absolute before:-inset-x-2 before:-inset-y-0.75"
+            />
           </li>
         ))}
       </ul>
@@ -204,7 +213,7 @@ function DisclosureControl({
       onClick={onToggle}
       aria-expanded={isOpen}
       aria-controls="site-header-mobile-wayfinding"
-      aria-label={isOpen ? "Close menu" : "Open menu"}
+      aria-label="Menu"
       className={controlBox}
     >
       <div className="flex size-5 flex-col items-center justify-center">
@@ -238,13 +247,28 @@ function DisclosureControl({
 type MobileDisclosureProps = {
   items: NavItem[];
   pathname: string;
+  isOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
 };
 
-function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
-  const [isOpen, setIsOpen] = useState(false);
+/* Esc closes one layer at a time (see `site-console.tsx`). With focus inside
+ * the disclosure, its own listener closes it first and marks the key
+ * handled, so an open console stays open. With focus anywhere else, the
+ * console is the top layer: while it is open, it takes Esc, and the next Esc
+ * reaches the disclosure. Focus comes back to the control only from inside
+ * the panel or from nowhere, never away from where the reader has moved it,
+ * and without scrolling to it. */
+function MobileDisclosure({
+  items,
+  pathname,
+  isOpen,
+  onOpenChange,
+}: MobileDisclosureProps) {
   const previousPathnameRef = useRef(pathname);
+  const disclosureRef = useRef<HTMLDivElement>(null);
   const disclosureControlRef = useRef<HTMLButtonElement>(null);
-  const close = useCallback(() => setIsOpen(false), []);
+  const { isOpen: isConsoleOpen } = useSiteConsole();
+  const close = useCallback(() => onOpenChange(false), [onOpenChange]);
 
   useEffect(() => {
     if (previousPathnameRef.current === pathname) return;
@@ -254,47 +278,72 @@ function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
   }, [pathname, close]);
 
   useEffect(() => {
-    if (!isOpen) return;
+    const disclosure = disclosureRef.current;
+    if (!isOpen || !disclosure) return;
 
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        close();
-        disclosureControlRef.current?.focus();
+    function closeFrom(event: KeyboardEvent) {
+      event.preventDefault();
+      close();
+
+      const active = document.activeElement;
+      if (active === document.body || disclosure?.contains(active)) {
+        disclosureControlRef.current?.focus({ preventScroll: true });
       }
     }
 
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [isOpen, close]);
+    function onOwnKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape" && !event.defaultPrevented) closeFrom(event);
+    }
+
+    function onDocumentKeyDown(event: KeyboardEvent) {
+      if (event.key !== "Escape" || event.defaultPrevented) return;
+      if (isConsoleOpen) return;
+      closeFrom(event);
+    }
+
+    disclosure.addEventListener("keydown", onOwnKeyDown);
+    document.addEventListener("keydown", onDocumentKeyDown);
+    return () => {
+      disclosure.removeEventListener("keydown", onOwnKeyDown);
+      document.removeEventListener("keydown", onDocumentKeyDown);
+    };
+  }, [isOpen, isConsoleOpen, close]);
 
   return (
     <div
+      ref={disclosureRef}
       style={notebookDelay(notebookTiming.siteHeaderControls)}
       className="notebook-in-part relative lg:hidden"
     >
       <DisclosureControl
         controlRef={disclosureControlRef}
         isOpen={isOpen}
-        onToggle={() => setIsOpen((currentState) => !currentState)}
+        onToggle={() => onOpenChange(!isOpen)}
       />
 
       {isOpen && (
         <div aria-hidden className="fixed inset-0 -z-1" onClick={close} />
       )}
 
+      {/* The panel hangs from the header's glass bar, which shows while it
+       * is open: its right edge on the bar's, and one 8px step below the
+       * bar's lower edge, which runs 12px past the row the control sits in. */}
       <nav
         id="site-header-mobile-wayfinding"
         aria-label="Mobile navigation"
         data-open={isOpen}
-        className="notebook-disclosure absolute top-full right-0 mt-2 min-w-40 origin-top-right border border-rule bg-paper/85 p-4 shadow-lg backdrop-blur-md"
+        className="notebook-disclosure absolute top-full -right-4 mt-5 min-w-40 origin-top-right border border-rule bg-paper/85 p-4 shadow-lg backdrop-blur-md"
       >
+        {/* One link per 40px row, the major pitch of the dot field. The
+         * link's own box stays the size of its text, so its rule still
+         * draws under the word; the hit area around it fills the row. */}
         <ul>
           {items.map((item) => (
-            <li key={item.href}>
+            <li key={item.href} className="flex h-10 items-center">
               <WayfindingLink
                 item={item}
                 pathname={pathname}
-                className="my-1 inline-block pt-1"
+                className="before:absolute before:-inset-x-4 before:-inset-y-2.5"
                 onSelect={close}
               />
             </li>
@@ -312,6 +361,7 @@ function MobileDisclosure({ items, pathname }: MobileDisclosureProps) {
 export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
   const pathname = usePathname();
   const isScrolled = useScrolled();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   /* The header stacks above the sheet at every width. On desktop it has no
    * surface and the sheet scrolls beneath it, so the header box lets pointer
@@ -335,7 +385,7 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
         <div
           aria-hidden
           className={`pointer-events-none absolute -inset-x-4 -inset-y-3 -z-10 border border-rule bg-card-glass shadow-sm backdrop-blur-md transition-opacity duration-normal ease-default lg:hidden ${
-            isScrolled ? "opacity-100" : "opacity-0"
+            isScrolled || isMenuOpen ? "opacity-100" : "opacity-0"
           }`}
         />
 
@@ -365,7 +415,12 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
           <DesktopWayfinding items={primaryWayfinding} pathname={pathname} />
         </div>
 
-        <MobileDisclosure items={primaryWayfinding} pathname={pathname} />
+        <MobileDisclosure
+          items={primaryWayfinding}
+          pathname={pathname}
+          isOpen={isMenuOpen}
+          onOpenChange={setIsMenuOpen}
+        />
       </div>
     </header>
   );

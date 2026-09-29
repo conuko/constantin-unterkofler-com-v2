@@ -5,6 +5,7 @@ import { useTheme } from "next-themes";
 import {
   type ReactNode,
   useEffect,
+  useEffectEvent,
   useLayoutEffect,
   useRef,
   useState,
@@ -39,9 +40,11 @@ import {
   bootLines,
   type ConsoleContext,
   type ConsoleLine,
-  completeCommand,
+  candidateLine,
+  completeInput,
   consoleRoutes,
   displayPath,
+  interruptLine,
   promptLine,
   runCommand,
 } from "@/components/console/console-session";
@@ -89,8 +92,11 @@ function focusPrompt(input: HTMLInputElement | null) {
 }
 
 /* Keep the newest line — and the prompt below it — in view. */
-function followSession(scroller: HTMLDivElement | null) {
-  if (scroller) scroller.scrollTop = scroller.scrollHeight;
+function followSession(
+  scroller: HTMLDivElement | null,
+  behavior: ScrollBehavior = "instant",
+) {
+  scroller?.scrollTo({ top: scroller.scrollHeight, behavior });
 }
 
 /* Where the session sits: on its newest line, or on its top while the first
@@ -219,10 +225,13 @@ type TrafficLightProps = {
   disabled?: boolean;
 };
 
-/* An 11px light inside a 20px hit box, opened to 24px on touch so the target
- * clears the minimum. Hovering any light reveals the glyphs on all three, as
- * the platform does. A disabled light is only dimmed: the dashed frame other
- * disabled controls wear would draw a square around a round light. */
+/* An 11px light inside a 24px hit box, at every width. The platform sets its
+ * lights on a 20px pitch, and 20px boxes that close together leave each
+ * target under the 24px minimum with no spacing to make up for it, so the
+ * lights sit 4px further apart than the ones they quote. Hovering any light
+ * reveals the glyphs on all three, as the platform does. A disabled light is
+ * only dimmed: the dashed frame other disabled controls wear would draw a
+ * square around a round light. */
 function TrafficLight({
   tone,
   label,
@@ -237,7 +246,7 @@ function TrafficLight({
       aria-label={label}
       aria-pressed={pressed}
       disabled={disabled}
-      className="flex size-6 cursor-pointer items-center justify-center disabled:cursor-default disabled:opacity-40 lg:size-5"
+      className="flex size-6 cursor-pointer items-center justify-center disabled:cursor-default disabled:opacity-40"
     >
       <span
         className={cn(
@@ -254,6 +263,30 @@ function TrafficLight({
         </svg>
       </span>
     </button>
+  );
+}
+
+function hasModifier(event: React.KeyboardEvent) {
+  return event.shiftKey || event.altKey || event.ctrlKey || event.metaKey;
+}
+
+/* Ctrl and the key alone. Command stays the platform's, so on macOS Cmd+C
+ * still copies and Cmd+L still reaches the address bar. */
+function isControlKey(event: React.KeyboardEvent, key: string) {
+  return (
+    event.ctrlKey &&
+    !event.metaKey &&
+    !event.altKey &&
+    !event.shiftKey &&
+    event.key.toLowerCase() === key
+  );
+}
+
+/* Text selected in the prompt, or in the session above it. */
+function hasSelection(field: HTMLInputElement) {
+  return (
+    field.selectionStart !== field.selectionEnd ||
+    (window.getSelection()?.toString() ?? "") !== ""
   );
 }
 
@@ -308,6 +341,8 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
   const [intro, setIntro] = useState<ConsoleBannerIntro>("pending");
   const [input, setInput] = useState("");
   const [caretIndex, setCaretIndex] = useState(0);
+  /* How far a line longer than the prompt has scrolled the field. */
+  const [inputScroll, setInputScroll] = useState(0);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
   const [historyCursor, setHistoryCursor] = useState<number | null>(null);
@@ -329,7 +364,14 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
    * On a phone the software keyboard rises as the window opens, and on its way
    * up both this component and the browser would carry the session down to
    * the focused prompt, so the greeting was heard typing out of sight. While
-   * the session rests, a scroll the reader did not make is put back. */
+   * the session rests, a scroll the reader did not make is put back.
+   *
+   * It rests only while the greeting types. Once it has been typed the
+   * session glides down to the prompt, so on a window too short for the whole
+   * boot text (a phone, with the keyboard up) the prompt comes into view
+   * without the reader having to find it. A banner printed whole, for a
+   * reader who has asked for less motion, gives the session nothing to wait
+   * for. */
   const restsOnGreetingRef = useRef(true);
   /* The drag never goes through React state: a render per pointer move would
    * drop frames, so the offset is written straight onto the window. */
@@ -346,6 +388,9 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
     () => false,
   );
   const { theme, systemTheme, setTheme } = useTheme();
+  const isRestingOnGreeting = useEffectEvent(
+    () => restsOnGreetingRef.current && intro !== "done",
+  );
 
   /* Where the reader was before this route, for `cd -`. */
   const previousPathnameRef = useRef<string | null>(null);
@@ -360,8 +405,14 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
+      /* Esc closes one layer at a time. A layer that holds focus handles
+       * its own Esc first and marks it handled, as the Site Header's
+       * disclosure does. With focus in neither, the window is the top layer
+       * and goes first. */
       if (event.key === "Escape") {
-        if (isOpen) close();
+        if (!isOpen || event.defaultPrevented) return;
+        event.preventDefault();
+        close();
         return;
       }
 
@@ -407,7 +458,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
         panel.style.setProperty(name, value);
       }
 
-      settleSession(scrollRef.current, restsOnGreetingRef.current);
+      settleSession(scrollRef.current, isRestingOnGreeting());
     };
 
     syncViewport();
@@ -509,6 +560,20 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
     );
   }, [isOpen, prefersReducedMotion]);
 
+  /* The greeting has been typed, or printed whole, and the session goes on to
+   * the prompt: gliding after typing, and simply there under reduced motion,
+   * where nothing on the window moves. */
+  const leaveGreeting = useEffectEvent(() => {
+    releaseGreeting({
+      follow: true,
+      behavior: prefersReducedMotion ? "instant" : "smooth",
+    });
+  });
+
+  useEffect(() => {
+    if (isOpen && intro === "done") leaveGreeting();
+  }, [intro, isOpen]);
+
   /* Follow the session to its newest line, and once more on open, since a
    * hidden scroller cannot be scrolled. A session resting on the greeting
    * holds its top instead, through the banner's typing and after it, so on a
@@ -516,20 +581,28 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
    * the reader reaches for it. */
   useEffect(() => {
     if (!isOpen || lines.length === 0) return;
-    settleSession(scrollRef.current, restsOnGreetingRef.current);
+    settleSession(scrollRef.current, isRestingOnGreeting());
   }, [lines, isOpen]);
 
   /* The reader has taken the session over. At the prompt it follows them
    * there; a touch or a wheel on the session is theirs to scroll. */
-  function releaseGreeting({ follow }: { follow: boolean }) {
+  function releaseGreeting({
+    follow,
+    behavior,
+  }: {
+    follow: boolean;
+    behavior?: ScrollBehavior;
+  }) {
     if (!restsOnGreetingRef.current) return;
 
     restsOnGreetingRef.current = false;
-    if (follow) followSession(scrollRef.current);
+    if (follow) followSession(scrollRef.current, behavior);
   }
 
   function holdGreeting(event: React.UIEvent<HTMLDivElement>) {
-    if (restsOnGreetingRef.current) event.currentTarget.scrollTop = 0;
+    if (restsOnGreetingRef.current && intro !== "done") {
+      event.currentTarget.scrollTop = 0;
+    }
   }
 
   function submit(event: React.FormEvent) {
@@ -617,9 +690,47 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
       setIntro("done");
     }
 
-    if (event.key === "Tab" && !event.shiftKey) {
+    /* Tab completes what is on the line. On an empty prompt there is
+     * nothing to complete, and Tab moves focus on, as it does from any
+     * field: the window is not modal, so it never keeps focus in. */
+    if (event.key === "Tab" && !hasModifier(event) && input.trim() !== "") {
       event.preventDefault();
-      recall(completeCommand(input));
+
+      const completion = completeInput(input, {
+        routes: consoleRoutes(wayfinding),
+      });
+      if (completion.candidates.length > 0) {
+        setLines((current) => [
+          ...current,
+          promptLine(input, displayPath(pathname)),
+          candidateLine(completion.candidates),
+        ]);
+      }
+      recall(completion.value);
+      return;
+    }
+
+    /* Ctrl+C abandons the line, as in a shell, and leaves it in the session
+     * marked `^C`. A selection is still the reader's to copy: where Ctrl+C is
+     * the copy key, it copies. */
+    if (isControlKey(event, "c") && !hasSelection(event.currentTarget)) {
+      event.preventDefault();
+      setIntro("done");
+      setLines((current) => [
+        ...current,
+        interruptLine(input, displayPath(pathname)),
+      ]);
+      setHistoryCursor(null);
+      recall("");
+      return;
+    }
+
+    /* Ctrl+L clears the session as `clear` does, and keeps the line. */
+    if (isControlKey(event, "l")) {
+      event.preventDefault();
+      setIntro("done");
+      setHasBanner(false);
+      setLines([]);
       return;
     }
 
@@ -826,6 +937,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
   function syncCaret(event: React.SyntheticEvent<HTMLInputElement>) {
     const field = event.currentTarget;
     setCaretIndex(field.selectionStart ?? field.value.length);
+    setInputScroll(field.scrollLeft);
   }
 
   return (
@@ -851,7 +963,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
         onPointerCancel={onChromePointerUp}
         className="console-chrome flex shrink-0 select-none items-center gap-3 border-console-rule border-b bg-console-chrome px-3.5 py-2.5 lg:cursor-grab lg:in-data-[drag=tracking]:cursor-grabbing lg:touch-none"
       >
-        <div className="console-lights group/lights -ml-1 flex">
+        <div className="console-lights group/lights -ml-1.5 flex">
           <TrafficLight
             tone="close"
             label="Close console"
@@ -872,26 +984,32 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
             onClick={() => moveTo("side")}
           />
         </div>
+        {/* A phone's title bar has room for the user and host, not the
+         * path as well, and a title cut off mid-word reads as broken. */}
         <p className="console-title mx-auto truncate font-mono text-console-ink-muted text-xs">
-          cu@portfolio — ~/constantin-unterkofler.com
+          cu@portfolio
+          <span className="max-sm:hidden"> — ~/constantin-unterkofler.com</span>
         </p>
+        {/* A toggle keeps one name and says its state as pressed or not.
+         * The caption's "on" or "off" is that state written out, so it is
+         * left out of the name: "Sound", pressed. The name still starts
+         * with the caption, so speaking what is on screen presses it. */}
         <button
           type="button"
           onClick={() => setSoundsEnabled(!soundsEnabled)}
-          aria-label={
-            soundsEnabled ? "Turn console sounds off" : "Turn console sounds on"
-          }
           aria-pressed={soundsEnabled}
-          className="console-sound label -my-2.5 cursor-pointer px-1.5 py-2.5 text-console-ink-muted text-micro"
+          className="console-sound label -my-2.5 flex cursor-pointer items-center self-stretch px-1.5 text-console-ink-muted text-micro"
         >
           <span className="console-caption">
-            Sound {soundsEnabled ? "on" : "off"}
+            Sound<span aria-hidden> {soundsEnabled ? "on" : "off"}</span>
           </span>
         </button>
         <button
           type="button"
           onClick={() => close()}
-          className="console-esc label -my-2.5 -mr-1.5 cursor-pointer px-1.5 py-2.5 text-console-ink-muted text-micro"
+          aria-label="Esc, close console"
+          aria-keyshortcuts="Escape"
+          className="console-esc label -my-2.5 -mr-1.5 flex cursor-pointer items-center self-stretch px-1.5 text-console-ink-muted text-micro"
         >
           <span className="console-caption">Esc</span>
         </button>
@@ -922,7 +1040,10 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
             entry.kind === "prompt" ? (
               <p key={entry.id} className="mt-2.5">
                 <span className="text-console-accent">{entry.path ?? "~"}</span>{" "}
-                <span className="text-console-ink-muted">❯</span> {entry.text}
+                <span aria-hidden className="text-console-ink-muted">
+                  ❯
+                </span>{" "}
+                {entry.text}
               </p>
             ) : entry.name ? (
               <p key={entry.id} className="grid grid-cols-console-help gap-x-5">
@@ -961,9 +1082,13 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
           <span aria-hidden className="text-console-ink-muted">
             ❯
           </span>
-          <div className="relative min-w-0 flex-1">
+          {/* A line longer than the prompt scrolls inside the field, and the
+           * drawn caret scrolls with it; the field's end padding keeps room
+           * for the block after the last character. */}
+          <div className="relative min-w-0 flex-1 overflow-hidden">
             <input
               ref={inputRef}
+              name="command"
               value={input}
               onChange={(event) => {
                 /* A software keyboard's keys can arrive without a keydown to
@@ -973,6 +1098,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
                 syncCaret(event);
               }}
               onSelect={syncCaret}
+              onScroll={syncCaret}
               onFocus={() => setIsInputFocused(true)}
               onBlur={() => setIsInputFocused(false)}
               onKeyDown={onInputKeyDown}
@@ -980,10 +1106,11 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
               autoComplete="off"
               autoCapitalize="none"
               aria-label="Console input"
-              className="w-full bg-transparent p-0 font-mono text-base text-console-ink caret-transparent outline-none lg:text-sm"
+              className="w-full bg-transparent p-0 pe-2 font-mono text-base text-console-ink caret-transparent outline-none lg:text-sm"
             />
             <span
               aria-hidden
+              style={{ translate: `${-inputScroll}px 0` }}
               className="pointer-events-none absolute inset-y-0 left-0 flex items-center whitespace-pre text-base lg:text-sm"
             >
               <span className="invisible">{input.slice(0, caretIndex)}</span>
