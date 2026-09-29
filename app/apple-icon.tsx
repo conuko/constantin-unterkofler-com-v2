@@ -3,31 +3,22 @@ import { ImageResponse } from "next/og";
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
+/* The favicon's dot on Notebook Paper. iOS masks the icon itself and fills
+ * transparency with black, so the paper runs full bleed. The blue point keeps
+ * the favicon's proportion: a quarter of the dot's radius. */
 export default function AppleIcon() {
   return new ImageResponse(
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "#111111",
-        borderRadius: "36px",
-      }}
+    // biome-ignore lint/a11y/noSvgWithoutTitle: rasterised to a PNG, where Satori would draw a <title> as text
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={180}
+      height={180}
+      viewBox="0 0 180 180"
     >
-      <span
-        style={{
-          fontSize: "80px",
-          fontWeight: 700,
-          color: "#f8f7f2",
-          letterSpacing: "-2px",
-          lineHeight: 1,
-        }}
-      >
-        CU
-      </span>
-    </div>,
+      <rect width={180} height={180} fill="#f8f7f2" />
+      <circle cx={90} cy={90} r={60} fill="#111111" />
+      <circle cx={90} cy={90} r={15} fill="#1f6cb0" />
+    </svg>,
     { ...size },
   );
 }
