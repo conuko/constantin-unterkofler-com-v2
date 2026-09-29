@@ -1,3 +1,7 @@
+---
+status: superseded in part by ADR-0009 (its "What is left" section) — Home was not carried by its title, and parts are now revealed by a clip, so every sheet reports LCP at first paint
+---
+
 # Keep the page title paint-eligible, and prefetch on intent
 
 A Lighthouse audit of the production build scored the home sheet 94 for performance. Every metric but one was perfect; Largest Contentful Paint alone came back at 3.0s against a First Contentful Paint of 0.8s, and the 25% that metric carries was the whole of the missing six points. Three things were measured and two of them changed.

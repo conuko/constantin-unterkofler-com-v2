@@ -8,6 +8,7 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { flushSync } from "react-dom";
 import { ConsoleBanner } from "@/components/console/console-banner";
@@ -49,6 +50,7 @@ import {
   consoleViewportVariables,
 } from "@/components/console/console-viewport";
 import type { NavItem, SiteConsoleContent } from "@/content/site-content";
+import { defaultThemeSetting, isThemeSetting } from "@/lib/theme-setting";
 import { useMediaQuery } from "@/lib/use-media-query";
 import { cn } from "@/lib/utils/cn";
 
@@ -255,6 +257,11 @@ function TrafficLight({
   );
 }
 
+/* Hydration is the only thing `isHydrated` waits for; nothing changes after. */
+function subscribeToNothing() {
+  return () => {};
+}
+
 /**
  * The site console.
  *
@@ -333,7 +340,12 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
 
   const router = useRouter();
   const pathname = usePathname();
-  const { resolvedTheme, setTheme } = useTheme();
+  const isHydrated = useSyncExternalStore(
+    subscribeToNothing,
+    () => true,
+    () => false,
+  );
+  const { theme, systemTheme, setTheme } = useTheme();
 
   /* Where the reader was before this route, for `cd -`. */
   const previousPathnameRef = useRef<string | null>(null);
@@ -533,6 +545,10 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
       pathname,
       previousPathname: previousPathnameRef.current,
       soundsEnabled,
+      appearance: {
+        setting: isThemeSetting(theme) ? theme : defaultThemeSetting,
+        system: systemTheme ?? "light",
+      },
       repositoryUrl: content.repositoryUrl,
       records: content.records,
     };
@@ -558,9 +574,7 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
       }
       if (effect.type === "open")
         window.open(effect.href, "_blank", "noopener");
-      if (effect.type === "theme") {
-        setTheme(resolvedTheme === "dark" ? "light" : "dark");
-      }
+      if (effect.type === "theme") setTheme(effect.setting);
       if (effect.type === "sound") setSoundsEnabled(effect.enabled);
       if (effect.type === "close") {
         /* `exit` gives focus back to where it was before the window
@@ -936,8 +950,13 @@ export function SiteConsole({ content, wayfinding }: SiteConsoleProps) {
         </div>
 
         <form onSubmit={submit} className="mt-2.5 flex items-center gap-2">
+          {/* The path is written once the page has hydrated. The 404 sheet is
+           * prerendered once, as `/_not-found`, and served for every unknown
+           * URL, so a path written on the server named `~/_not-found` and
+           * failed hydration against the URL the reader typed. The window is
+           * closed at load, so nobody sees the path arrive. */}
           <span aria-hidden className="text-console-accent">
-            {displayPath(pathname)}
+            {isHydrated ? displayPath(pathname) : null}
           </span>
           <span aria-hidden className="text-console-ink-muted">
             ❯

@@ -1,12 +1,19 @@
 "use client";
 
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, SunMoon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { NavItem } from "@/content/site-content";
 import { notebookDelay, notebookTiming } from "@/lib/notebook-motion";
+import {
+  defaultThemeSetting,
+  isThemeSetting,
+  nextThemeSetting,
+  type ThemeSetting,
+  themeSettings,
+} from "@/lib/theme-setting";
 import { useScrolled } from "@/lib/use-scrolled";
 import { cn } from "@/lib/utils/cn";
 import { isCurrentRoute } from "@/lib/wayfinding";
@@ -98,18 +105,45 @@ function IdentityMark({ shortName }: { shortName: string }) {
 const controlBox =
   "notebook-control group relative flex size-9 cursor-pointer items-center justify-center text-ink";
 
+const themeGlyphs: Record<ThemeSetting, typeof Sun> = {
+  system: SunMoon,
+  light: Sun,
+  dark: Moon,
+};
+
+/* Three settings, one glyph each, and a press moves to the next
+ * (`nextThemeSetting`). Which glyph shows, and which label names the button,
+ * is CSS reading `data-theme-setting` on `<html>`, not React state: the setting
+ * lives in storage the server cannot read, and the attribute is written before
+ * first paint, so the control is right from the first frame and hydrates
+ * without a mismatch. The glyphs are ink at rest and on hover; the hover is
+ * the spring scale every glyph control shares. */
 function AppearanceControl() {
-  const { resolvedTheme, setTheme } = useTheme();
+  const { theme, systemTheme, setTheme } = useTheme();
+
+  function cycle() {
+    const setting = isThemeSetting(theme) ? theme : defaultThemeSetting;
+    setTheme(nextThemeSetting(setting, systemTheme ?? "light"));
+  }
 
   return (
-    <button
-      type="button"
-      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-      className={controlBox}
-    >
-      <Sun className="size-4 rotate-0 scale-100 transition-transform duration-normal ease-spring group-hover:text-amber-500 dark:-rotate-90 dark:scale-0" />
-      <Moon className="absolute size-4 rotate-90 scale-0 transition-transform duration-normal ease-spring group-hover:text-indigo-400 dark:rotate-0 dark:scale-100" />
-      <span className="sr-only">Toggle theme</span>
+    <button type="button" onClick={cycle} className={controlBox}>
+      {themeSettings.map((setting) => {
+        const Glyph = themeGlyphs[setting];
+        return (
+          <Glyph
+            key={setting}
+            aria-hidden
+            data-setting={setting}
+            className="theme-glyph absolute size-4"
+          />
+        );
+      })}
+      {themeSettings.map((setting) => (
+        <span key={setting} data-setting={setting} className="theme-label">
+          Theme: {setting}
+        </span>
+      ))}
     </button>
   );
 }
@@ -308,8 +342,9 @@ export function SiteHeader({ identity, primaryWayfinding }: SiteHeaderProps) {
         {/* The identity mark has no entrance: it is simply there from the
          * first frame. That makes it the first opaque thing above the fold,
          * which is what has First Contentful Paint reported at all while the
-         * rest of the sheet is still arriving; Largest Contentful Paint is the
-         * page title's to carry, and does so for the same reason — see the
+         * rest of the sheet is still arriving. Nothing else on the sheet is
+         * ever transparent either — parts are revealed by a clip — so Largest
+         * Contentful Paint is reported at first paint too; see the
          * paint-timing notes in `app/motion.css`. Like every other control it
          * is unframed — the two letters alone carry it. */}
         <div className="pointer-events-auto self-start">

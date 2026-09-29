@@ -36,7 +36,7 @@ Growing up Italian-German in Bolzano, I built my first website with JavaScript, 
 | Organization       | Role                     | Years     |
 | ------------------ | ------------------------ | --------- |
 | Jung von Matt TECH | Senior Software Engineer | 2026–     |
-| Jung von Matt TECH | Software Engineer        | 2021–2026 |
+| Jung von Matt TECH | Software Engineer        | 2021–26   |
 | WESOUND            | Junior Software Engineer | 2020–21   |
 | WESOUND            | Project & Office Manager | 2018–20   |
 

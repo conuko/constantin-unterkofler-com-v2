@@ -1,4 +1,11 @@
 import type { NavItem } from "@/content/site-content";
+import {
+  describeThemeSetting,
+  isThemeSetting,
+  nextThemeSetting,
+  type ResolvedTheme,
+  type ThemeSetting,
+} from "@/lib/theme-setting";
 
 /**
  * The console's command surface, kept out of the component so it can be
@@ -24,7 +31,7 @@ export type ConsoleLine = {
 export type ConsoleEffect =
   | { type: "navigate"; href: string }
   | { type: "open"; href: string }
-  | { type: "theme" }
+  | { type: "theme"; setting: ThemeSetting }
   | { type: "sound"; enabled: boolean }
   | { type: "clear" }
   | { type: "close" };
@@ -44,6 +51,8 @@ export type ConsoleContext = {
   pathname: string;
   previousPathname: string | null;
   soundsEnabled: boolean;
+  /** The stored appearance setting and what the system resolves to. */
+  appearance: { setting: ThemeSetting; system: ResolvedTheme };
   repositoryUrl: string;
   records: { index: string; label: string; meta: string }[];
 };
@@ -217,11 +226,34 @@ const commands: CommandSpec[] = [
   },
   {
     name: "theme",
-    description: "toggle light / dark",
-    run: () => ({
-      lines: [line("muted", "toggling appearance")],
-      effects: [{ type: "theme" }],
-    }),
+    description: "cycle appearance or set it — theme dark, theme system",
+    run: (args, context) => {
+      const requested = args[0]?.toLowerCase();
+
+      if (requested !== undefined && !isThemeSetting(requested)) {
+        return output(line("error", "theme: expected light, dark or system"));
+      }
+
+      /* Bare `theme` is one press of the Site Header's theme control. */
+      const { setting: current, system } = context.appearance;
+      const setting = requested ?? nextThemeSetting(current, system);
+
+      if (setting === current) {
+        return output(
+          line(
+            "muted",
+            `appearance is already ${describeThemeSetting(setting, system)}`,
+          ),
+        );
+      }
+
+      return {
+        lines: [
+          line("muted", `appearance: ${describeThemeSetting(setting, system)}`),
+        ],
+        effects: [{ type: "theme", setting }],
+      };
+    },
   },
   {
     name: "sound",

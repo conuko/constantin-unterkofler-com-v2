@@ -5,6 +5,7 @@ colors:
   paper: "#f8f7f2"
   ink: "#111111"
   ink-muted: "rgba(17, 17, 17, 0.72)"
+  ink-faint: "rgba(17, 17, 17, 0.6)"
   rule: "rgba(17, 17, 17, 0.2)"
   dot: "rgba(17, 17, 17, 0.085)"
   dot-major: "rgba(17, 17, 17, 0.2)"
@@ -15,6 +16,7 @@ colors:
   paper-dark: "#1a1917"
   ink-dark: "#f8f7f2"
   ink-muted-dark: "rgba(248, 247, 242, 0.72)"
+  ink-faint-dark: "rgba(248, 247, 242, 0.55)"
   rule-dark: "rgba(248, 247, 242, 0.2)"
   dot-dark: "rgba(248, 247, 242, 0.07)"
   dot-major-dark: "rgba(248, 247, 242, 0.16)"
@@ -28,7 +30,7 @@ colors:
   console-chrome: "rgba(248, 247, 242, 0.05)"
   console-rule: "rgba(248, 247, 242, 0.14)"
   console-ink: "rgba(248, 247, 242, 0.82)"
-  console-ink-muted: "rgba(248, 247, 242, 0.45)"
+  console-ink-muted: "rgba(248, 247, 242, 0.5)"
   console-output: "rgba(248, 247, 242, 0.55)"
   console-accent: "oklch(0.78 0.11 250)"
   console-command: "oklch(0.86 0.14 150)"
@@ -170,8 +172,9 @@ shadow and traffic lights.
 
 Motion is part of the drawing, not an effect on top of it. The sheet registers
 itself on a single 40ms beat from first paint, top to bottom, all of it in CSS.
-Rules draw where they stay, parts settle 8px once, and a spring carries every
-state change. Reduced motion puts everything in place from the start.
+Rules draw where they stay, parts are written in and settle 8px once, nothing
+fades, and a spring carries every state change. Reduced motion puts
+everything in place from the start.
 
 **Key Characteristics:**
 
@@ -210,8 +213,11 @@ annotation blue, plus a separate, unthemed console palette.
   anything that has become active. Rules and record rules lift to ink on hover
   and focus.
 - **Faded Ink** (`ink-muted`, 72% ink): introductions, annotations, labels,
-  metadata and tags. Stamps go quieter still with opacity (60% for filenames
-  and the build stamp, 55% for counts).
+  metadata and tags.
+- **Faint Ink** (`ink-faint`, 60% ink in light, 55% in dark): stamps, which
+  are the sheet stamp, filenames, the `[04]` counts and the build stamp. It is
+  the quietest text on the sheet and still 4.8:1 on paper (5.7:1 in dark),
+  because stamps are 10–11px and take the body-text floor of 4.5:1.
 - **Hairline** (`rule`, 20% ink): every rule, border and crop mark. It went
   from 18% to 20% so the hairline holds its own against the dot field.
 - **Minor Dot / Major Dot** (`dot` 8.5% and `dot-major` 20% of ink; 7% and 16%
@@ -230,9 +236,10 @@ for light mode stops reading as a terminal.
 
 - **Terminal Night** (`console-surface`, #15141a): the window.
 - **Terminal Ink** (`console-ink` 82%, `console-output` 55%,
-  `console-ink-muted` 45% of paper): typed input, command output, chrome
-  labels. Terminal Ink also draws the focus ring inside the window, where the
-  page's ink ring would be #111 on #15141a in the light theme.
+  `console-ink-muted` 50% of paper): typed input, command output, chrome
+  labels. 50% holds 4.8:1 on the title bar, the lightest surface it sits on.
+  Terminal Ink also draws the focus ring inside the window, where the page's
+  ink ring would be #111 on #15141a in the light theme.
 - **Prompt Blue** (`console-accent`): the working-directory path and the
   banner. It is the dark theme's annotation value, fixed because the window
   never changes theme.
@@ -248,7 +255,9 @@ The Greeting's colour is composed on the element as
 `oklch(var(--greeting-lightness) var(--greeting-chroma) var(--greeting-hue))`.
 The hue is random for each language and arrives inline. Lightness and chroma
 belong to the theme (0.48 / 0.15 light, 0.78 / 0.13 dark), so every hue keeps
-its contrast against paper.
+its contrast against paper. Each new hue is at least 40° from the last and
+never inside 220–280°, the band around Annotation Blue (250°), where the
+Greeting would read as the measuring pen.
 
 ### Named Rules
 
@@ -276,15 +285,16 @@ fixed-width cuts of one voice, not a contrast.
 ### Hierarchy
 
 - **Display** (Bebas Neue semibold, 48px, 72px from `lg`, leading 1, -0.025em): page
-  titles and Constantin's name on Home. It carries the sheet's LCP.
+  titles and Constantin's name on Home. It wipes open on a clip, never a fade,
+  so it is recorded at first paint.
 - **Headline** (Bebas Neue semibold, 30px, 36px from `lg`, leading 1.25, -0.025em): the
   Greeting, written above the name inside a two-line stage so the rewrites
   never shift the layout.
 - **Title** (Bebas Neue semibold, 24px, leading 1, -0.025em): record titles, such as
   Work clients.
 - **Body** (Space Grotesk, 14px, leading 1.625): introductions, annotations and
-  CV entries. The page introduction's measure is capped at 720px. Wayfinding
-  links run at 12px.
+  CV entries. The page introduction's measure is capped at 720px, the reading
+  width, on every sheet. Wayfinding links run at 12px.
 - **Data** (Space Mono, 14px): values a reader compares, such as Specification
   fields and contact addresses.
 - **Label** (Space Mono, 11px, 0.12em, uppercase, leading 1.4): metadata, field
@@ -319,6 +329,13 @@ thickening adds ink but no advance width, so at -0.025em tracking the
 display letters come close to touching. That is accepted. It is the only
 synthesized weight in the system: never ask Space Mono for one.
 
+**The Full-Width Introduction Rule.** A page introduction runs the reading
+width, 720px, and is not capped to a narrower measure. That puts 104–108
+characters on a full line, past the usual 65–75, and the long line is
+accepted: a 488px measure was built, reviewed on the sheets and rejected
+(ADR-0010). The 1.625 leading is what keeps the line trackable, so it is not
+tightened either.
+
 **The Block Art Exception.** The console banner is the only thing not set in
 Space Mono. That face ships no block or box-drawing glyphs, and the browser's
 per-glyph fallback breaks the column grid, so the banner uses the platform's
@@ -337,7 +354,7 @@ through except on their corner pieces.
 
 From `lg` those four corners (identity mark, wayfinding, copyright and console
 control) hold still while the sheet scrolls, so each side of the viewport is a
-**corner lane** 185px wide: the gutter, the 145px console control and 16px
+**corner lane** 185px wide: the gutter, the 137px console control and 24px
 clear of it. Each sheet is capped at `min(sheet width, viewport − 2 × corner
 lane)`. At 1440px that leaves the collection 1070px and the reading column its
 full 720px, and at 1024px both run 654px. Below `lg` the lane is only the
@@ -407,10 +424,10 @@ near-white top edge read as a second border stacked on the real one. A media
 field is bounded by its border and marked by its crop marks, and that is
 already two statements of its edge.
 
-**The Backdrop Root Rule.** Never put `opacity` below 1, or a non-`none`
-`transform`, on an ancestor of a glass surface. Either one turns it into a
-Backdrop Root, and the blur renders as flat tint. Entrances ride on the glass
-element itself and animate `translate`, not `transform`.
+**The Backdrop Root Rule.** Never put `opacity` below 1, a `clip-path`, or a
+non-`none` `transform` on an ancestor of a glass surface. Any of them turns it
+into a Backdrop Root, and the blur renders as flat tint. Entrances ride on the
+glass element itself and animate `translate`, not `transform`.
 
 ## Shapes
 
@@ -450,11 +467,13 @@ are server components with CSS-only states.
   is a whole number of 40ms beats. The page header takes one row per beat and
   the Site Header's column ticks with it. Rows and record parts stagger one
   beat, records two, and a new group waits three.
-- **Kinds of entrance:** parts fade and settle 8px over 320ms, introductions
-  over 500ms, rules draw in place over 360ms, and titles wipe open with a clip
-  over 900ms, with no fade so LCP stays reportable. All of them use
-  `--notebook-ease` (`cubic-bezier(0.16, 1, 0.3, 1)`) and
-  `animation-fill-mode: backwards`.
+- **Kinds of entrance:** parts are written in from their top edge down by a
+  clip while they settle 8px, over 320ms, and introductions over 500ms. Rules
+  draw in place over 360ms, and titles wipe open left to right over 900ms.
+  Nothing fades: a part is fully clipped until its turn, never transparent,
+  so every sheet reports LCP at first paint whichever element is largest
+  (ADR-0009). All of them use `--notebook-ease`
+  (`cubic-bezier(0.16, 1, 0.3, 1)`) and `animation-fill-mode: backwards`.
 - **One entrance per element:** a record has no entrance of its own. Its rule
   draws and its parts settle, so nothing travels twice.
 - **No entrance:** the identity mark (CU) is opaque at first paint and carries
@@ -473,7 +492,7 @@ The unit of Portfolio Content. From top to bottom:
 
 1. **Ticked rule**, which lifts to ink when the record has focus inside it.
 2. **Index row**: the record index in Annotation Blue on the left, and the
-   source filename (`levi.svg`) in Micro at 60% on the right.
+   source filename (`levi.svg`) in Micro and Faint Ink on the right.
 3. **Media field**: square, 16:9, 40px padding (28px below `sm`), a 1px border
    and crop marks. Work records use Glass with a Hairline border. The
    primitive's default is Media Field fill with its quieter border.
@@ -485,12 +504,14 @@ The unit of Portfolio Content. From top to bottom:
 
 **Brand marks in the dark theme.** Each Work mark takes one of three answers,
 set in `markRendering` in `components/work-presentation.tsx`. Marks legible on
-either ground (Levi's, FIFA, TenneT, ABOUT YOU) get nothing. Single-colour
-marks (Harrods, Fielmann, and the terminal prompt shared by SB Migrate and
-Movielingo) are re-inked with
-`dark:brightness-0 dark:invert`. Marks with a brand accent (SCAYLE) get a
-second cut, `darkSrc`, because a filter would invert the accent too. Both cuts
-carry the real `alt`, and the hidden one is `display: none`.
+either ground (Levi's, ABOUT YOU) get nothing. Single-colour marks (Harrods,
+Fielmann, FIFA, and the terminal prompt shared by SB Migrate and Movielingo)
+are re-inked with `dark:brightness-0 dark:invert`. Marks with a brand accent
+(SCAYLE, TenneT) get a second cut, `darkSrc`, with the ink drawn in Paper and
+the accents kept, because a filter would invert the accents too. A mark earns
+its answer by contrast: under 3:1 on the dark field (FIFA's blue measured 2:1,
+TenneT's navy 1.7:1) it is re-inked or cut. Both cuts carry the real `alt`,
+and the hidden one is `display: none`.
 
 ### Record row
 
@@ -515,7 +536,14 @@ Constantin, not entries in a collection.
 
 - **Glyph controls** (identity mark, theme toggle, disclosure): a 36px hit box
   with no frame, because the glyph is the control. The identity mark is Code
-  at 11px. The disclosure's three lines fold into a cross.
+  at 11px. The disclosure's three lines fold into a cross. The theme toggle
+  has three settings, each with its glyph (sun and moon together for system,
+  sun for light, moon for dark), and each press moves to the next: from
+  system to the theme the system is not showing, then the other, then back to
+  system. The glyph is right from the first frame, because the stored setting
+  is written onto `<html>` before paint. The glyphs swap on keyframes, the old
+  one turning out and the new one turning in on the spring, because the theme
+  change suspends transitions. It stays in ink on hover.
 - **Action link:** square, 1px Hairline border, Glass fill with the 1px blur,
   Micro caps in Faded Ink, at least 36px tall. On hover the border and text
   lift to ink.
@@ -585,8 +613,9 @@ Site Header and is a second way in, never the only one.
   closes over 180ms, animating `translate` and opacity, never `transform`.
   Moving between docks takes 400ms.
 - **Commands:** `help`, `whoami`, `home`, `about`, `work` (`--list` prints
-  the record index), `contact`, `ls`, `cd` (shell-style, stays open), `theme`,
-  `sound` (`on` or `off`), `source`, `clear`, `exit`. It opens with `K`
+  the record index), `contact`, `ls`, `cd` (shell-style, stays open), `theme`
+  (a press of the theme toggle, or `light`, `dark` or `system`), `sound` (`on`
+  or `off`), `source`, `clear`, `exit`. It opens with `K`
   outside a text field or with the control, and closes with `Esc`, the red
   light, the `Esc` label or the control.
 - **Focus:** opening focuses the prompt. Closing gives focus back to whatever
@@ -617,8 +646,8 @@ greeting.
   labels and prompt paths.
 - **Do** put every entrance offset on a whole number of 40ms beats, with
   `--notebook-ease` and `animation-fill-mode: backwards`.
-- **Do** animate `translate` and opacity on the element itself, and keep glass
-  surfaces free of transformed or translucent ancestors.
+- **Do** animate `translate` and `clip-path` on the element itself, and keep
+  glass surfaces free of transformed, clipped or translucent ancestors.
 - **Do** gate hover behind `(hover: hover)` and keep hit targets at 36px or
   more.
 - **Do** give every motion a reduced-motion state in which content starts in
@@ -638,8 +667,9 @@ greeting.
 - **Don't** load a second weight of Bebas Neue or Space Mono, or request a
   weight from Space Mono it does not have. The titles' semibold on Bebas Neue
   is the one deliberate synthesized weight.
-- **Don't** give the identity mark an entrance, or fade a page title. Both
-  carry paint timing.
+- **Don't** give the identity mark an entrance, or fade anything on the sheet.
+  The mark carries FCP, and a transparent element is not recorded until frames
+  after it paints.
 - **Don't** use `animation-fill-mode: both`, or animate `transform` on an
   ancestor of glass.
 - **Don't** set type below 10px, or use 10px for anything but uppercase mono.

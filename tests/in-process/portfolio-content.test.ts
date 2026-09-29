@@ -19,7 +19,7 @@ describe("Portfolio Content", () => {
       {
         route: "/",
         title: "Constantin",
-        metadataTitle: "Home",
+        metadataTitle: "Constantin Unterkofler",
         hasMetadataDescription: true,
       },
       {

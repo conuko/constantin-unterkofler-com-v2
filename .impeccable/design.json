@@ -1,58 +1,23 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-25T14:49:14.589Z",
+  "generatedAt": "2026-09-29T09:23:16.295Z",
   "title": "Design System: Constantin Unterkofler",
   "extensions": {
     "colorMeta": {
-      "annotation": {
-        "role": "primary",
-        "displayName": "Annotation Blue",
-        "canonical": "oklch(0.52 0.13 250)",
-        "tonalRamp": [
-          "oklch(0.15 0.05 250)",
-          "oklch(0.26 0.09 250)",
-          "oklch(0.37 0.12 250)",
-          "oklch(0.48 0.13 250)",
-          "oklch(0.59 0.13 250)",
-          "oklch(0.70 0.11 250)",
-          "oklch(0.82 0.07 250)",
-          "oklch(0.95 0.02 250)"
-        ]
-      },
-      "annotation-dark": {
-        "role": "primary",
-        "displayName": "Annotation Blue (dark theme)",
-        "canonical": "oklch(0.78 0.11 250)"
-      },
-      "annotation-on-ink": {
-        "role": "primary",
-        "displayName": "Annotation on Ink",
-        "canonical": "oklch(0.78 0.11 250)"
-      },
-      "annotation-on-ink-dark": {
-        "role": "primary",
-        "displayName": "Annotation on Ink (dark theme)",
-        "canonical": "oklch(0.52 0.13 250)"
-      },
       "paper": {
         "role": "neutral",
         "displayName": "Notebook Paper",
         "canonical": "#f8f7f2",
         "tonalRamp": [
-          "oklch(0.15 0.006 100)",
-          "oklch(0.26 0.006 100)",
+          "oklch(0.15 0.007 100)",
+          "oklch(0.26 0.007 100)",
           "oklch(0.37 0.007 100)",
           "oklch(0.48 0.007 100)",
-          "oklch(0.59 0.008 100)",
-          "oklch(0.70 0.008 100)",
-          "oklch(0.82 0.008 100)",
-          "oklch(0.975 0.008 100)"
+          "oklch(0.59 0.007 100)",
+          "oklch(0.70 0.007 100)",
+          "oklch(0.82 0.007 100)",
+          "oklch(0.975 0.007 100)"
         ]
-      },
-      "paper-dark": {
-        "role": "neutral",
-        "displayName": "Notebook Paper (dark theme)",
-        "canonical": "#1a1917"
       },
       "ink": {
         "role": "neutral",
@@ -72,32 +37,332 @@
       "ink-muted": {
         "role": "neutral",
         "displayName": "Faded Ink",
-        "canonical": "rgba(17, 17, 17, 0.72)"
+        "canonical": "rgba(17, 17, 17, 0.72)",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.37 0 0)",
+          "oklch(0.48 0 0)",
+          "oklch(0.59 0 0)",
+          "oklch(0.70 0 0)",
+          "oklch(0.82 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "ink-faint": {
+        "role": "neutral",
+        "displayName": "Faint Ink",
+        "canonical": "rgba(17, 17, 17, 0.6)",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.37 0 0)",
+          "oklch(0.48 0 0)",
+          "oklch(0.59 0 0)",
+          "oklch(0.70 0 0)",
+          "oklch(0.82 0 0)",
+          "oklch(0.95 0 0)"
+        ]
       },
       "rule": {
         "role": "neutral",
         "displayName": "Hairline",
-        "canonical": "rgba(17, 17, 17, 0.2)"
+        "canonical": "rgba(17, 17, 17, 0.2)",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.37 0 0)",
+          "oklch(0.48 0 0)",
+          "oklch(0.59 0 0)",
+          "oklch(0.70 0 0)",
+          "oklch(0.82 0 0)",
+          "oklch(0.95 0 0)"
+        ]
       },
       "dot": {
         "role": "neutral",
         "displayName": "Minor Dot",
-        "canonical": "rgba(17, 17, 17, 0.085)"
+        "canonical": "rgba(17, 17, 17, 0.085)",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.37 0 0)",
+          "oklch(0.48 0 0)",
+          "oklch(0.59 0 0)",
+          "oklch(0.70 0 0)",
+          "oklch(0.82 0 0)",
+          "oklch(0.95 0 0)"
+        ]
       },
       "dot-major": {
         "role": "neutral",
         "displayName": "Major Dot",
-        "canonical": "rgba(17, 17, 17, 0.2)"
+        "canonical": "rgba(17, 17, 17, 0.2)",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.37 0 0)",
+          "oklch(0.48 0 0)",
+          "oklch(0.59 0 0)",
+          "oklch(0.70 0 0)",
+          "oklch(0.82 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "annotation": {
+        "role": "primary",
+        "displayName": "Annotation Blue",
+        "canonical": "oklch(0.52 0.13 250)",
+        "tonalRamp": [
+          "oklch(0.15 0.045 250)",
+          "oklch(0.26 0.085 250)",
+          "oklch(0.37 0.117 250)",
+          "oklch(0.48 0.130 250)",
+          "oklch(0.59 0.130 250)",
+          "oklch(0.70 0.111 250)",
+          "oklch(0.82 0.072 250)",
+          "oklch(0.95 0.019 250)"
+        ]
       },
       "card-glass": {
         "role": "neutral",
         "displayName": "Glass",
-        "canonical": "rgba(255, 255, 255, 0.52)"
+        "canonical": "rgba(255, 255, 255, 0.52)",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.37 0 0)",
+          "oklch(0.48 0 0)",
+          "oklch(0.59 0 0)",
+          "oklch(0.70 0 0)",
+          "oklch(0.82 0 0)",
+          "oklch(0.95 0 0)"
+        ]
       },
       "media-field": {
         "role": "neutral",
         "displayName": "Media Field",
-        "canonical": "rgba(255, 255, 255, 0.72)"
+        "canonical": "rgba(255, 255, 255, 0.72)",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.37 0 0)",
+          "oklch(0.48 0 0)",
+          "oklch(0.59 0 0)",
+          "oklch(0.70 0 0)",
+          "oklch(0.82 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "media-field-rule": {
+        "role": "neutral",
+        "displayName": "Media Field Rule",
+        "canonical": "rgba(17, 17, 17, 0.14)",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.37 0 0)",
+          "oklch(0.48 0 0)",
+          "oklch(0.59 0 0)",
+          "oklch(0.70 0 0)",
+          "oklch(0.82 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "paper-dark": {
+        "role": "neutral",
+        "displayName": "Notebook Paper (dark theme)",
+        "canonical": "#1a1917",
+        "tonalRamp": [
+          "oklch(0.15 0.007 100)",
+          "oklch(0.26 0.007 100)",
+          "oklch(0.37 0.007 100)",
+          "oklch(0.48 0.007 100)",
+          "oklch(0.59 0.007 100)",
+          "oklch(0.70 0.007 100)",
+          "oklch(0.82 0.007 100)",
+          "oklch(0.975 0.007 100)"
+        ]
+      },
+      "ink-dark": {
+        "role": "neutral",
+        "displayName": "Drafting Ink (dark theme)",
+        "canonical": "#f8f7f2",
+        "tonalRamp": [
+          "oklch(0.15 0.007 100)",
+          "oklch(0.26 0.007 100)",
+          "oklch(0.37 0.007 100)",
+          "oklch(0.48 0.007 100)",
+          "oklch(0.59 0.007 100)",
+          "oklch(0.70 0.007 100)",
+          "oklch(0.82 0.007 100)",
+          "oklch(0.975 0.007 100)"
+        ]
+      },
+      "ink-muted-dark": {
+        "role": "neutral",
+        "displayName": "Faded Ink (dark theme)",
+        "canonical": "rgba(248, 247, 242, 0.72)",
+        "tonalRamp": [
+          "oklch(0.15 0.007 100)",
+          "oklch(0.26 0.007 100)",
+          "oklch(0.37 0.007 100)",
+          "oklch(0.48 0.007 100)",
+          "oklch(0.59 0.007 100)",
+          "oklch(0.70 0.007 100)",
+          "oklch(0.82 0.007 100)",
+          "oklch(0.975 0.007 100)"
+        ]
+      },
+      "ink-faint-dark": {
+        "role": "neutral",
+        "displayName": "Faint Ink (dark theme)",
+        "canonical": "rgba(248, 247, 242, 0.55)",
+        "tonalRamp": [
+          "oklch(0.15 0.007 100)",
+          "oklch(0.26 0.007 100)",
+          "oklch(0.37 0.007 100)",
+          "oklch(0.48 0.007 100)",
+          "oklch(0.59 0.007 100)",
+          "oklch(0.70 0.007 100)",
+          "oklch(0.82 0.007 100)",
+          "oklch(0.975 0.007 100)"
+        ]
+      },
+      "rule-dark": {
+        "role": "neutral",
+        "displayName": "Hairline (dark theme)",
+        "canonical": "rgba(248, 247, 242, 0.2)",
+        "tonalRamp": [
+          "oklch(0.15 0.007 100)",
+          "oklch(0.26 0.007 100)",
+          "oklch(0.37 0.007 100)",
+          "oklch(0.48 0.007 100)",
+          "oklch(0.59 0.007 100)",
+          "oklch(0.70 0.007 100)",
+          "oklch(0.82 0.007 100)",
+          "oklch(0.975 0.007 100)"
+        ]
+      },
+      "dot-dark": {
+        "role": "neutral",
+        "displayName": "Minor Dot (dark theme)",
+        "canonical": "rgba(248, 247, 242, 0.07)",
+        "tonalRamp": [
+          "oklch(0.15 0.007 100)",
+          "oklch(0.26 0.007 100)",
+          "oklch(0.37 0.007 100)",
+          "oklch(0.48 0.007 100)",
+          "oklch(0.59 0.007 100)",
+          "oklch(0.70 0.007 100)",
+          "oklch(0.82 0.007 100)",
+          "oklch(0.975 0.007 100)"
+        ]
+      },
+      "dot-major-dark": {
+        "role": "neutral",
+        "displayName": "Major Dot (dark theme)",
+        "canonical": "rgba(248, 247, 242, 0.16)",
+        "tonalRamp": [
+          "oklch(0.15 0.007 100)",
+          "oklch(0.26 0.007 100)",
+          "oklch(0.37 0.007 100)",
+          "oklch(0.48 0.007 100)",
+          "oklch(0.59 0.007 100)",
+          "oklch(0.70 0.007 100)",
+          "oklch(0.82 0.007 100)",
+          "oklch(0.975 0.007 100)"
+        ]
+      },
+      "annotation-dark": {
+        "role": "primary",
+        "displayName": "Annotation Blue (dark theme)",
+        "canonical": "oklch(0.78 0.11 250)",
+        "tonalRamp": [
+          "oklch(0.15 0.045 250)",
+          "oklch(0.26 0.085 250)",
+          "oklch(0.37 0.117 250)",
+          "oklch(0.48 0.130 250)",
+          "oklch(0.59 0.130 250)",
+          "oklch(0.70 0.111 250)",
+          "oklch(0.82 0.072 250)",
+          "oklch(0.95 0.019 250)"
+        ]
+      },
+      "annotation-on-ink": {
+        "role": "primary",
+        "displayName": "Annotation on Ink",
+        "canonical": "oklch(0.78 0.11 250)",
+        "tonalRamp": [
+          "oklch(0.15 0.045 250)",
+          "oklch(0.26 0.085 250)",
+          "oklch(0.37 0.117 250)",
+          "oklch(0.48 0.130 250)",
+          "oklch(0.59 0.130 250)",
+          "oklch(0.70 0.111 250)",
+          "oklch(0.82 0.072 250)",
+          "oklch(0.95 0.019 250)"
+        ]
+      },
+      "annotation-on-ink-dark": {
+        "role": "primary",
+        "displayName": "Annotation on Ink (dark theme)",
+        "canonical": "oklch(0.52 0.13 250)",
+        "tonalRamp": [
+          "oklch(0.15 0.045 250)",
+          "oklch(0.26 0.085 250)",
+          "oklch(0.37 0.117 250)",
+          "oklch(0.48 0.130 250)",
+          "oklch(0.59 0.130 250)",
+          "oklch(0.70 0.111 250)",
+          "oklch(0.82 0.072 250)",
+          "oklch(0.95 0.019 250)"
+        ]
+      },
+      "card-glass-dark": {
+        "role": "neutral",
+        "displayName": "Glass (dark theme)",
+        "canonical": "rgba(248, 247, 242, 0.06)",
+        "tonalRamp": [
+          "oklch(0.15 0.007 100)",
+          "oklch(0.26 0.007 100)",
+          "oklch(0.37 0.007 100)",
+          "oklch(0.48 0.007 100)",
+          "oklch(0.59 0.007 100)",
+          "oklch(0.70 0.007 100)",
+          "oklch(0.82 0.007 100)",
+          "oklch(0.975 0.007 100)"
+        ]
+      },
+      "media-field-dark": {
+        "role": "neutral",
+        "displayName": "Media Field (dark theme)",
+        "canonical": "rgba(248, 247, 242, 0.92)",
+        "tonalRamp": [
+          "oklch(0.15 0.007 100)",
+          "oklch(0.26 0.007 100)",
+          "oklch(0.37 0.007 100)",
+          "oklch(0.48 0.007 100)",
+          "oklch(0.59 0.007 100)",
+          "oklch(0.70 0.007 100)",
+          "oklch(0.82 0.007 100)",
+          "oklch(0.975 0.007 100)"
+        ]
+      },
+      "media-field-rule-dark": {
+        "role": "neutral",
+        "displayName": "Media Field Rule (dark theme)",
+        "canonical": "rgba(248, 247, 242, 0.28)",
+        "tonalRamp": [
+          "oklch(0.15 0.007 100)",
+          "oklch(0.26 0.007 100)",
+          "oklch(0.37 0.007 100)",
+          "oklch(0.48 0.007 100)",
+          "oklch(0.59 0.007 100)",
+          "oklch(0.70 0.007 100)",
+          "oklch(0.82 0.007 100)",
+          "oklch(0.975 0.007 100)"
+        ]
       },
       "console-surface": {
         "role": "neutral",
@@ -114,15 +379,95 @@
           "oklch(0.95 0.004 290)"
         ]
       },
+      "console-chrome": {
+        "role": "neutral",
+        "displayName": "Terminal Title Bar",
+        "canonical": "rgba(248, 247, 242, 0.05)",
+        "tonalRamp": [
+          "oklch(0.15 0.007 100)",
+          "oklch(0.26 0.007 100)",
+          "oklch(0.37 0.007 100)",
+          "oklch(0.48 0.007 100)",
+          "oklch(0.59 0.007 100)",
+          "oklch(0.70 0.007 100)",
+          "oklch(0.82 0.007 100)",
+          "oklch(0.975 0.007 100)"
+        ]
+      },
+      "console-rule": {
+        "role": "neutral",
+        "displayName": "Terminal Rule",
+        "canonical": "rgba(248, 247, 242, 0.14)",
+        "tonalRamp": [
+          "oklch(0.15 0.007 100)",
+          "oklch(0.26 0.007 100)",
+          "oklch(0.37 0.007 100)",
+          "oklch(0.48 0.007 100)",
+          "oklch(0.59 0.007 100)",
+          "oklch(0.70 0.007 100)",
+          "oklch(0.82 0.007 100)",
+          "oklch(0.975 0.007 100)"
+        ]
+      },
       "console-ink": {
         "role": "neutral",
         "displayName": "Terminal Ink",
-        "canonical": "rgba(248, 247, 242, 0.82)"
+        "canonical": "rgba(248, 247, 242, 0.82)",
+        "tonalRamp": [
+          "oklch(0.15 0.007 100)",
+          "oklch(0.26 0.007 100)",
+          "oklch(0.37 0.007 100)",
+          "oklch(0.48 0.007 100)",
+          "oklch(0.59 0.007 100)",
+          "oklch(0.70 0.007 100)",
+          "oklch(0.82 0.007 100)",
+          "oklch(0.975 0.007 100)"
+        ]
+      },
+      "console-ink-muted": {
+        "role": "neutral",
+        "displayName": "Terminal Ink, muted",
+        "canonical": "rgba(248, 247, 242, 0.5)",
+        "tonalRamp": [
+          "oklch(0.15 0.007 100)",
+          "oklch(0.26 0.007 100)",
+          "oklch(0.37 0.007 100)",
+          "oklch(0.48 0.007 100)",
+          "oklch(0.59 0.007 100)",
+          "oklch(0.70 0.007 100)",
+          "oklch(0.82 0.007 100)",
+          "oklch(0.975 0.007 100)"
+        ]
+      },
+      "console-output": {
+        "role": "neutral",
+        "displayName": "Terminal Output",
+        "canonical": "rgba(248, 247, 242, 0.55)",
+        "tonalRamp": [
+          "oklch(0.15 0.007 100)",
+          "oklch(0.26 0.007 100)",
+          "oklch(0.37 0.007 100)",
+          "oklch(0.48 0.007 100)",
+          "oklch(0.59 0.007 100)",
+          "oklch(0.70 0.007 100)",
+          "oklch(0.82 0.007 100)",
+          "oklch(0.975 0.007 100)"
+        ]
       },
       "console-accent": {
         "role": "secondary",
         "displayName": "Prompt Blue",
-        "canonical": "oklch(0.78 0.11 250)"
+        "canonical": "oklch(0.78 0.11 250)",
+        "tonalRamp": [
+          "oklch(0.15 0.045 250)",
+          "oklch(0.26 0.085 250)",
+          "oklch(0.37 0.117 250)",
+          "oklch(0.48 0.130 250)",
+          "oklch(0.59 0.130 250)",
+          "oklch(0.70 0.111 250)",
+          "oklch(0.82 0.072 250)",
+          "oklch(0.95 0.019 250)"
+        ]
       },
       "console-command": {
         "role": "secondary",
@@ -142,28 +487,68 @@
       "console-error": {
         "role": "tertiary",
         "displayName": "Error Coral",
-        "canonical": "#ff7b72"
+        "canonical": "#ff7b72",
+        "tonalRamp": [
+          "oklch(0.15 0.056 25)",
+          "oklch(0.26 0.104 25)",
+          "oklch(0.37 0.144 25)",
+          "oklch(0.48 0.160 25)",
+          "oklch(0.59 0.160 25)",
+          "oklch(0.70 0.136 25)",
+          "oklch(0.82 0.088 25)",
+          "oklch(0.95 0.024 25)"
+        ]
       },
       "console-light-close": {
         "role": "tertiary",
         "displayName": "Close Light",
-        "canonical": "#ff5f57"
+        "canonical": "#ff5f57",
+        "tonalRamp": [
+          "oklch(0.15 0.070 27)",
+          "oklch(0.26 0.130 27)",
+          "oklch(0.37 0.180 27)",
+          "oklch(0.48 0.200 27)",
+          "oklch(0.59 0.200 27)",
+          "oklch(0.70 0.170 27)",
+          "oklch(0.82 0.110 27)",
+          "oklch(0.95 0.030 27)"
+        ]
       },
       "console-light-minimize": {
         "role": "tertiary",
         "displayName": "Dock-Bottom Light",
-        "canonical": "#febc2e"
+        "canonical": "#febc2e",
+        "tonalRamp": [
+          "oklch(0.15 0.056 80)",
+          "oklch(0.26 0.104 80)",
+          "oklch(0.37 0.144 80)",
+          "oklch(0.48 0.160 80)",
+          "oklch(0.59 0.160 80)",
+          "oklch(0.70 0.136 80)",
+          "oklch(0.82 0.088 80)",
+          "oklch(0.95 0.024 80)"
+        ]
       },
       "console-light-zoom": {
         "role": "tertiary",
         "displayName": "Dock-Right Light",
-        "canonical": "#28c840"
+        "canonical": "#28c840",
+        "tonalRamp": [
+          "oklch(0.15 0.070 145)",
+          "oklch(0.26 0.130 145)",
+          "oklch(0.37 0.180 145)",
+          "oklch(0.48 0.200 145)",
+          "oklch(0.59 0.200 145)",
+          "oklch(0.70 0.170 145)",
+          "oklch(0.82 0.110 145)",
+          "oklch(0.95 0.030 145)"
+        ]
       }
     },
     "typographyMeta": {
       "display": {
         "displayName": "Display",
-        "purpose": "Page titles and the name on Home; 72px from lg. Carries LCP."
+        "purpose": "Page titles and the name on Home; 72px from lg. Wipes open on a clip, never a fade, so it is recorded at first paint."
       },
       "headline": {
         "displayName": "Greeting",
@@ -175,7 +560,7 @@
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Introductions, annotations, CV entries. Introduction measure capped at 720px."
+        "purpose": "Introductions, annotations, CV entries. Introductions run the 720px reading width at leading 1.625 (ADR-0010)."
       },
       "data": {
         "displayName": "Data",
@@ -191,7 +576,7 @@
       },
       "num": {
         "displayName": "Num",
-        "purpose": "Years and counts, tabular figures."
+        "purpose": "Years and counts such as [04], tabular figures, in Faint Ink for counts."
       },
       "micro": {
         "displayName": "Micro",
@@ -257,12 +642,12 @@
       },
       {
         "name": "part-in",
-        "value": "320ms, 8px settle + fade",
-        "purpose": "Record parts, rows, crop marks."
+        "value": "320ms, top-down clip reveal + 8px settle, no fade",
+        "purpose": "Record parts, rows, crop marks. Fully clipped until its turn, never transparent, so it reports its paint at first paint (ADR-0009)."
       },
       {
         "name": "introduction-in",
-        "value": "500ms, 8px settle + fade",
+        "value": "500ms, top-down clip reveal + 8px settle, no fade",
         "purpose": "Page introductions."
       },
       {
@@ -272,8 +657,8 @@
       },
       {
         "name": "heading-clip-in",
-        "value": "900ms, clip wipe, no fade",
-        "purpose": "Page titles; no fade so LCP stays reportable."
+        "value": "900ms, left-to-right clip wipe, no fade",
+        "purpose": "Page titles; the signature move, horizontal where parts are vertical."
       },
       {
         "name": "console-open",
@@ -294,6 +679,16 @@
         "name": "caret-blink",
         "value": "1.05s step-end infinite",
         "purpose": "Greeting caret and console block caret."
+      },
+      {
+        "name": "theme-glyph-in",
+        "value": "300ms ease-spring, from scale 0 and -90deg",
+        "purpose": "The theme control’s new glyph. Keyframes, because the theme change suspends transitions."
+      },
+      {
+        "name": "theme-glyph-out",
+        "value": "150ms ease-in, to scale 0 and 90deg",
+        "purpose": "The theme control’s old glyph; ease-in, because the spring would take its scale below zero."
       }
     ],
     "breakpoints": [
@@ -324,9 +719,17 @@
       "name": "Console Control",
       "kind": "button",
       "refersTo": "console-control",
-      "description": "The ink-filled control in the Closing Record that opens the Site Console.",
+      "description": "The ink-filled control in the Closing Record that opens the Site Console: 36px tall, 10px Micro caps, K keycap in a 35% hairline box.",
       "html": "<button class=\"ds-console-control\" type=\"button\" aria-keyshortcuts=\"K\"><span class=\"ds-console-control-prompt\" aria-hidden=\"true\">&gt;_</span><span>Console</span><span class=\"ds-console-control-key\" aria-hidden=\"true\">K</span></button>",
-      "css": ".ds-console-control { display: inline-flex; align-items: center; gap: 10px; min-height: 36px; padding: 10px 14px; border: 1px solid var(--color-ink, #111111); border-radius: 0; background: var(--color-ink, #111111); color: var(--color-paper, #f8f7f2); font-family: var(--font-mono, 'Space Mono', ui-monospace, monospace); font-size: 10px; letter-spacing: 0.12em; line-height: 1.4; text-transform: uppercase; cursor: pointer; transition: scale 300ms var(--ease-spring, cubic-bezier(0.34,1.56,0.64,1)); } .ds-console-control-prompt { color: var(--color-annotation-on-ink, oklch(0.78 0.11 250)); } .ds-console-control-key { border: 1px solid color-mix(in srgb, currentColor 35%, transparent); padding: 1px 6px; opacity: 0.75; } .ds-console-control:hover { scale: 1.02; } .ds-console-control:active { scale: 0.995; } .ds-console-control:focus-visible { outline: 2px solid var(--color-ink, #111111); outline-offset: 2px; }"
+      "css": ".ds-console-control { display: inline-flex; align-items: center; gap: 10px; min-height: 36px; padding: 10px 14px; border: 1px solid var(--color-ink, #111111); border-radius: 0; background: var(--color-ink, #111111); color: var(--color-paper, #f8f7f2); font-family: var(--font-mono, 'Space Mono', ui-monospace, monospace); font-size: 10px; letter-spacing: 0.12em; line-height: 1.4; text-transform: uppercase; cursor: pointer; transition: scale 300ms var(--ease-spring, cubic-bezier(0.34,1.56,0.64,1)); } .ds-console-control-prompt { color: var(--color-annotation-on-ink, oklch(0.78 0.11 250)); } .ds-console-control-key { border: 1px solid color-mix(in srgb, currentColor 35%, transparent); padding: 1px 6px; line-height: 1; opacity: 0.75; } .ds-console-control:hover { scale: 1.02; } .ds-console-control:active { scale: 0.995; } .ds-console-control:focus-visible { outline: 2px solid var(--color-ink, #111111); outline-offset: 2px; }"
+    },
+    {
+      "name": "Theme Control",
+      "kind": "button",
+      "refersTo": "glyph-control",
+      "description": "Three-setting glyph control: sun and moon together for system, sun for light, moon for dark. Unframed 36px hit box, ink at rest and on hover, spring scale 1.05.",
+      "html": "<div class=\"ds-theme-row\"><button class=\"ds-theme\" type=\"button\" data-setting=\"system\"><svg class=\"ds-theme-glyph ds-theme-system\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 2v2\"/><path d=\"M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715\"/><path d=\"M16 12a4 4 0 0 0-4-4\"/><path d=\"m19 5-1.256 1.256\"/><path d=\"M20 12h2\"/></svg><svg class=\"ds-theme-glyph ds-theme-light\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2\"/><path d=\"M12 20v2\"/><path d=\"m4.93 4.93 1.41 1.41\"/><path d=\"m17.66 17.66 1.41 1.41\"/><path d=\"M2 12h2\"/><path d=\"M20 12h2\"/><path d=\"m6.34 17.66-1.41 1.41\"/><path d=\"m19.07 4.93-1.41 1.41\"/></svg><svg class=\"ds-theme-glyph ds-theme-dark\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401\"/></svg><span class=\"ds-sr\">Theme: system</span></button><button class=\"ds-theme\" type=\"button\" data-setting=\"light\"><svg class=\"ds-theme-glyph ds-theme-system\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 2v2\"/><path d=\"M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715\"/><path d=\"M16 12a4 4 0 0 0-4-4\"/><path d=\"m19 5-1.256 1.256\"/><path d=\"M20 12h2\"/></svg><svg class=\"ds-theme-glyph ds-theme-light\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2\"/><path d=\"M12 20v2\"/><path d=\"m4.93 4.93 1.41 1.41\"/><path d=\"m17.66 17.66 1.41 1.41\"/><path d=\"M2 12h2\"/><path d=\"M20 12h2\"/><path d=\"m6.34 17.66-1.41 1.41\"/><path d=\"m19.07 4.93-1.41 1.41\"/></svg><svg class=\"ds-theme-glyph ds-theme-dark\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401\"/></svg><span class=\"ds-sr\">Theme: light</span></button><button class=\"ds-theme\" type=\"button\" data-setting=\"dark\"><svg class=\"ds-theme-glyph ds-theme-system\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 2v2\"/><path d=\"M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715\"/><path d=\"M16 12a4 4 0 0 0-4-4\"/><path d=\"m19 5-1.256 1.256\"/><path d=\"M20 12h2\"/></svg><svg class=\"ds-theme-glyph ds-theme-light\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2\"/><path d=\"M12 20v2\"/><path d=\"m4.93 4.93 1.41 1.41\"/><path d=\"m17.66 17.66 1.41 1.41\"/><path d=\"M2 12h2\"/><path d=\"M20 12h2\"/><path d=\"m6.34 17.66-1.41 1.41\"/><path d=\"m19.07 4.93-1.41 1.41\"/></svg><svg class=\"ds-theme-glyph ds-theme-dark\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401\"/></svg><span class=\"ds-sr\">Theme: dark</span></button></div>",
+      "css": ".ds-theme-row { display: flex; gap: 8px; } .ds-theme { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--color-ink, #111111); cursor: pointer; transition: scale 300ms var(--ease-spring, cubic-bezier(0.34,1.56,0.64,1)); } .ds-theme:hover { scale: 1.05; } .ds-theme:active { scale: 0.995; } .ds-theme:focus-visible { outline: 2px solid var(--color-ink, #111111); outline-offset: 2px; } .ds-theme-glyph { position: absolute; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; scale: 0; rotate: 90deg; } .ds-theme[data-setting='system'] .ds-theme-system, .ds-theme[data-setting='light'] .ds-theme-light, .ds-theme[data-setting='dark'] .ds-theme-dark { scale: 1; rotate: 0deg; animation: ds-theme-glyph-in 300ms var(--ease-spring, cubic-bezier(0.34,1.56,0.64,1)); } @keyframes ds-theme-glyph-in { from { scale: 0; rotate: -90deg; } } @media (prefers-reduced-motion: reduce) { .ds-theme-glyph { animation: none !important; } } .ds-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }"
     },
     {
       "name": "Wayfinding Link",
@@ -350,15 +753,15 @@
       "refersTo": "media-field",
       "description": "The collection record: ticked rule, index and filename, square glass media field with crop marks, title, metadata, annotation, tags.",
       "html": "<article class=\"ds-record\"><span class=\"ds-record-rule\" aria-hidden=\"true\"></span><div class=\"ds-record-index\"><span class=\"ds-record-code\">W–02</span><span class=\"ds-record-file\">levi.svg</span></div><div class=\"ds-record-marks\"><a class=\"ds-record-field\" href=\"#\" aria-label=\"View project\"><span class=\"ds-record-mark\">LEVI'S</span></a></div><h2 class=\"ds-record-title\">Levi's</h2><p class=\"ds-record-meta\">Commerce migration</p><div class=\"ds-record-annotation\">A migration only succeeds if shoppers never notice it.</div><ul class=\"ds-record-tags\"><li>Vue 3</li><li>Nuxt 4</li><li>TypeScript</li></ul></article>",
-      "css": ".ds-record { position: relative; display: flex; flex-direction: column; max-width: 480px; padding-top: 12px; transition: translate 300ms var(--ease-spring, cubic-bezier(0.34,1.56,0.64,1)); } .ds-record:hover { translate: 0 -2px; } .ds-record-rule { position: absolute; inset-inline: 0; top: 0; height: 1px; background: var(--color-rule, rgba(17,17,17,0.2)); transition: background-color 150ms; } .ds-record-rule::before, .ds-record-rule::after { content: ''; position: absolute; top: -3px; width: 1px; height: 7px; background: var(--color-rule, rgba(17,17,17,0.2)); } .ds-record-rule::before { left: 0; } .ds-record-rule::after { right: 0; } .ds-record:focus-within .ds-record-rule { background: var(--color-ink, #111111); } .ds-record-index { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 14px; font-family: var(--font-mono, 'Space Mono', ui-monospace, monospace); text-transform: uppercase; } .ds-record-code { color: var(--color-annotation, oklch(0.52 0.13 250)); font-size: 11px; letter-spacing: 0.14em; } .ds-record-file { color: color-mix(in srgb, var(--color-ink-muted, rgba(17,17,17,0.72)) 60%, transparent); font-size: 10px; letter-spacing: 0.12em; } .ds-record-marks { position: relative; margin-bottom: 22px; } .ds-record-marks::before { content: ''; position: absolute; inset: -5px; pointer-events: none; border: 1px solid var(--color-rule, rgba(17,17,17,0.2)); --m: linear-gradient(#000 0 0); mask: var(--m) 0 0 / 8px 8px no-repeat, var(--m) 100% 0 / 8px 8px no-repeat, var(--m) 0 100% / 8px 8px no-repeat, var(--m) 100% 100% / 8px 8px no-repeat; } .ds-record-field { display: flex; align-items: center; justify-content: center; aspect-ratio: 16 / 9; padding: 40px; border: 1px solid var(--color-rule, rgba(17,17,17,0.2)); border-radius: 0; background: var(--color-card-glass, rgba(255,255,255,0.52)); backdrop-filter: blur(1px); text-decoration: none; transition: scale 300ms var(--ease-spring, cubic-bezier(0.34,1.56,0.64,1)); } .ds-record:hover .ds-record-field { scale: 1.008; } .ds-record-field:focus-visible { outline: 2px solid var(--color-ink, #111111); outline-offset: 2px; } .ds-record-mark { color: #c41230; font-family: var(--font-heading, 'Bebas Neue', serif); font-size: 32px; } .ds-record-title { margin: 0; font-family: var(--font-heading, 'Bebas Neue', serif); font-size: 24px; line-height: 1; letter-spacing: -0.025em; color: var(--color-ink, #111111); } .ds-record-meta { margin: 10px 0 0; color: var(--color-ink-muted, rgba(17,17,17,0.72)); font-family: var(--font-mono, 'Space Mono', ui-monospace, monospace); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; } .ds-record-annotation { margin-top: 16px; padding-left: 14px; border-left: 1px solid var(--color-rule, rgba(17,17,17,0.2)); color: var(--color-ink-muted, rgba(17,17,17,0.72)); font-family: var(--font-sans, 'Space Grotesk', sans-serif); font-size: 14px; line-height: 1.625; } .ds-record-tags { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 20px 0 0; padding: 0; list-style: none; color: var(--color-ink-muted, rgba(17,17,17,0.72)); font-family: var(--font-mono, 'Space Mono', ui-monospace, monospace); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; } .ds-record-tags li::before { content: '+'; margin-inline-end: 0.4em; color: var(--color-rule, rgba(17,17,17,0.2)); }"
+      "css": ".ds-record { position: relative; display: flex; flex-direction: column; max-width: 480px; padding-top: 12px; transition: translate 300ms var(--ease-spring, cubic-bezier(0.34,1.56,0.64,1)); } .ds-record:hover { translate: 0 -2px; } .ds-record-rule { position: absolute; inset-inline: 0; top: 0; height: 1px; background: var(--color-rule, rgba(17,17,17,0.2)); transition: background-color 150ms; } .ds-record-rule::before, .ds-record-rule::after { content: ''; position: absolute; top: -3px; width: 1px; height: 7px; background: var(--color-rule, rgba(17,17,17,0.2)); } .ds-record-rule::before { left: 0; } .ds-record-rule::after { right: 0; } .ds-record:focus-within .ds-record-rule { background: var(--color-ink, #111111); } .ds-record-index { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 14px; font-family: var(--font-mono, 'Space Mono', ui-monospace, monospace); text-transform: uppercase; } .ds-record-code { color: var(--color-annotation, oklch(0.52 0.13 250)); font-size: 11px; letter-spacing: 0.14em; } .ds-record-file { color: var(--color-ink-faint, rgba(17,17,17,0.6)); font-size: 10px; letter-spacing: 0.12em; } .ds-record-marks { position: relative; margin-bottom: 22px; } .ds-record-marks::before { content: ''; position: absolute; inset: -5px; pointer-events: none; border: 1px solid var(--color-rule, rgba(17,17,17,0.2)); --m: linear-gradient(#000 0 0); mask: var(--m) 0 0 / 8px 8px no-repeat, var(--m) 100% 0 / 8px 8px no-repeat, var(--m) 0 100% / 8px 8px no-repeat, var(--m) 100% 100% / 8px 8px no-repeat; } .ds-record-field { display: flex; align-items: center; justify-content: center; aspect-ratio: 16 / 9; padding: 40px; border: 1px solid var(--color-rule, rgba(17,17,17,0.2)); border-radius: 0; background: var(--color-card-glass, rgba(255,255,255,0.52)); backdrop-filter: blur(1px); text-decoration: none; transition: scale 300ms var(--ease-spring, cubic-bezier(0.34,1.56,0.64,1)); } .ds-record:hover .ds-record-field { scale: 1.008; } .ds-record-field:focus-visible { outline: 2px solid var(--color-ink, #111111); outline-offset: 2px; } .ds-record-mark { color: #c41230; font-family: var(--font-heading, 'Bebas Neue', serif); font-size: 32px; } .ds-record-title { margin: 0; font-family: var(--font-heading, 'Bebas Neue', serif); font-size: 24px; line-height: 1; letter-spacing: -0.025em; color: var(--color-ink, #111111); } .ds-record-meta { margin: 10px 0 0; color: var(--color-ink-muted, rgba(17,17,17,0.72)); font-family: var(--font-mono, 'Space Mono', ui-monospace, monospace); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; } .ds-record-annotation { margin-top: 16px; padding-left: 14px; border-left: 1px solid var(--color-rule, rgba(17,17,17,0.2)); color: var(--color-ink-muted, rgba(17,17,17,0.72)); font-family: var(--font-sans, 'Space Grotesk', sans-serif); font-size: 14px; line-height: 1.625; } .ds-record-tags { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 20px 0 0; padding: 0; list-style: none; color: var(--color-ink-muted, rgba(17,17,17,0.72)); font-family: var(--font-mono, 'Space Mono', ui-monospace, monospace); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; } .ds-record-tags li::before { content: '+'; margin-inline-end: 0.4em; color: var(--color-rule, rgba(17,17,17,0.2)); }"
     },
     {
       "name": "Specification Field",
       "kind": "custom",
       "refersTo": "record-row",
-      "description": "One of the Home sheet's standing fields: plain hairline, muted mono label, full-ink mono value.",
-      "html": "<ul class=\"ds-spec\"><li class=\"ds-spec-field\"><p class=\"ds-spec-label\">Role</p><p class=\"ds-spec-value\">Senior Software Engineer, Jung von Matt TECH</p></li><li class=\"ds-spec-field\"><p class=\"ds-spec-label\">Based</p><p class=\"ds-spec-value\">Berlin · 52.5200° N, 13.4050° E</p></li></ul>",
-      "css": ".ds-spec { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px 40px; margin: 0; padding: 0; list-style: none; } .ds-spec-field { padding-top: 14px; border-top: 1px solid var(--color-rule, rgba(17,17,17,0.2)); } .ds-spec-label { margin: 0; color: var(--color-ink-muted, rgba(17,17,17,0.72)); font-family: var(--font-mono, 'Space Mono', ui-monospace, monospace); font-size: 11px; letter-spacing: 0.12em; line-height: 1.4; text-transform: uppercase; } .ds-spec-value { margin: 10px 0 0; color: var(--color-ink, #111111); font-family: var(--font-mono, 'Space Mono', ui-monospace, monospace); font-size: 14px; line-height: 1.625; text-wrap: balance; }"
+      "description": "One of the Home sheet’s standing fields: plain hairline, muted mono label, full-ink mono value. Stack items never break inside a name, and each “·” holds on to the item before it.",
+      "html": "<ul class=\"ds-spec\"><li class=\"ds-spec-field\"><p class=\"ds-spec-label\">Role</p><p class=\"ds-spec-value\">Senior Software Engineer, Jung von Matt TECH</p></li><li class=\"ds-spec-field\"><p class=\"ds-spec-label\">Stack</p><p class=\"ds-spec-value ds-spec-prose\"><span class=\"ds-spec-group\">Frontend and Backend:</span> <span class=\"ds-spec-item\">TypeScript</span>&nbsp;· <span class=\"ds-spec-item\">React</span>&nbsp;· <span class=\"ds-spec-item\">Next.js</span>&nbsp;· <span class=\"ds-spec-item\">Tailwind CSS</span><br><span class=\"ds-spec-group\">Infrastructure:</span> <span class=\"ds-spec-item\">Docker</span>&nbsp;· <span class=\"ds-spec-item\">AWS Services</span>&nbsp;· <span class=\"ds-spec-item\">GitHub Actions</span></p></li></ul>",
+      "css": ".ds-spec { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px 40px; margin: 0; padding: 0; list-style: none; } .ds-spec-field { padding-top: 14px; border-top: 1px solid var(--color-rule, rgba(17,17,17,0.2)); } .ds-spec-label { margin: 0; color: var(--color-ink-muted, rgba(17,17,17,0.72)); font-family: var(--font-mono, 'Space Mono', ui-monospace, monospace); font-size: 11px; letter-spacing: 0.12em; line-height: 1.4; text-transform: uppercase; } .ds-spec-value { margin: 10px 0 0; color: var(--color-ink, #111111); font-family: var(--font-mono, 'Space Mono', ui-monospace, monospace); font-size: 14px; line-height: 1.625; text-wrap: balance; } .ds-spec-prose { text-wrap: pretty; } .ds-spec-item { white-space: nowrap; } .ds-spec-group { color: var(--color-annotation, oklch(0.52 0.13 250)); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }"
     },
     {
       "name": "Site Console",
@@ -366,7 +769,7 @@
       "refersTo": "console-window",
       "description": "The dark, unthemed terminal window: traffic lights, session title, blue prompt path, green commands, block caret.",
       "html": "<div class=\"ds-console\" role=\"dialog\" aria-label=\"Site console\"><div class=\"ds-console-chrome\"><span class=\"ds-console-lights\"><button class=\"ds-light ds-light-close\" aria-label=\"Close\"></button><button class=\"ds-light ds-light-min\" aria-label=\"Dock to bottom\"></button><button class=\"ds-light ds-light-zoom\" aria-label=\"Dock to right\"></button></span><p class=\"ds-console-title\">cu@portfolio — ~/constantin-unterkofler.com</p><span class=\"ds-console-esc\">Esc</span></div><div class=\"ds-console-body\"><p><span class=\"ds-console-path\">~</span> <span class=\"ds-console-muted\">❯</span> whoami</p><p class=\"ds-console-out\">Constantin Unterkofler — Senior Software Engineer · Berlin</p><p><span class=\"ds-console-path\">~</span> <span class=\"ds-console-muted\">❯</span> <span class=\"ds-console-cmd\">help</span><span class=\"ds-console-caret\"></span></p></div></div>",
-      "css": ".ds-console { width: 100%; max-width: 560px; overflow: hidden; border: 1px solid var(--color-console-rule, rgba(248,247,242,0.14)); border-radius: 10px; background: var(--color-console-surface, #15141a); box-shadow: 0 30px 70px -24px rgba(0,0,0,0.6); color: var(--color-console-ink, rgba(248,247,242,0.82)); font-family: var(--font-mono, 'Space Mono', ui-monospace, monospace); } .ds-console-chrome { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--color-console-rule, rgba(248,247,242,0.14)); background: var(--color-console-chrome, rgba(248,247,242,0.05)); } .ds-console-lights { display: flex; } .ds-light { width: 20px; height: 20px; padding: 0; border: 0; background: transparent; cursor: pointer; position: relative; } .ds-light::before { content: ''; position: absolute; inset: 4.5px; border-radius: 50%; background: currentColor; } .ds-light-close { color: var(--color-console-light-close, #ff5f57); } .ds-light-min { color: var(--color-console-light-minimize, #febc2e); } .ds-light-zoom { color: var(--color-console-light-zoom, #28c840); } .ds-light:focus-visible { outline: 2px solid var(--color-console-ink, rgba(248,247,242,0.82)); outline-offset: 0; } .ds-console-title { flex: 1; margin: 0; text-align: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--color-console-ink-muted, rgba(248,247,242,0.45)); font-size: 12px; } .ds-console-esc { color: var(--color-console-ink-muted, rgba(248,247,242,0.45)); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; } .ds-console-body { padding: 18px 22px; font-size: 14px; line-height: 1.8; } .ds-console-body p { margin: 0; } .ds-console-path { color: var(--color-console-accent, oklch(0.78 0.11 250)); } .ds-console-muted { color: var(--color-console-ink-muted, rgba(248,247,242,0.45)); } .ds-console-out { color: var(--color-console-output, rgba(248,247,242,0.55)); } .ds-console-cmd { color: var(--color-console-command, oklch(0.86 0.14 150)); } .ds-console-caret { display: inline-block; width: 8px; height: 16px; margin-left: 2px; vertical-align: -3px; background: var(--color-console-command, oklch(0.86 0.14 150)); animation: ds-caret 1.05s step-end infinite; } @keyframes ds-caret { 50% { opacity: 0; } } @media (prefers-reduced-motion: reduce) { .ds-console-caret { animation: none; } }"
+      "css": ".ds-console { width: 100%; max-width: 560px; overflow: hidden; border: 1px solid var(--color-console-rule, rgba(248,247,242,0.14)); border-radius: 10px; background: var(--color-console-surface, #15141a); box-shadow: 0 30px 70px -24px rgba(0,0,0,0.6); color: var(--color-console-ink, rgba(248,247,242,0.82)); font-family: var(--font-mono, 'Space Mono', ui-monospace, monospace); } .ds-console-chrome { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--color-console-rule, rgba(248,247,242,0.14)); background: var(--color-console-chrome, rgba(248,247,242,0.05)); } .ds-console-lights { display: flex; } .ds-light { width: 20px; height: 20px; padding: 0; border: 0; background: transparent; cursor: pointer; position: relative; } .ds-light::before { content: ''; position: absolute; inset: 4.5px; border-radius: 50%; background: currentColor; } .ds-light-close { color: var(--color-console-light-close, #ff5f57); } .ds-light-min { color: var(--color-console-light-minimize, #febc2e); } .ds-light-zoom { color: var(--color-console-light-zoom, #28c840); } .ds-light:focus-visible { outline: 2px solid var(--color-console-ink, rgba(248,247,242,0.82)); outline-offset: 0; } .ds-console-title { flex: 1; margin: 0; text-align: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--color-console-ink-muted, rgba(248,247,242,0.5)); font-size: 12px; } .ds-console-esc { color: var(--color-console-ink-muted, rgba(248,247,242,0.5)); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; } .ds-console-body { padding: 18px 22px; font-size: 14px; line-height: 1.8; } .ds-console-body p { margin: 0; } .ds-console-path { color: var(--color-console-accent, oklch(0.78 0.11 250)); } .ds-console-muted { color: var(--color-console-ink-muted, rgba(248,247,242,0.5)); } .ds-console-out { color: var(--color-console-output, rgba(248,247,242,0.55)); } .ds-console-cmd { color: var(--color-console-command, oklch(0.86 0.14 150)); } .ds-console-caret { display: inline-block; width: 8px; height: 16px; margin-left: 2px; vertical-align: -3px; background: var(--color-console-command, oklch(0.86 0.14 150)); animation: ds-caret 1.05s step-end infinite; } @keyframes ds-caret { 50% { opacity: 0; } } @media (prefers-reduced-motion: reduce) { .ds-console-caret { animation: none; } }"
     },
     {
       "name": "Tag",
@@ -379,7 +782,7 @@
   ],
   "narrative": {
     "northStar": "The Engineering Notebook",
-    "overview": "The portfolio is a sheet of technical dot paper, not a page layout. Portfolio Content is set down as records: indexed, ruled, measured and annotated in ink, with one blue pen for the marks that measure. The model is a technical drawing, not a bullet journal. Every line on the sheet separates, bounds or measures something, and a line that does none of those is not drawn. Drafting tools do the work that decoration does elsewhere: ticked rules, crop marks, dimension lines and a monospace face for anything a reader might compare.\n\nThe notebook is dense but quiet. The paper is warm off-white in the light theme and warm near-black in the dark, never pure white or pure black. Type does the hierarchy work. A condensed display face names each sheet, a grotesk carries the sentences, and its fixed-width sibling carries every index, year, filename and measurement. Surfaces are flat and square. The Site Console is the one exception: it is a window, not a page element, so it keeps a window's radius, shadow and traffic lights.\n\nMotion is part of the drawing, not an effect on top of it. The sheet registers itself on a single 40ms beat from first paint, top to bottom, all of it in CSS. Rules draw where they stay, parts settle 8px once, and a spring carries every state change. Reduced motion puts everything in place from the start.",
+    "overview": "The portfolio is a sheet of technical dot paper, not a page layout. Portfolio Content is set down as records: indexed, ruled, measured and annotated in ink, with one blue pen for the marks that measure. The model is a technical drawing, not a bullet journal. Every line on the sheet separates, bounds or measures something, and a line that does none of those is not drawn. Drafting tools do the work that decoration does elsewhere: ticked rules, crop marks, dimension lines and a monospace face for anything a reader might compare.\n\nThe notebook is dense but quiet. The paper is warm off-white in the light theme and warm near-black in the dark, never pure white or pure black. Type does the hierarchy work. A condensed display face names each sheet, a grotesk carries the sentences, and its fixed-width sibling carries every index, year, filename and measurement. Surfaces are flat and square. The Site Console is the one exception: it is a window, not a page element, so it keeps a window's radius, shadow and traffic lights.\n\nMotion is part of the drawing, not an effect on top of it. The sheet registers itself on a single 40ms beat from first paint, top to bottom, all of it in CSS. Rules draw where they stay, parts are written in and settle 8px once, nothing fades, and a spring carries every state change. Reduced motion puts everything in place from the start.",
     "keyCharacteristics": [
       "Two-layer technical dot field (8px minor, 40px major) on warm paper.",
       "Square by default. Crop marks replace corner radius.",
@@ -407,7 +810,17 @@
       },
       {
         "name": "The Regular Cut Rule",
-        "body": "Only one weight of Bebas Neue and Space Mono is loaded. `next/font` preloads every weight it is given, so a second cut is bytes on every visit. Hierarchy comes from face, size, case and tracking, not weight. The one exception is deliberate: the titles ask Bebas Neue for `font-semibold`, and the browser synthesizes it by thickening the outlines (Chrome adds about 1/32 of the font size; other engines differ slightly). It adds ink but no advance width, so tight display tracking comes close to touching. Never ask Space Mono for a synthesized weight.",
+        "body": "Only one weight of Bebas Neue and Space Mono is loaded. `next/font` preloads every weight it is given, so a second cut is bytes on every visit. Hierarchy comes from face, size, case and tracking, not weight.",
+        "section": "typography"
+      },
+      {
+        "name": "The Deliberate Semibold",
+        "body": "Bebas Neue is drawn in one weight, and the titles ask it for `font-semibold` anyway, on purpose: the heavier title is the look. The browser synthesizes it by thickening the outlines, at no byte cost. Chrome adds about 1/32 of the font size (2.25px at 72px), and other engines use their own amounts, so the weight varies slightly between browsers. The thickening adds ink but no advance width, so at -0.025em tracking the display letters come close to touching. That is accepted. It is the only synthesized weight in the system: never ask Space Mono for one.",
+        "section": "typography"
+      },
+      {
+        "name": "The Full-Width Introduction Rule",
+        "body": "A page introduction runs the reading width, 720px, and is not capped to a narrower measure. That puts 104–108 characters on a full line, past the usual 65–75, and the long line is accepted: a 488px measure was built, reviewed on the sheets and rejected (ADR-0010). The 1.625 leading is what keeps the line trackable, so it is not tightened either.",
         "section": "typography"
       },
       {
@@ -418,6 +831,11 @@
       {
         "name": "The 1:5 Rule",
         "body": "The minor and major dot pitch stay in a 1:5 ratio. If the minor pitch is tuned, the major follows.",
+        "section": "layout"
+      },
+      {
+        "name": "The Corner Lane Rule",
+        "body": "Nothing on the sheet enters a corner lane. A corner piece wider than the console control widens the lane. It never overlaps the sheet.",
         "section": "layout"
       },
       {
@@ -432,7 +850,7 @@
       },
       {
         "name": "The Backdrop Root Rule",
-        "body": "Never put `opacity` below 1, or a non-`none` `transform`, on an ancestor of a glass surface. Either one turns it into a Backdrop Root, and the blur renders as flat tint. Entrances ride on the glass element itself and animate `translate`, not `transform`.",
+        "body": "Never put `opacity` below 1, a `clip-path`, or a non-`none` `transform` on an ancestor of a glass surface. Any of them turns it into a Backdrop Root, and the blur renders as flat tint. Entrances ride on the glass element itself and animate `translate`, not `transform`.",
         "section": "elevation"
       },
       {
@@ -447,7 +865,7 @@
       "Do set every index, year, coordinate, filename and URL in Space Mono.",
       "Do keep Annotation Blue for indices, codes, dimension lines, stack labels and prompt paths.",
       "Do put every entrance offset on a whole number of 40ms beats, with `--notebook-ease` and `animation-fill-mode: backwards`.",
-      "Do animate `translate` and opacity on the element itself, and keep glass surfaces free of transformed or translucent ancestors.",
+      "Do animate `translate` and `clip-path` on the element itself, and keep glass surfaces free of transformed, clipped or translucent ancestors.",
       "Do gate hover behind `(hover: hover)` and keep hit targets at 36px or more.",
       "Do give every motion a reduced-motion state in which content starts in place.",
       "Do keep the console dark and unthemed in both themes."
@@ -458,7 +876,7 @@
       "Don't draw column guides, a rule above the Closing Record, or frames around the identity mark and header glyph controls.",
       "Don't use Annotation Blue for body copy, fills or emphasis, and don't put more than one dimension line on a page.",
       "Don't load a second weight of Bebas Neue or Space Mono, or request a weight from Space Mono it does not have. The titles' semibold on Bebas Neue is the one deliberate synthesized weight.",
-      "Don't give the identity mark an entrance, or fade a page title. Both carry paint timing.",
+      "Don't give the identity mark an entrance, or fade anything on the sheet. The mark carries FCP, and a transparent element is not recorded until frames after it paints.",
       "Don't use `animation-fill-mode: both`, or animate `transform` on an ancestor of glass.",
       "Don't set type below 10px, or use 10px for anything but uppercase mono.",
       "Don't make the console the only way to reach anything."

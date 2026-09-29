@@ -41,7 +41,7 @@ export function SiteFooter({ closingRecord }: SiteFooterProps) {
         />
         <p
           style={notebookDelay(notebookTiming.closingRecord + notebookBeats(2))}
-          className="notebook-in-part label text-ink-muted/60 text-micro"
+          className="notebook-in-part label text-ink-faint text-micro"
         >
           Build {closingRecord.buildStamp}
         </p>

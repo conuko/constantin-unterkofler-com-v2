@@ -50,7 +50,7 @@ export function NotebookPageHeader({
           {/* `ml-auto`, not `justify-between`: the stamp keeps the right edge
            * on the home sheet, which has no section code. */}
           {sheetMeta && (
-            <p className="label ml-auto text-ink-muted/75 text-micro">
+            <p className="label ml-auto text-ink-faint text-micro">
               {sheetMeta}
             </p>
           )}
@@ -77,7 +77,7 @@ export function NotebookPageHeader({
         <div
           style={notebookDelay(notebookTiming.pageIntroduction)}
           data-notebook-introduction
-          className="notebook-in-introduction mt-5.5 w-full max-w-180 text-ink-muted text-sm"
+          className="notebook-in-introduction mt-5.5 w-full max-w-180 text-ink-muted text-sm leading-relaxed"
         >
           {introduction}
         </div>
@@ -219,7 +219,7 @@ export function NotebookIndex({ children, filename }: NotebookIndexProps) {
     >
       <p className="code text-annotation">{children}</p>
       {filename && (
-        <p className="label text-ink-muted/60 text-micro">{filename}</p>
+        <p className="label text-ink-faint text-micro">{filename}</p>
       )}
     </div>
   );
@@ -243,10 +243,11 @@ export function NotebookMedia({
 }: NotebookMediaProps) {
   /* The entrance rides on the field itself, not on the `[data-entry-part]`
    * wrapper the way every other part does — and that placement is load-bearing
-   * for any glass `mediaClassName`. An ancestor whose opacity is under 1
-   * becomes a Backdrop Root, and a `backdrop-filter` inside one samples an
-   * empty backdrop and renders as flat tint. Fading the field itself
-   * composites the already-blurred surface, which is what we want; the wrapper
+   * for any glass `mediaClassName`. An ancestor that is revealing — clipped,
+   * or once faded, at an opacity under 1 — becomes a Backdrop Root, and a
+   * `backdrop-filter` inside one samples an empty backdrop and renders as flat
+   * tint. Revealing the field itself clips the already-blurred surface, which
+   * is what we want; the wrapper
    * keeps `data-entry-part` so the stagger still supplies `--notebook-delay`,
    * and it inherits down to here. */
   const field = (
@@ -385,7 +386,7 @@ export function NotebookSectionHeading({
     >
       <h2 className="label text-ink-muted text-label">{children}</h2>
       {count !== undefined && (
-        <span className="num text-ink-muted/55 text-micro">
+        <span className="num text-ink-faint">
           [{String(count).padStart(2, "0")}]
         </span>
       )}

@@ -8,6 +8,11 @@
   --color-ink: #111111;
   --color-ink-muted: rgba(17, 17, 17, 0.72);
 
+  /* Stamps: filenames, the sheet stamp, counts, and the build stamp. Quieter
+   * than Faded Ink, and still 4.8:1 on paper. Stamps are 10–11px, so they take
+   * the body-text floor of 4.5:1, not the 3:1 large type gets. */
+  --color-ink-faint: rgba(17, 17, 17, 0.6);
+
   /* 20% keeps the rule visible against the denser dot field. */
   --color-rule: rgba(17, 17, 17, 0.2);
 
@@ -49,7 +54,8 @@
   --color-console-chrome: rgba(248, 247, 242, 0.05);
   --color-console-rule: rgba(248, 247, 242, 0.14);
   --color-console-ink: rgba(248, 247, 242, 0.82);
-  --color-console-ink-muted: rgba(248, 247, 242, 0.45);
+  /* 50% holds 4.8:1 on the title bar, the lightest surface it sits on. */
+  --color-console-ink-muted: rgba(248, 247, 242, 0.5);
   --color-console-output: rgba(248, 247, 242, 0.55);
   --color-console-accent: oklch(0.78 0.11 250);
   --color-console-command: oklch(0.86 0.14 150);
@@ -175,6 +181,7 @@
   --color-paper: #1a1917;
   --color-ink: #f8f7f2;
   --color-ink-muted: rgba(248, 247, 242, 0.72);
+  --color-ink-faint: rgba(248, 247, 242, 0.55);
   --color-rule: rgba(248, 247, 242, 0.2);
   --color-dot: rgba(248, 247, 242, 0.07);
   --color-dot-major: rgba(248, 247, 242, 0.16);

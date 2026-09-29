@@ -19,38 +19,40 @@ const stackGroupLabels = new Set([
   "Infrastructure",
 ]);
 
+/* A technology never breaks inside its name ("AWS Services", "GitHub
+ * Actions"), and the separator holds on to the item before it with a
+ * no-break space, so a wrapped line always starts on a name and never on a
+ * stray "·". */
+function StackItem({ children }: { children: string }) {
+  return <span className="whitespace-nowrap">{children}</span>;
+}
+
+const stackSeparator = "\u00a0· ";
+
 function renderStackValue(value: string) {
   return value.split(" · ").map((segment, index) => {
-    const separator = index === 0 ? null : " · ";
+    const separator = index === 0 ? null : stackSeparator;
     const delimiterIndex = segment.indexOf(": ");
+    const label =
+      delimiterIndex === -1 ? null : segment.slice(0, delimiterIndex);
 
-    if (delimiterIndex === -1) {
+    if (label === null || !stackGroupLabels.has(label)) {
       return (
         <Fragment key={segment}>
           {separator}
-          {segment}
+          <StackItem>{segment}</StackItem>
         </Fragment>
       );
     }
 
-    const label = segment.slice(0, delimiterIndex);
-
-    if (!stackGroupLabels.has(label)) {
-      return (
-        <Fragment key={segment}>
-          {separator}
-          {segment}
-        </Fragment>
-      );
-    }
-
+    /* A group starts its own line, so it takes no separator. */
     return (
       <Fragment key={segment}>
         {index === 0 ? null : <br />}
         <NotebookLabel as="span" className="text-annotation">
           {label}:
         </NotebookLabel>{" "}
-        {segment.slice(delimiterIndex + 2)}
+        <StackItem>{segment.slice(delimiterIndex + 2)}</StackItem>
       </Fragment>
     );
   });
@@ -80,7 +82,7 @@ export function SpecificationBlock({ fields }: SpecificationBlockProps) {
           <NotebookLabel>{field.label}</NotebookLabel>
           <p
             className={cn(
-              "mt-2.5 font-mono text-sm",
+              "mt-2.5 font-mono text-sm leading-relaxed",
               proseFields.has(field.label) ? "text-pretty" : "text-balance",
             )}
           >

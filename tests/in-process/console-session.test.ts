@@ -25,6 +25,7 @@ function context(overrides: Partial<ConsoleContext> = {}): ConsoleContext {
     pathname: "/",
     previousPathname: null,
     soundsEnabled: true,
+    appearance: { setting: "system", system: "light" },
     repositoryUrl: "https://github.com/conuko",
     records: [],
     ...overrides,
@@ -69,6 +70,55 @@ describe("console routes", () => {
     expect(commandNames).toContain("home");
     expect(commandNames).toContain("cd");
     expect(commandNames).toContain("sound");
+  });
+});
+
+describe("theme", () => {
+  test("bare theme presses the theme control", () => {
+    expect(runCommand("theme", context()).effects).toEqual([
+      { type: "theme", setting: "dark" },
+    ]);
+    expect(
+      runCommand(
+        "theme",
+        context({ appearance: { setting: "light", system: "light" } }),
+      ).effects,
+    ).toEqual([{ type: "theme", setting: "system" }]);
+  });
+
+  test("sets the named appearance, system included", () => {
+    const result = runCommand(
+      "theme system",
+      context({ appearance: { setting: "dark", system: "light" } }),
+    );
+
+    expect(result.effects).toEqual([{ type: "theme", setting: "system" }]);
+    expect(result.lines[0]).toMatchObject({
+      kind: "muted",
+      text: "appearance: system (light)",
+    });
+    expect(runCommand("theme DARK", context()).effects).toEqual([
+      { type: "theme", setting: "dark" },
+    ]);
+  });
+
+  test("says so when the appearance is already set", () => {
+    const result = runCommand("theme system", context());
+
+    expect(result.effects).toEqual([]);
+    expect(result.lines[0]).toMatchObject({
+      text: "appearance is already system (light)",
+    });
+  });
+
+  test("rejects an unknown appearance instead of toggling", () => {
+    const result = runCommand("theme sepia", context());
+
+    expect(result.effects).toEqual([]);
+    expect(result.lines[0]).toMatchObject({
+      kind: "error",
+      text: "theme: expected light, dark or system",
+    });
   });
 });
 

@@ -21,6 +21,13 @@ export const greetingCycle = {
   entranceHold: 1_200,
   /** Keeps consecutive random colors far enough apart to read as a change. */
   minimumHueShift: 40,
+  /**
+   * Hues the Greeting never lands on: 30° either side of Annotation Blue
+   * (oklch hue 250). At the Greeting's lightness and chroma a hue in this band
+   * reads as the measuring pen, and the pen never rotates (DESIGN.md, the
+   * Separate Greeting Rule).
+   */
+  annotationHueBand: [220, 280],
   /** Hue of the server-rendered greeting, fixed so hydration stays stable. */
   entranceHue: 24,
 } as const;
@@ -111,10 +118,52 @@ export function greetingStepDelay(
   }
 }
 
-export function nextGreetingHue(hue: number, random: () => number): number {
-  const span = 360 - 2 * greetingCycle.minimumHueShift;
+type HueArc = readonly [start: number, end: number];
 
-  return (hue + greetingCycle.minimumHueShift + random() * span) % 360;
+/** An arc of the hue circle as plain intervals inside [0, 360). */
+function unwrapHueArc(start: number, end: number): HueArc[] {
+  const from = ((start % 360) + 360) % 360;
+  const to = from + (end - start);
+
+  return to <= 360
+    ? [[from, to]]
+    : [
+        [from, 360],
+        [0, to - 360],
+      ];
+}
+
+function subtractHueArc(arcs: HueArc[], [cutStart, cutEnd]: HueArc): HueArc[] {
+  return arcs.flatMap(([start, end]): HueArc[] => {
+    if (cutEnd <= start || cutStart >= end) return [[start, end]];
+
+    return [
+      ...(cutStart > start ? [[start, cutStart] as const] : []),
+      ...(cutEnd < end ? [[cutEnd, end] as const] : []),
+    ];
+  });
+}
+
+/**
+ * The next random hue: at least `minimumHueShift` from the current one and
+ * outside `annotationHueBand`, drawn evenly from every hue that is left.
+ */
+export function nextGreetingHue(hue: number, random: () => number): number {
+  const { annotationHueBand, minimumHueShift } = greetingCycle;
+  const excluded = [
+    ...unwrapHueArc(annotationHueBand[0], annotationHueBand[1]),
+    ...unwrapHueArc(hue - minimumHueShift, hue + minimumHueShift),
+  ];
+  const allowed = excluded.reduce(subtractHueArc, [[0, 360]]);
+  const total = allowed.reduce((sum, [start, end]) => sum + end - start, 0);
+
+  let offset = random() * total;
+  for (const [start, end] of allowed) {
+    if (offset < end - start) return start + offset;
+    offset -= end - start;
+  }
+
+  return allowed[0][0];
 }
 
 export function nextGreetingIndex(

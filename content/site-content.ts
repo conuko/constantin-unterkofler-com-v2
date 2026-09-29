@@ -86,7 +86,7 @@ const cvSections: CvSection[] = [
       {
         organization: "Jung von Matt TECH",
         role: "Software Engineer",
-        years: "2021–2026",
+        years: "2021–26",
       },
       {
         organization: "WESOUND",
@@ -333,8 +333,10 @@ const portfolioPages = {
     sheetMeta: "",
     title: "Constantin",
     width: "reading",
+    /* The root layout's title template only reaches child segments, so Home,
+     * which shares the layout's segment, names itself in full. */
     metadata: {
-      title: "Home",
+      title: identity.name,
       description: identity.description,
     },
     content: {

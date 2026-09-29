@@ -265,6 +265,27 @@ describe("Greeting", () => {
     }
   });
 
+  test("never lands on Annotation Blue", () => {
+    const [bandStart, bandEnd] = greetingCycle.annotationHueBand;
+
+    for (const current of [0, 24, 180, 200, 219, 250, 281, 300, 359]) {
+      for (let draw = 0; draw < 1; draw += 0.01) {
+        const hue = nextGreetingHue(current, draws(draw));
+        const distance = Math.min(
+          Math.abs(hue - current),
+          360 - Math.abs(hue - current),
+        );
+
+        expect(hue >= bandStart && hue <= bandEnd).toBe(false);
+        expect(hue).toBeGreaterThanOrEqual(0);
+        expect(hue).toBeLessThan(360);
+        expect(distance).toBeGreaterThanOrEqual(
+          greetingCycle.minimumHueShift - 1e-9,
+        );
+      }
+    }
+  });
+
   test("never repeats the language it is replacing", () => {
     for (const draw of [0, 0.25, 0.5, 0.75, 0.999]) {
       for (const greetingIndex of [0, 1, greetings.length - 1]) {
